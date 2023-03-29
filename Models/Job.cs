@@ -16,30 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 
-var builder = WebApplication.CreateBuilder(args);
+namespace matts.Models;
 
-// Add services to the container.
-
-builder.Services.AddControllersWithViews();
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+public class Job
 {
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+    public long Id { get; set; }
+
+    public string? Name  { get; set; }
+
+    public List<Applicant>? Applicants { get; set; }
 }
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-app.UseRouting();
-
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller}/{action=Index}/{id?}");
-
-app.MapFallbackToFile("index.html");
-
-app.Run();

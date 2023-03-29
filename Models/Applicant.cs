@@ -16,30 +16,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 
-var builder = WebApplication.CreateBuilder(args);
+namespace matts.Models;
 
-// Add services to the container.
-
-builder.Services.AddControllersWithViews();
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+public class Applicant 
 {
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+    public readonly struct ProfileImage 
+    {
+        public ProfileImage(string mimeType, string imageData) 
+        {
+            MimeType = mimeType;
+            ImageData = imageData;
+        }
+
+        public string MimeType { get; init; }
+
+        public string ImageData { get; init; }
+    }
+
+    public long Id { get; set; }
+
+    public string? Name { get; set; }
+
+    public ProfileImage? ApplicantPhoto { get; set; }
 }
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-app.UseRouting();
-
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller}/{action=Index}/{id?}");
-
-app.MapFallbackToFile("index.html");
-
-app.Run();
