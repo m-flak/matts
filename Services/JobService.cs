@@ -21,10 +21,17 @@ using System.Collections.Generic;
 using matts.Interfaces;
 using matts.Models;
 
-public class JobService : IJobService
+public partial class JobService : IJobService
 {
+    private readonly List<Job> jobsDummyData;
+
+    public JobService()
+    {
+        jobsDummyData = CreateJobs();
+    }
+
     public IEnumerable<Job> GetJobs()
     {
-        throw new NotImplementedException();
+        return jobsDummyData;
     }
 }

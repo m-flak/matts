@@ -24,7 +24,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddScoped<IJobService, JobService>();
+builder.Services.AddSingleton<IJobService, JobService>();
 
 var app = builder.Build();
 
