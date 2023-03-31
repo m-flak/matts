@@ -24,5 +24,7 @@ public class Job
 
     public string? Name  { get; set; }
 
+    public string? Status { get; set; }
+
     public List<Applicant>? Applicants { get; set; }
 }
