@@ -1,0 +1,9 @@
+@use '../../../styles/layouts.scss';
+
+.applicant {
+    @include layouts.flex(true);
+}
+
+.applicant-name {
+    align-self: center;
+}

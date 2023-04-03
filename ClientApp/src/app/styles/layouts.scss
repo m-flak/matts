@@ -1,0 +1,10 @@
+@mixin flex($vertical: true) {
+    display: flex;
+
+    @if ($vertical == true) {
+        flex-direction: column;
+    }
+    @if ($vertical == false) {
+        flex-direction: row;
+    }
+}
