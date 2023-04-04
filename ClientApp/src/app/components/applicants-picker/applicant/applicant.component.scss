@@ -2,8 +2,18 @@
 
 .applicant {
     @include layouts.flex(true);
+
+    .applicant-name, .applicant-photo {
+        align-self: center;
+    }
 }
 
-.applicant-name {
-    align-self: center;
+// .applicant-name {
+//     align-self: center;
+// }
+
+.applicant-photo {
+    width: 6.0em;
+    height: 6.0em;
+    border-radius: 50%;
 }

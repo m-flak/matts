@@ -1,6 +1,6 @@
-<div class="container">
+<div class="container applicants-picker">
     <div class="row">
-        <div class="col" *ngFor="let applicant of applicants">
+        <div class="col applicant-container" *ngFor="let applicant of applicants">
             <cmp-applicant [applicant]="applicant"></cmp-applicant>
         </div>
     </div>
