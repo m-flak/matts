@@ -22,6 +22,7 @@ import { BackendService } from '../services/backend.service';
 import { ComponentsModule } from '../components/components.module';
 import { of } from 'rxjs';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import {RouterTestingModule} from '@angular/router/testing';
 import { HttpClientModule } from '@angular/common/http';
 import {MatCardModule} from '@angular/material/card';
 import { JobConstants } from '../constants';
@@ -46,7 +47,7 @@ describe('HomeComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ HttpClientModule, HttpClientTestingModule, ComponentsModule, MatCardModule ],
+      imports: [ HttpClientModule, HttpClientTestingModule, ComponentsModule, MatCardModule, RouterTestingModule.withRoutes([]) ],
       declarations: [ HomeComponent ],
       providers: [
         { provide: 'BASE_URL', useValue: '' },

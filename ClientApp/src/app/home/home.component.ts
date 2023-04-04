@@ -2,6 +2,8 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { BackendService } from '../services/backend.service';
 import { Job } from '../models';
 import { Subscription } from 'rxjs';
+import { Router } from '@angular/router';
+import { JobPageRouteData } from '../job-page/job-page.component';
 
 @Component({
   selector: 'app-home',
@@ -13,7 +15,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   jobs: Job[] = [];
 
-  constructor(private backendService: BackendService) {
+  constructor(private backendService: BackendService, private router: Router) {
   }
 
   ngOnDestroy(): void {
@@ -26,5 +28,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     this._jobSubscription = this.backendService.getAllJobs().subscribe(theJobs => {
       this.jobs = theJobs;
     });
+  }
+
+  onSelectJob(job: Job) {
+    console.error(job);
+    this.router.navigate(['viewJob', `${job.id}`], { state: ({ currentJob: job } as JobPageRouteData ) });
   }
 }

@@ -9,12 +9,14 @@ import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { HomeComponent } from './home/home.component';
 import { ComponentsModule } from './components/components.module';
+import { JobPageComponent } from './job-page/job-page.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     NavMenuComponent,
-    HomeComponent
+    HomeComponent,
+    JobPageComponent
   ],
   imports: [
     MatCardModule,
@@ -23,7 +25,7 @@ import { ComponentsModule } from './components/components.module';
     HttpClientModule,
     FormsModule,
     RouterModule.forRoot([
-      { path: '', component: HomeComponent, pathMatch: 'full' }
+      { path: '', component: HomeComponent, children: [ { path: 'viewJob/:id', component: JobPageComponent} ] }
     ])
   ],
   providers: [],

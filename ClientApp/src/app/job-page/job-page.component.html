@@ -1,0 +1,6 @@
+<article class="selected-job">
+    <ng-container *ngIf="this.currentJob !== null">
+        <h1>{{ this.currentJob.name }}</h1>
+        <cmp-applicants-picker [applicants]="this.currentJob.applicants"></cmp-applicants-picker>
+    </ng-container> 
+</article>

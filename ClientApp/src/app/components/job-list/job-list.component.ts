@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Job } from 'src/app/models';
 
 @Component({
@@ -28,9 +28,15 @@ export class JobListComponent implements OnInit {
   @Input()
   jobs: Job[] = []
 
+  @Output()
+  selectedJob: EventEmitter<Job> = new EventEmitter();
+
   constructor() { }
 
   ngOnInit(): void {
   }
 
+  onClick(job: Job) {
+    this.selectedJob.emit(job);
+  }
 }
