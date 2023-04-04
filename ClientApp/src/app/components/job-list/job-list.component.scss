@@ -1,0 +1,27 @@
+matListItemTitle {
+    font-weight: bold;
+}
+
+.job-list-item-icon {
+    width: 3em;
+    height: 2.5em;
+    padding: 0.1em;
+    border: 2px black solid;
+    border-radius: 50%;
+}
+
+.job-list-item {
+    margin-top: 2rem;
+
+    div {
+        margin-left: 0.5rem;
+
+        span.job-list-item-title {
+            font-weight: bold;
+        }
+        
+        span:not(.job-list-item-title) {
+            font-size: smaller;
+        }
+    }
+}

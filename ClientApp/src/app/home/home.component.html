@@ -1,1 +1,13 @@
-<cmp-applicants-picker [applicants]="this.jobs[0].applicants"></cmp-applicants-picker>
+<div class="container home-container">
+    <mat-card appearance="outlined">
+        <mat-card-header><h1>All Positions:</h1></mat-card-header>
+        <mat-card-content>
+            <cmp-job-list [jobs]="this.jobs"></cmp-job-list>
+        </mat-card-content>
+    </mat-card>
+    <mat-card appearance="outlined">
+        <mat-card-content>
+            <cmp-applicants-picker [applicants]="this.jobs[0].applicants"></cmp-applicants-picker>
+        </mat-card-content>
+    </mat-card>
+</div>

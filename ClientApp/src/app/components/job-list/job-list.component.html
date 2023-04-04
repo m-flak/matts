@@ -1,0 +1,12 @@
+<mat-list>
+    <mat-list-item [ngClass]="'job-list-item'" *ngFor="let job of jobs">
+        <img matListItemAvatar class="job-list-item-icon" src="assets/briefcase.svg" alt="Job" [title]="job.name" />
+        <div>
+            <span matListItemTitle class="job-list-item-title">{{ job.name }}</span>
+            <br />
+            <span matListItemLine>Status: {{ job.status }}</span>
+            <br />
+            <span matListItemLine>{{ (job.applicants !== null) ? job.applicants.length : 0 }} Applicants</span>
+        </div>
+    </mat-list-item>
+</mat-list>
