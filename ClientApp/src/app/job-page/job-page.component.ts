@@ -1,6 +1,6 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { Job } from '../models';
+import { Applicant, Job } from '../models';
 import { Subscription, switchMap } from 'rxjs';
 import { BackendService } from '../services/backend.service';
 
@@ -14,6 +14,9 @@ export class JobPageComponent implements OnInit, OnDestroy {
 
   @Input()
   currentJob: Job | null = null;
+
+  @Input()
+  currentApplicant: Applicant | null = null;
 
   constructor(private activatedRoute: ActivatedRoute, private backendService: BackendService) { }
 
@@ -30,5 +33,9 @@ export class JobPageComponent implements OnInit, OnDestroy {
     if (this._subscription !== null) {
       this._subscription.unsubscribe();
     }
+  }
+
+  onPickApplicant(applicant: Applicant) {
+    this.currentApplicant = applicant;
   }
 }

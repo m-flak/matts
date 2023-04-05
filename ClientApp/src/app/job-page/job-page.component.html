@@ -1,7 +1,15 @@
 <article class="selected-job">
     <ng-container *ngIf="this.currentJob !== null; else loading">
         <h1>{{ this.currentJob.name }}</h1>
-        <cmp-applicants-picker [applicants]="this.currentJob.applicants ?? []"></cmp-applicants-picker>
+        <cmp-applicants-picker [applicants]="this.currentJob.applicants ?? []" (applicantPicked)="onPickApplicant($event)"></cmp-applicants-picker>
+        <div *ngIf="this.currentApplicant !== null" class="selected-job-applicant-details">
+            <h2>{{ this.currentApplicant.name }}</h2>
+            <p>Information and such here....</p>
+            <div class="action-buttons">
+                <button mat-flat-button color="warn">Reject</button>
+                <button mat-flat-button color="primary">Schedule Inteview</button>
+            </div>
+        </div>
     </ng-container>
     <ng-template #loading>
         <h1>Loading...</h1>

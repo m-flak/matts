@@ -1,7 +1,7 @@
 <div class="container applicants-picker">
     <div class="row">
-        <div class="col applicant-container" *ngFor="let applicant of applicants">
-            <cmp-applicant [applicant]="applicant"></cmp-applicant>
+        <div class="col applicant-container" *ngFor="let applicant of applicants; index as i">
+            <cmp-applicant [pickerIndex]="i" [applicant]="applicant" (applicantPicked)="onPickApplicant($event)"></cmp-applicant>
         </div>
     </div>
 </div>

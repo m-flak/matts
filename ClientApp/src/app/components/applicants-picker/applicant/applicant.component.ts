@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Applicant } from 'src/app/models';
 
 @Component({
@@ -25,6 +25,11 @@ import { Applicant } from 'src/app/models';
   styleUrls: ['./applicant.component.scss']
 })
 export class ApplicantComponent implements OnInit {
+  @Input()
+  pickerIndex!: number;
+
+  @Output()
+  applicantPicked: EventEmitter<number> = new EventEmitter();
 
   @Input()
   applicant: Applicant = {};
@@ -34,4 +39,7 @@ export class ApplicantComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  onClick() {
+    this.applicantPicked.emit(this.pickerIndex);
+  }
 }

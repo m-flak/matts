@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import {MatButtonModule} from '@angular/material/button';
 
 import { JobPageComponent } from './job-page.component';
 import { JobConstants } from '../constants';
@@ -24,7 +25,7 @@ describe('JobPageComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ ComponentsModule ],
+      imports: [ ComponentsModule, MatButtonModule ],
       declarations: [ JobPageComponent ],
       providers: [
         { provide: BackendService, useValue: FakeBackendService },

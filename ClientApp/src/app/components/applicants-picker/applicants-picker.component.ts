@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Applicant } from 'src/app/models';
 
 @Component({
@@ -28,10 +28,18 @@ export class ApplicantsPickerComponent implements OnInit {
 
   @Input()
   applicants: Applicant[] = [];
-  
+
+  @Output()
+  applicantPicked: EventEmitter<Applicant> = new EventEmitter();
+
   constructor() { }
 
   ngOnInit(): void {
   }
 
+  onPickApplicant(index: number) {
+    if (this.applicants.length > 0) {
+      this.applicantPicked.emit(this.applicants[index]);
+    }
+  }
 }
