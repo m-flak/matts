@@ -1,24 +1,34 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, ParamMap } from '@angular/router';
 import { Job } from '../models';
-
-export type JobPageRouteData = {currentJob: Job };
+import { Subscription, switchMap } from 'rxjs';
+import { BackendService } from '../services/backend.service';
 
 @Component({
   selector: 'app-job-page',
   templateUrl: './job-page.component.html',
   styleUrls: ['./job-page.component.scss']
 })
-export class JobPageComponent implements OnInit {
+export class JobPageComponent implements OnInit, OnDestroy {
+  private _subscription: Subscription | null = null;
+
   @Input()
   currentJob: Job | null = null;
 
-  constructor(private router: Router) { }
+  constructor(private activatedRoute: ActivatedRoute, private backendService: BackendService) { }
 
   ngOnInit(): void {
-    const state: JobPageRouteData = this.router.getCurrentNavigation()?.extras.state as JobPageRouteData;
-    console.error(state);
-    this.currentJob = state?.currentJob ?? null;
+    this._subscription = 
+      this.activatedRoute.paramMap.pipe(
+        switchMap((params: ParamMap) => this.backendService.getJobDetails(Number(params.get('id'))))
+      ).subscribe(data => {
+        this.currentJob = data;
+      });
   }
 
+  ngOnDestroy(): void {
+    if (this._subscription !== null) {
+      this._subscription.unsubscribe();
+    }
+  }
 }

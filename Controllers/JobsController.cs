@@ -36,9 +36,16 @@ public class JobsController : ControllerBase
     }
 
     [HttpGet]
-    [Route("getJobs")]
+    [Route("getjobs")]
     public IEnumerable<Job> GetJobs() 
     {
         return _service.GetJobs();
+    }
+
+    [HttpGet]
+    [Route("jobdetails/{id:long:min(0)}")]
+    public Job GetJobDetails(long id)
+    {
+        return _service.GetJobDetails(id);
     }
 }

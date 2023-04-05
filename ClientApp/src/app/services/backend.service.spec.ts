@@ -65,4 +65,25 @@ describe('BackendService', () => {
 
         httpMock.verify();
     });
+
+    it('should get job details from backend', (done) => {
+        const job = {
+            id: 1,
+            name: 'Tester',
+            status: JobConstants.STATUS_OPEN,
+            applicants: []
+        };
+
+        backendService.getJobDetails(1).subscribe(jobb => {
+            expect(jobb.id).toEqual(1);
+            expect(jobb.name).toEqual('Tester');
+            expect(jobb.status).toEqual(JobConstants.STATUS_OPEN);
+            done();
+        });
+
+        const request = httpMock.expectOne('/jobs/jobdetails/1');
+        request.flush(job);
+
+        httpMock.verify();
+    });
 });

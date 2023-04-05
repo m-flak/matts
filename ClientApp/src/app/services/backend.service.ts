@@ -29,10 +29,20 @@ export class BackendService {
     constructor(private http: HttpClient, @Inject('BASE_URL') private baseUrl: string) {}
 
     getAllJobs() : Observable<Job[]> {
-        return this.http.get(Location.joinWithSlash(this.baseUrl, '/jobs/getjobs'))
+        const endpoint = '/jobs/getjobs';
+        return this.http.get(Location.joinWithSlash(this.baseUrl, endpoint))
             .pipe(
                 catchError(e => throwError(() => new Error(e))),
                 map((r: any) => r || [])
+            );
+    }
+
+    getJobDetails(jobId: number) : Observable<Job> {
+        const endpoint = `/jobs/jobdetails/${jobId}`;
+        return this.http.get(Location.joinWithSlash(this.baseUrl, endpoint))
+            .pipe(
+                catchError(e => throwError(() => new Error(e))),
+                map((j: any) => j || {})
             );
     }
 }

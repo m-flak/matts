@@ -22,4 +22,6 @@ using matts.Models;
 public interface IJobService
 {
     public IEnumerable<Job> GetJobs();
+
+    public Job GetJobDetails(long id);
 }

@@ -1,6 +1,9 @@
 <article class="selected-job">
-    <ng-container *ngIf="this.currentJob !== null">
+    <ng-container *ngIf="this.currentJob !== null; else loading">
         <h1>{{ this.currentJob.name }}</h1>
-        <cmp-applicants-picker [applicants]="this.currentJob.applicants"></cmp-applicants-picker>
-    </ng-container> 
+        <cmp-applicants-picker [applicants]="this.currentJob.applicants ?? []"></cmp-applicants-picker>
+    </ng-container>
+    <ng-template #loading>
+        <h1>Loading...</h1>
+    </ng-template>
 </article>

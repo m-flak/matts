@@ -34,4 +34,13 @@ public partial class JobService : IJobService
     {
         return jobsDummyData;
     }
+
+    public Job GetJobDetails(long id)
+    {
+        Job job = jobsDummyData
+            .Where(j => j.Id == id)
+            .First();
+        
+        return job;
+    }
 }

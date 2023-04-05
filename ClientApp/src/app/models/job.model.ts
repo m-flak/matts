@@ -19,8 +19,8 @@
 import { Applicant } from "./applicant.model";
 
 export interface Job {
-    id: number;
-    name: string;
-    status: string;
-    applicants: Applicant[];
+    id?: number;
+    name?: string;
+    status?: string;
+    applicants?: Applicant[];
 }

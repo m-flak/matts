@@ -3,7 +3,6 @@ import { BackendService } from '../services/backend.service';
 import { Job } from '../models';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
-import { JobPageRouteData } from '../job-page/job-page.component';
 
 @Component({
   selector: 'app-home',
@@ -31,7 +30,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   onSelectJob(job: Job) {
-    console.error(job);
-    this.router.navigate(['viewJob', `${job.id}`], { state: ({ currentJob: job } as JobPageRouteData ) });
+    this.router.navigate(['viewJob', `${job.id}`]);
   }
 }
