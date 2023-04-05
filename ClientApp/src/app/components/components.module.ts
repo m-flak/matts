@@ -5,8 +5,6 @@ import { ApplicantsPickerComponent } from './applicants-picker/applicants-picker
 import { ApplicantComponent } from './applicants-picker/applicant/applicant.component';
 import { JobListComponent } from './job-list/job-list.component';
 
-
-
 @NgModule({
   declarations: [
     ApplicantsPickerComponent,
