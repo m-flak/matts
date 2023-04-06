@@ -132,5 +132,8 @@
       }
     }
   },
-  "defaultProject": "matts"
+  "defaultProject": "matts",
+  "cli": {
+    "analytics": false
+  }
 }

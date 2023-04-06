@@ -11,6 +11,10 @@ import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { HomeComponent } from './home/home.component';
 import { ComponentsModule } from './components/components.module';
 import { JobPageComponent } from './job-page/job-page.component';
+import { CalendarModule, DateAdapter } from 'angular-calendar';
+import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
+import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [
@@ -20,6 +24,7 @@ import { JobPageComponent } from './job-page/job-page.component';
     JobPageComponent
   ],
   imports: [
+    NgbModule,
     MatCardModule,
     MatButtonModule,
     ComponentsModule,
@@ -28,7 +33,12 @@ import { JobPageComponent } from './job-page/job-page.component';
     FormsModule,
     RouterModule.forRoot([
       { path: '', component: HomeComponent, children: [ { path: 'viewJob/:id', component: JobPageComponent} ] }
-    ])
+    ]),
+    BrowserAnimationsModule,
+    CalendarModule.forRoot({
+      provide: DateAdapter,
+      useFactory: adapterFactory,
+    })
   ],
   providers: [],
   bootstrap: [AppComponent]
