@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
+using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
 
 using matts.Interfaces;
@@ -47,5 +48,14 @@ public class JobsController : ControllerBase
     public Job GetJobDetails(long id)
     {
         return _service.GetJobDetails(id);
+    }
+
+    [HttpPatch]
+    [Consumes(MediaTypeNames.Application.Json)]
+    [Route("updatejob")]
+    public IActionResult UpdateJob(Job job)
+    {
+        _logger.LogInformation("{Job}", job);
+        return Ok();
     }
 }

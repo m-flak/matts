@@ -1,7 +1,7 @@
 import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { Applicant, Job } from '../models';
-import { Subscription, switchMap } from 'rxjs';
+import { lastValueFrom, Subscription, switchMap } from 'rxjs';
 import { BackendService } from '../services/backend.service';
 import { MonthViewDay } from 'calendar-utils';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -62,8 +62,12 @@ export class JobPageComponent implements OnInit, OnDestroy {
   }
 
   confirmInterview() {
-    this.modalService.open(this.confirmationModal, { ariaLabelledBy: 'modal-basic-title' }).result.then((result) => {
-      console.log(this.viewDate);
+    this.modalService.open(this.confirmationModal, { ariaLabelledBy: 'modal-basic-title' }).result.then(async (result) => {
+      if (result === 'yes') {
+        //TODO: Update date
+        const response = await lastValueFrom(this.backendService.updateJob(this.currentJob as Job));
+        console.log(response);
+      }
     });
   }
 }

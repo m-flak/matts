@@ -17,7 +17,7 @@
 **/
 
 import { Location } from "@angular/common";
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpHeaders, HttpResponse } from "@angular/common/http";
 import { Inject, Injectable } from "@angular/core";
 import { Observable, catchError, throwError, map } from "rxjs";
 import { Job } from "../models";
@@ -43,6 +43,19 @@ export class BackendService {
             .pipe(
                 catchError(e => throwError(() => new Error(e))),
                 map((j: any) => j || {})
+            );
+    }
+
+    updateJob(job: Job) : Observable<HttpResponse<any>> {
+        const endpoint = `/jobs/updatejob`;
+
+        const httpHeaders = new HttpHeaders({
+            'Content-Type' : 'application/json'
+        });
+
+        return this.http.patch(Location.joinWithSlash(this.baseUrl, endpoint), job, { headers: httpHeaders, observe: "response" })
+            .pipe(
+                catchError(e => throwError(() => new Error(e)))
             );
     }
 }
