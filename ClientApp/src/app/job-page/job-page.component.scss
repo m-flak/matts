@@ -2,6 +2,11 @@
 
 @include text.emphasis;
 
+.calendar-container {
+    background-color: rgba(128,128,128,0.1);
+    padding: 0.25rem;
+}
+
 .action-buttons {
     margin-top: 2rem;
     width: 100%;
