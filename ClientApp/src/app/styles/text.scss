@@ -1,0 +1,5 @@
+@mixin emphasis {
+    span.emphasis {
+        font-weight: bold !important;
+    }
+}

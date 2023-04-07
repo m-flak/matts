@@ -1,15 +1,49 @@
+<ng-template #confirmationModal let-modal>
+	<div class="modal-header">
+		<h4 class="modal-title" id="modal-basic-title">Confirm Interview</h4>
+		<button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('cancel')"></button>
+	</div>
+	<div class="modal-body">
+        <p>Do you wish to schedule an interview for <span class="emphasis">{{ this.currentApplicant?.name }}</span> on <span class="emphasis">{{ viewDate | date:'longDate' }}</span>?</p>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" (click)="modal.close('no')">No</button>
+        <button type="button" class="btn btn-success" (click)="modal.close('yes')">Yes</button>
+    </div>
+</ng-template>
 <article class="selected-job">
     <ng-container *ngIf="this.currentJob !== null; else loading">
         <h1>{{ this.currentJob.name }}</h1>
-        <cmp-applicants-picker [applicants]="this.currentJob.applicants ?? []" (applicantPicked)="onPickApplicant($event)"></cmp-applicants-picker>
-        <div *ngIf="this.currentApplicant !== null" class="selected-job-applicant-details">
-            <h2>{{ this.currentApplicant.name }}</h2>
-            <p>Information and such here....</p>
-            <div class="action-buttons">
-                <button mat-flat-button color="warn">Reject</button>
-                <button mat-flat-button color="primary">Schedule Inteview</button>
+        <ng-container *ngIf="this.mode === MODE_JOB_DETAILS">
+            <cmp-applicants-picker [applicants]="this.currentJob.applicants ?? []" (applicantPicked)="onPickApplicant($event)"></cmp-applicants-picker>
+            <div *ngIf="this.currentApplicant !== null" class="selected-job-applicant-details">
+                <h2>{{ this.currentApplicant.name }}</h2>
+                <p>Information and such here....</p>
+                <div class="btn-group action-buttons">
+                    <button mat-flat-button color="primary" (click)="setMode(MODE_INTERVIEW)">Schedule Inteview</button>
+                    <button mat-flat-button color="warn">Reject</button>
+                </div>
             </div>
-        </div>
+        </ng-container>
+        <ng-container *ngIf="this.mode == MODE_INTERVIEW">
+            <h2>Schedule Interview: {{ this.currentApplicant?.name }}</h2>
+            <div class="calendar-container">
+                <div class="row text-center">
+                    <div class="col">
+                        <h3>{{ viewDate | date:'longDate' }}</h3>
+                    </div>
+                </div>
+                <mwl-calendar-month-view
+                    [viewDate]="viewDate"
+                    (dayClicked)="onDayClicked($event)"
+                >
+                </mwl-calendar-month-view>
+            </div>
+            <div class="btn-group action-buttons">
+                <button mat-flat-button color="primary" (click)="confirmInterview()">Schedule Inteview</button>
+                <button mat-stroked-button color="basic" (click)="setMode(MODE_JOB_DETAILS)">Back</button>
+            </div>
+        </ng-container>
     </ng-container>
     <ng-template #loading>
         <h1>Loading...</h1>

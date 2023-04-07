@@ -1,0 +1,15 @@
+@use '../styles/text.scss';
+
+@include text.emphasis;
+
+.action-buttons {
+    margin-top: 2rem;
+    width: 100%;
+    flex-wrap: wrap;
+    flex-direction: row-reverse;
+
+    button {
+        margin-left: 0.5rem;
+        margin-right: 0.5rem;
+    }
+}
