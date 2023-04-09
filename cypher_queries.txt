@@ -1,0 +1,32 @@
+# CONSTRAINTS ################################################################################################################
+
+CREATE CONSTRAINT FOR(a:Applicant) REQUIRE a.uuid IS UNIQUE
+CREATE CONSTRAINT FOR(j:Job) REQUIRE j.uuid IS UNIQUE
+
+# DATA #######################################################################################################################
+
+CREATE (full_stack_software_developer:Job { uuid: '7df53d53-7c25-4b37-a004-6d9e30d44abe', name: 'Full Stack Software Developer', status: 'OPEN' }),
+	(john_doe:Applicant { uuid: '6b3e2869-0166-44a6-9371-eab5c09a8ff7', name: 'John Doe'}),
+	(john_doe)-[:HAS_APPLIED_TO {rejected: false}]->(full_stack_software_developer),
+	(john_doe)-[:IS_INTERVIEWING_FOR { interviewDate: '2023-04-09T05:53:12.5468730Z' }]->(full_stack_software_developer)
+
+MATCH (full_stack_software_developer:Job { uuid: '7df53d53-7c25-4b37-a004-6d9e30d44abe' })
+CREATE (lee_cardholder: Applicant { uuid: 'e2a17b6b-0e40-4eea-94a8-c07d7fe3bb5d', name: 'Lee Cardholder' }),
+	(lee_cardholder)-[:HAS_APPLIED_TO {rejected: true}]->(full_stack_software_developer)
+
+
+# FULL JOB DETAILS BY UUID QUERY #############################################################################################
+
+WITH '7df53d53-7c25-4b37-a004-6d9e30d44abe' AS uuid
+MATCH (j:Job)
+WHERE j.uuid = uuid
+WITH j, COLLECT {
+	MATCH (a:Applicant)-[r:HAS_APPLIED_TO]->(j:Job)
+	RETURN a{.*, rejected: r.rejected}
+} AS a,
+ COLLECT {
+	MATCH (c:Applicant)-[r:HAS_APPLIED_TO]->(j:Job), (c2:Applicant)-[rr:IS_INTERVIEWING_FOR]->(j:Job)
+	WHERE r.rejected = false
+	RETURN c{.*, interviewDate: rr.interviewDate}
+} AS c
+RETURN j{.*, applicants: a, candidates: c}

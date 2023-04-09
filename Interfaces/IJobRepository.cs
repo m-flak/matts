@@ -1,4 +1,4 @@
-/* matts
+﻿/* matts
  * "Matthew's ATS" - Portfolio Project
  * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
  * 
@@ -15,18 +15,11 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
+using matts.Models;
 
-namespace matts.Models;
+namespace matts.Interfaces;
 
-public class Job
+public interface IJobRepository
 {
-    public long Id { get; set; }
-
-    public string? Uuid { get; set; }
-
-    public string? Name  { get; set; }
-
-    public string? Status { get; set; }
-
-    public List<Applicant>? Applicants { get; set; }
+    public List<Job> GetAll();
 }

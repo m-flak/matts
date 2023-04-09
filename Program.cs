@@ -15,8 +15,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
+using Neo4j.Driver;
+using matts.Models;
 using matts.Interfaces;
 using matts.Services;
+using matts.Daos;
+using matts.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,7 +28,20 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
+// SINGLETONS
+builder.Services.AddSingleton<IDriver>(implementationFactory: provider => {
+    var connectionUrl = builder.Configuration["Neo4J:ConnectionURL"];
+    var username = builder.Configuration["Neo4J:User"];
+    var password = builder.Configuration["Neo4J:Password"];
+
+    return GraphDatabase.Driver(connectionUrl, AuthTokens.Basic(username, password));
+});
+
 builder.Services.AddSingleton<IJobService, JobService>();
+
+// SCOPED
+builder.Services.AddScoped(typeof(IDataAccessObject<Job>), typeof(JobDao));
+builder.Services.AddScoped<IJobRepository, JobRepository>();
 
 var app = builder.Build();
 

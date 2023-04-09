@@ -5,3 +5,5 @@ Run:
 * `docker compose -f docker-compose.yml up neo4j`
 * `dotnet user-secrets set "Neo4J:User" "neo4j"`
 * `dotnet user-secrets set "Neo4J:Password" "changeme"`
+
+Examine `cypher_queries.txt` file and run those commands.

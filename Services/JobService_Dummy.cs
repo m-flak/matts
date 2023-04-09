@@ -32,6 +32,7 @@ public partial class JobService : IJobService
         return new Job
         {
             Id = ++JOB_COUNTER,
+            Uuid = System.Guid.NewGuid().ToString(),
             Name = name,
             Status = status,
             Applicants = applicants
@@ -43,8 +44,10 @@ public partial class JobService : IJobService
         return new Applicant
         {
             Id = ++APPLICANT_COUNTER,
+            Uuid = System.Guid.NewGuid().ToString(),
             Name = name,
-            ApplicantPhoto = profilePic
+            ApplicantPhoto = profilePic,
+            InterviewDate = DateTime.UtcNow
         };
     }
 

@@ -1,4 +1,4 @@
-/* matts
+﻿/* matts
  * "Matthew's ATS" - Portfolio Project
  * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
  * 
@@ -15,18 +15,23 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
+using matts.Interfaces;
+using matts.Models;
+using Neo4j.Driver;
 
-namespace matts.Models;
+namespace matts.Daos;
 
-public class Job
+public class JobDao : IDataAccessObject<Job>
 {
-    public long Id { get; set; }
+    private readonly IDriver _driver;
 
-    public string? Uuid { get; set; }
+    public JobDao(IDriver driver)
+    {
+        _driver = driver;
+    }
 
-    public string? Name  { get; set; }
-
-    public string? Status { get; set; }
-
-    public List<Applicant>? Applicants { get; set; }
+    public List<Job> GetAll()
+    {
+        throw new NotImplementedException();
+    }
 }

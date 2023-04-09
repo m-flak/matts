@@ -1,4 +1,4 @@
-/* matts
+﻿/* matts
  * "Matthew's ATS" - Portfolio Project
  * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
  * 
@@ -15,18 +15,22 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
+using matts.Interfaces;
+using matts.Models;
 
-namespace matts.Models;
+namespace matts.Repositories;
 
-public class Job
+public class JobRepository : IJobRepository
 {
-    public long Id { get; set; }
+    private readonly IDataAccessObject<Job> _dao;
 
-    public string? Uuid { get; set; }
+    public JobRepository(IDataAccessObject<Job> dao)
+    {
+        _dao = dao;
+    }
 
-    public string? Name  { get; set; }
-
-    public string? Status { get; set; }
-
-    public List<Applicant>? Applicants { get; set; }
+    public List<Job> GetAll()
+    {
+        throw new NotImplementedException();
+    }
 }

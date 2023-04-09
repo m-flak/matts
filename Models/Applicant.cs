@@ -35,7 +35,11 @@ public class Applicant
 
     public long Id { get; set; }
 
+    public string? Uuid { get; set; }
+
     public string? Name { get; set; }
 
     public ProfileImage? ApplicantPhoto { get; set; }
+
+    public DateTime? InterviewDate { get; set; }
 }
