@@ -34,7 +34,7 @@ export class JobPageComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this._subscription = 
       this.activatedRoute.paramMap.pipe(
-        switchMap((params: ParamMap) => this.backendService.getJobDetails(Number(params.get('id'))))
+        switchMap((params: ParamMap) => this.backendService.getJobDetails(params.get('id') ?? ''))
       ).subscribe(data => {
         this.currentJob = data;
         this.setMode(this.MODE_JOB_DETAILS);

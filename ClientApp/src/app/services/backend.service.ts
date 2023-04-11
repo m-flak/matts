@@ -37,8 +37,8 @@ export class BackendService {
             );
     }
 
-    getJobDetails(jobId: number) : Observable<Job> {
-        const endpoint = `/jobs/jobdetails/${jobId}`;
+    getJobDetails(jobUuid: string) : Observable<Job> {
+        const endpoint = `/jobs/jobdetails/${jobUuid}`;
         return this.http.get(Location.joinWithSlash(this.baseUrl, endpoint))
             .pipe(
                 catchError(e => throwError(() => new Error(e))),

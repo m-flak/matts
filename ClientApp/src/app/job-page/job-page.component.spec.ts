@@ -10,13 +10,14 @@ import { BackendService } from '../services/backend.service';
 
 const job = {
   id: 1,
+  uuid: '3ebb58d3-a24c-499b-8c65-75636e7b57de',
   name: 'Tester',
   status: JobConstants.STATUS_OPEN,
   applicants: []
 };
 
 const FakeBackendService = {
-  getJobDetails: (id: number) => of(job)
+  getJobDetails: (id: string) => of(job)
 };
 
 describe('JobPageComponent', () => {
@@ -29,7 +30,7 @@ describe('JobPageComponent', () => {
       declarations: [ JobPageComponent ],
       providers: [
         { provide: BackendService, useValue: FakeBackendService },
-        { provide: ActivatedRoute, useValue: { 'paramMap': of((() => { let m = new Map(); m.set('id', '1'); return m as unknown as ParamMap;})()) } }
+        { provide: ActivatedRoute, useValue: { 'paramMap': of((() => { let m = new Map(); m.set('id', '3ebb58d3-a24c-499b-8c65-75636e7b57de'); return m as unknown as ParamMap;})()) } }
       ]
     })
     .compileComponents();
@@ -47,6 +48,7 @@ describe('JobPageComponent', () => {
     tick(2);
     expect(component.currentJob).not.toBeNull();
     expect(component.currentJob?.id).toEqual(job.id);
+    expect(component.currentJob?.uuid).toEqual(job.uuid);
     expect(component.currentJob?.name).toEqual(job.name);
     expect(component.currentJob?.status).toEqual(job.status);
   }));

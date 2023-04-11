@@ -20,6 +20,8 @@ import { ProfileImage } from "./profile-image.model";
 
 export interface Applicant {
     id?: number;
+    uuid?: string;
     name?: string;
     applicantPhoto?: ProfileImage;
+    interviewDate?: string;
 }

@@ -20,6 +20,7 @@ import { Applicant } from "./applicant.model";
 
 export interface Job {
     id?: number;
+    uuid?: string;
     name?: string;
     status?: string;
     applicants?: Applicant[];
