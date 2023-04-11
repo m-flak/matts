@@ -35,10 +35,10 @@ public partial class JobService : IJobService
         return jobsDummyData;
     }
 
-    public Job GetJobDetails(long id)
+    public Job GetJobDetails(string uuid)
     {
         Job job = jobsDummyData
-            .Where(j => j.Id == id)
+            .Where(j => j.Uuid == uuid)
             .First();
         
         return job;

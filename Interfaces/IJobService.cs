@@ -23,5 +23,5 @@ public interface IJobService
 {
     public IEnumerable<Job> GetJobs();
 
-    public Job GetJobDetails(long id);
+    public Job GetJobDetails(string uuid);
 }

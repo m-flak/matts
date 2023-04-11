@@ -44,10 +44,10 @@ public class JobsController : ControllerBase
     }
 
     [HttpGet]
-    [Route("jobdetails/{id:long:min(0)}")]
-    public Job GetJobDetails(long id)
+    [Route("jobdetails/{uuid}")]
+    public Job GetJobDetails(string uuid)
     {
-        return _service.GetJobDetails(id);
+        return _service.GetJobDetails(uuid);
     }
 
     [HttpPatch]
