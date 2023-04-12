@@ -1,10 +1,28 @@
+/* matts
+ * "Matthew's ATS" - Portfolio Project
+ * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**/
 import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { Applicant, Job } from '../models';
 import { lastValueFrom, Subscription, switchMap } from 'rxjs';
-import { BackendService } from '../services/backend.service';
-import { MonthViewDay } from 'calendar-utils';
+import { MonthViewDay, EventColor } from 'calendar-utils';
+import { CalendarEvent } from 'angular-calendar';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { InterviewDate, JobPageDataService } from '../services/job-page-data.service';
 
 @Component({
   selector: 'app-job-page',
@@ -17,6 +35,7 @@ export class JobPageComponent implements OnInit, OnDestroy {
 
   private _subscription: Subscription | null = null;
 
+  events: CalendarEvent[] = [];
   viewDate: Date = new Date();
   mode = this.MODE_JOB_DETAILS;
 
@@ -29,15 +48,18 @@ export class JobPageComponent implements OnInit, OnDestroy {
   @Input()
   currentApplicant: Applicant | null = null;
 
-  constructor(private activatedRoute: ActivatedRoute, private backendService: BackendService, private modalService: NgbModal) { }
+  constructor(private activatedRoute: ActivatedRoute, private jobPageDataService: JobPageDataService, private modalService: NgbModal) { }
 
   ngOnInit(): void {
     this._subscription = 
       this.activatedRoute.paramMap.pipe(
-        switchMap((params: ParamMap) => this.backendService.getJobDetails(params.get('id') ?? ''))
-      ).subscribe(data => {
+        switchMap((params: ParamMap) => this.jobPageDataService.getJobByUuid(params.get('id') ?? ''))
+      ).subscribe(async (data) => {
         this.currentJob = data;
         this.setMode(this.MODE_JOB_DETAILS);
+
+        const interviewDates = await lastValueFrom(this.jobPageDataService.getAllInterviewDatesForJob((data.uuid as string)));
+        this.events = interviewDates.map(idate => this._mapInterviewDateToCalendarEvent(idate));
       });
   }
 
@@ -65,9 +87,26 @@ export class JobPageComponent implements OnInit, OnDestroy {
     this.modalService.open(this.confirmationModal, { ariaLabelledBy: 'modal-basic-title' }).result.then(async (result) => {
       if (result === 'yes') {
         //TODO: Update date
-        const response = await lastValueFrom(this.backendService.updateJob(this.currentJob as Job));
+        const response = await lastValueFrom(this.jobPageDataService.changeJobData(this.currentJob as Job));
         console.log(response);
       }
     });
+  }
+
+  _hasInterview(applicant: Applicant): boolean {
+    return (applicant.interviewDate !== undefined && applicant.interviewDate !== null);
+  }
+
+  private _mapInterviewDateToCalendarEvent(interviewDate: InterviewDate): CalendarEvent {
+    const color: EventColor = {
+      primary: '#ad2121',
+      secondary: '#FAE3E3',
+    };
+
+    return {
+      start: (interviewDate.date as Date),
+      title: `${interviewDate.applicant?.name}: Interviewing for ${this.currentJob?.name}`,
+      color: { ...color }
+    };
   }
 }

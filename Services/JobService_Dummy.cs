@@ -39,7 +39,7 @@ public partial class JobService : IJobService
         };
     }
 
-    private Applicant CreateApplicant(string name, Applicant.ProfileImage? profilePic)
+    private Applicant CreateApplicant(string name, Applicant.ProfileImage? profilePic, bool hasInterview=true)
     {
         return new Applicant
         {
@@ -47,7 +47,7 @@ public partial class JobService : IJobService
             Uuid = System.Guid.NewGuid().ToString(),
             Name = name,
             ApplicantPhoto = profilePic,
-            InterviewDate = DateTime.UtcNow
+            InterviewDate = (hasInterview) ? DateTime.UtcNow : null
         };
     }
 
@@ -55,7 +55,7 @@ public partial class JobService : IJobService
     {
         var applicants = new List<Applicant>
         {
-            CreateApplicant("John Doe", null),
+            CreateApplicant("John Doe", null, false),
             CreateApplicant("Jane Doe", null),
             CreateApplicant("John Public", null),
             CreateApplicant("Lee Cardholder", null)

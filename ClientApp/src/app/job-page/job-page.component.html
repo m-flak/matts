@@ -16,12 +16,20 @@
         <h1>{{ this.currentJob.name }}</h1>
         <ng-container *ngIf="this.mode === MODE_JOB_DETAILS">
             <cmp-applicants-picker [applicants]="this.currentJob.applicants ?? []" (applicantPicked)="onPickApplicant($event)"></cmp-applicants-picker>
-            <div *ngIf="this.currentApplicant !== null" class="selected-job-applicant-details">
+            <div *ngIf="this.currentApplicant !== null && _hasInterview(this.currentApplicant) === false" class="selected-job-applicant-details">
                 <h2>{{ this.currentApplicant.name }}</h2>
                 <p>Information and such here....</p>
                 <div class="btn-group action-buttons">
-                    <button mat-flat-button color="primary" (click)="setMode(MODE_INTERVIEW)">Schedule Inteview</button>
+                    <button mat-flat-button color="primary" (click)="setMode(MODE_INTERVIEW)">Schedule Interview</button>
                     <button mat-flat-button color="warn">Reject</button>
+                </div>
+            </div>
+            <div *ngIf="this.currentApplicant !== null && _hasInterview(this.currentApplicant) === true" class="selected-job-applicant-details-with-interview">
+                <h2>{{ this.currentApplicant.name }}</h2>
+                <p><span class="emphasis">{{ this.currentApplicant.name }}</span> has an interview on DATE</p>
+                <div class="btn-group action-buttons">
+                    <button mat-flat-button color="primary">Download ICS</button>
+                    <button mat-flat-button color="warn">Cancel Interview</button>
                 </div>
             </div>
         </ng-container>
@@ -35,12 +43,13 @@
                 </div>
                 <mwl-calendar-month-view
                     [viewDate]="viewDate"
+                    [events]="events"
                     (dayClicked)="onDayClicked($event)"
                 >
                 </mwl-calendar-month-view>
             </div>
             <div class="btn-group action-buttons">
-                <button mat-flat-button color="primary" (click)="confirmInterview()">Schedule Inteview</button>
+                <button mat-flat-button color="primary" (click)="confirmInterview()">Schedule Interview</button>
                 <button mat-stroked-button color="basic" (click)="setMode(MODE_JOB_DETAILS)">Back</button>
             </div>
         </ng-container>
