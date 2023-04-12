@@ -18,10 +18,13 @@
 import { TestBed } from "@angular/core/testing";
 import { Applicant, Job } from "../models";
 import { BackendService } from "./backend.service";
-import { JobPageDataService } from "./job-page-data-svc";
+import { JobPageDataService } from "./job-page-data.service";
 import { of } from "rxjs";
+import { sha1 } from 'object-hash';
+import { JobConstants } from "../constants";
+import { HttpResponse } from "@angular/common/http";
 
-const job: Job = {
+const jobData: Job = {
     "id": 1,
     "uuid": "54991ebe-ba9e-440b-a202-247f0c33574f",
     "name": "Full Stack Software Developer",
@@ -59,11 +62,13 @@ const job: Job = {
 };
 
 const FakeBackendService = {
-    getJobDetails: (id: string) => of(job)
+    getJobDetails: (id: string) => of(jobData),
+    updateJob: (job: Job) => of(new HttpResponse<any>())
 };
 
 describe('JobPageDataService', () => {
     let jobPageDataService: JobPageDataService;
+    let backendService: BackendService;
 
     beforeEach(() => {
         TestBed.configureTestingModule({
@@ -76,9 +81,55 @@ describe('JobPageDataService', () => {
         });
 
         jobPageDataService = TestBed.inject(JobPageDataService);
+        backendService = TestBed.inject(BackendService);
+    });
+
+    afterEach(() => {
+        jobPageDataService.resetService();
     });
 
     it('should instantiate', () => {
         expect(jobPageDataService).toBeTruthy();
+    });
+
+    it('should store the job in the map', (done) => {
+        jobPageDataService.getJobByUuid('54991ebe-ba9e-440b-a202-247f0c33574f').subscribe(job => {
+            const hashReturned = sha1(job);
+            const hashMap = sha1(jobPageDataService._getJob('54991ebe-ba9e-440b-a202-247f0c33574f'));
+            const hashExpected = sha1(jobData);
+
+            expect(hashReturned).toEqual(hashExpected);
+            expect(hashMap).toEqual(hashExpected);
+            done();
+        });
+    });
+
+    it('should mark a changed job as dirty', (done) => {
+        const changedJob = { ...jobData };
+        changedJob.status = JobConstants.STATUS_CLOSED;
+
+        spyOn(backendService, 'updateJob').and.callThrough();
+
+        jobPageDataService.changeJobData(changedJob).subscribe(() => {
+            expect(backendService.updateJob).toHaveBeenCalled();
+            expect(jobPageDataService._getJob('54991ebe-ba9e-440b-a202-247f0c33574f')).toBeNull();
+            expect(jobPageDataService._hasJob('54991ebe-ba9e-440b-a202-247f0c33574f')).toBe(true);
+            done();
+        });
+    });
+
+    it('should get the interview dates associated with a job', (done) => {
+        spyOn(backendService, 'getJobDetails').and.callThrough();
+
+        jobPageDataService.getAllInterviewDatesForJob('54991ebe-ba9e-440b-a202-247f0c33574f').subscribe(dates => {
+            expect(backendService.getJobDetails).toHaveBeenCalled();
+            expect(dates.length).toEqual(4);
+            dates.forEach(interviewDate => {
+                expect(interviewDate.applicant).toBeTruthy();
+                expect((interviewDate.date as Date).getMonth()+1).toEqual(4);
+                expect((interviewDate.date as Date).getDate()).toEqual(11);
+            });
+            done();
+        });
     });
 });

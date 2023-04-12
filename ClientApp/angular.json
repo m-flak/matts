@@ -100,7 +100,9 @@
             "styles": [
               "src/styles.scss"
             ],
-            "scripts": []
+            "scripts": [
+              "node_modules/object-hash/dist/object_hash.js"
+            ]
           }
         },
         "server": {

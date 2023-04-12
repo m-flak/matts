@@ -17,10 +17,16 @@
 **/
 import { Injectable } from "@angular/core";
 import { BackendService } from "./backend.service";
-import { Job } from "../models";
-import { Observable, of } from "rxjs";
+import { Applicant, Job } from "../models";
+import { Observable, filter, map, of, tap } from "rxjs";
+import { parseISO } from "date-fns";
 
 export type JobMapValue = {data: Job, isDirty: boolean};
+
+export interface InterviewDate {
+    applicant?: Applicant;
+    date?: Date;
+}
 
 @Injectable({
     providedIn: 'root'
@@ -30,15 +36,20 @@ export class JobPageDataService {
 
     constructor(private backendService: BackendService) {}
 
-    /** Returns null if the Job is dirty or not found */
     _getJob(uuid: string): Job | null {
         const foundJobEntry: JobMapValue | undefined = this._jobMap.get(uuid);
 
         return (foundJobEntry !== undefined && foundJobEntry.isDirty === false) ? foundJobEntry.data : null;
     }
 
-    changeJobData(job: Job) {
-        return;
+    _hasJob(uuid: string): boolean {
+        return this._jobMap.has(uuid);
+    }
+
+    changeJobData(job: Job): Observable<any> {
+        return this.backendService.updateJob(job).pipe(
+            tap(() => this._jobMap.set(job.uuid as string, { ...(this._jobMap.get(job.uuid as string) as JobMapValue), isDirty: true}))
+        );
     }
 
     getJobByUuid(jobUuid: string): Observable<Job> {
@@ -48,10 +59,24 @@ export class JobPageDataService {
             return of(foundJob);
         }
 
-        return of({});
+        return this.backendService.getJobDetails(jobUuid).pipe(
+            tap(job => this._jobMap.set(jobUuid, { data: job, isDirty: false }))
+        );
     }
 
-    getAllInterviewDatesForJob(jobUuid: string): Observable<Date[]> {
-        return of([new Date()])
+    getAllInterviewDatesForJob(jobUuid: string): Observable<InterviewDate[]> {
+        return this.getJobByUuid(jobUuid).pipe(
+            filter(job => job.applicants !== undefined),
+            map(job => (job.applicants as Applicant[]).map(applicant => {
+                return {
+                    applicant: { ...applicant },
+                    date: parseISO((applicant.interviewDate as string))
+                };
+            }))
+        );
+    }
+
+    resetService() {
+        this._jobMap.clear();
     }
 }
