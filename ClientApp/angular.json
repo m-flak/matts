@@ -103,7 +103,6 @@
               "src/styles.scss"
             ],
             "scripts": [
-              "node_modules/ics/dist/index.js",
               "node_modules/object-hash/dist/object_hash.js"
             ]
           }

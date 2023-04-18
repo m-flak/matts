@@ -34,6 +34,8 @@ export class JobPageComponent implements OnInit, OnDestroy {
   readonly MODE_INTERVIEW: number = 1;
 
   private _subscription: Subscription | null = null;
+  private _subscription2: Subscription | null = null;
+  private _subscription3: Subscription | null = null;
 
   events: CalendarEvent[] = [];
   viewDate: Date = new Date();
@@ -51,11 +53,21 @@ export class JobPageComponent implements OnInit, OnDestroy {
   constructor(private activatedRoute: ActivatedRoute, private jobPageDataService: JobPageDataService, private modalService: NgbModal) { }
 
   ngOnInit(): void {
+    this._subscription3 =
+      this.jobPageDataService.currentApplicantSubject.subscribe(applicant => {
+        this.currentApplicant = applicant;
+      });
+    
+    this._subscription2 =
+      this.jobPageDataService.currentJobSubject.subscribe(job => {
+        this.currentJob = job;
+      });
+    
     this._subscription = 
       this.activatedRoute.paramMap.pipe(
         switchMap((params: ParamMap) => this.jobPageDataService.getJobByUuid(params.get('id') ?? ''))
       ).subscribe(async (data) => {
-        this.currentJob = data;
+        this.jobPageDataService.setCurrentJob(data);
         this.setMode(this.MODE_JOB_DETAILS);
 
         const interviewDates = await lastValueFrom(this.jobPageDataService.getAllInterviewDatesForJob((data.uuid as string)));
@@ -67,10 +79,16 @@ export class JobPageComponent implements OnInit, OnDestroy {
     if (this._subscription !== null) {
       this._subscription.unsubscribe();
     }
+    if (this._subscription2 !== null) {
+      this._subscription2.unsubscribe();
+    }
+    if (this._subscription3 !== null) {
+      this._subscription3.unsubscribe();
+    }
   }
 
-  onPickApplicant(applicant: Applicant) {
-    this.currentApplicant = applicant;
+  onPickApplicant(applicantUuid: string) {
+    this.jobPageDataService.assignCurrentApplicant(applicantUuid);
   }
 
   setMode(mode: number) {

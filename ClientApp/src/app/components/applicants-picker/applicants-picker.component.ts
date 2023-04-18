@@ -30,7 +30,7 @@ export class ApplicantsPickerComponent implements OnInit {
   applicants: Applicant[] = [];
 
   @Output()
-  applicantPicked: EventEmitter<Applicant> = new EventEmitter();
+  applicantPicked: EventEmitter<string> = new EventEmitter();
 
   constructor() { }
 
@@ -39,7 +39,7 @@ export class ApplicantsPickerComponent implements OnInit {
 
   onPickApplicant(index: number) {
     if (this.applicants.length > 0) {
-      this.applicantPicked.emit(this.applicants[index]);
+      this.applicantPicked.emit(this.applicants[index].uuid as string);
     }
   }
 }

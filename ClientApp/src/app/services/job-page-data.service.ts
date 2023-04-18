@@ -18,7 +18,7 @@
 import { Injectable } from "@angular/core";
 import { BackendService } from "./backend.service";
 import { Applicant, Job } from "../models";
-import { Observable, filter, map, of, tap } from "rxjs";
+import { Observable, Subject, filter, map, of, tap } from "rxjs";
 import { parseISO } from "date-fns";
 
 export type JobMapValue = {data: Job, isDirty: boolean};
@@ -32,7 +32,17 @@ export interface InterviewDate {
     providedIn: 'root'
 })
 export class JobPageDataService {
+    // Holds jobs and also does caching
     private _jobMap: Map<string, JobMapValue> = new Map();
+    
+    private _currentJob: Job | null = null;
+    currentJobSubject: Subject<Job> = new Subject<Job>();
+    currentApplicantSubject: Subject<Applicant> = new Subject<Applicant>();
+
+    // Applicants <--> Job association map
+    public jobApplicants: Map<string, Set<string>> = new Map();
+    // Applicants
+    public applicants: Map<string, Applicant> = new Map();
 
     constructor(private backendService: BackendService) {}
 
@@ -44,6 +54,35 @@ export class JobPageDataService {
 
     _hasJob(uuid: string): boolean {
         return this._jobMap.has(uuid);
+    }
+
+    assignCurrentApplicant(applicantUuid: string) {
+        this.currentApplicantSubject.next(this.applicants.get(applicantUuid) as Applicant);
+    }
+
+    setCurrentJob(job: Job) {
+        this._currentJob = job;
+
+        const set = new Set<string>();
+        job.applicants?.forEach(app => {
+            this.applicants.set(app.uuid as string, app);
+            set.add(app.uuid as string);
+        });
+
+        this.jobApplicants.set(job.uuid as string, set);
+        this.currentJobSubject.next(this._currentJob);
+    }
+
+    getCurrentJob(): Job {
+        const returnJob = { ...this._currentJob };
+        returnJob.applicants = [];
+
+        const set: Set<string> = this.jobApplicants.get(returnJob.uuid as string) ?? new Set<string>();
+        for (const applicantUuid of set) {
+            returnJob.applicants.push(this.applicants.get(applicantUuid) as Applicant);
+        }
+
+        return returnJob;
     }
 
     changeJobData(job: Job): Observable<any> {
@@ -78,5 +117,7 @@ export class JobPageDataService {
 
     resetService() {
         this._jobMap.clear();
+        this.jobApplicants.clear();
+        this.applicants.clear();
     }
 }

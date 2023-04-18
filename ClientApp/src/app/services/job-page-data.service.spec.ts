@@ -19,7 +19,7 @@ import { TestBed } from "@angular/core/testing";
 import { Applicant, Job } from "../models";
 import { BackendService } from "./backend.service";
 import { JobPageDataService } from "./job-page-data.service";
-import { of } from "rxjs";
+import { concat, merge, of, switchMap, tap } from "rxjs";
 import { sha1 } from 'object-hash';
 import { JobConstants } from "../constants";
 import { HttpResponse } from "@angular/common/http";
@@ -129,6 +129,43 @@ describe('JobPageDataService', () => {
                 expect((interviewDate.date as Date).getMonth()+1).toEqual(4);
                 expect((interviewDate.date as Date).getDate()).toEqual(11);
             });
+            done();
+        });
+    });
+
+    it('should have all applicant uuids per job uuid', (done) => {
+        spyOn(backendService, 'getJobDetails').and.callThrough();
+
+        jobPageDataService.getJobByUuid('54991ebe-ba9e-440b-a202-247f0c33574f').subscribe(job => {
+            jobPageDataService.setCurrentJob(job);
+            const applicants = jobPageDataService.jobApplicants.get('54991ebe-ba9e-440b-a202-247f0c33574f');
+
+            expect(applicants).toBeDefined();
+            expect(applicants?.size).toEqual(4);
+
+            expect(jobPageDataService.applicants.size).toEqual(4);
+            done();
+        });
+    });
+
+    it('should have the mutated applicants in the patch call', (done) => {
+        spyOn(backendService, 'getJobDetails').and.callThrough();
+        spyOn(backendService, 'updateJob').and.callFake(job => {
+            const applicant = job.applicants?.filter(a => a.uuid === 'db185379-70e8-4ec6-b5f7-370415ca3b43').pop();
+            expect(applicant?.interviewDate).toBeUndefined();
+            return of(new HttpResponse<any>());
+        });
+
+        const a = jobPageDataService.getJobByUuid('54991ebe-ba9e-440b-a202-247f0c33574f').pipe(
+            tap(job => jobPageDataService.setCurrentJob(job)),
+            tap(() => {
+                const applicant = jobPageDataService.applicants.get('db185379-70e8-4ec6-b5f7-370415ca3b43');
+                (applicant as Applicant).interviewDate = undefined;
+                jobPageDataService.applicants.set('db185379-70e8-4ec6-b5f7-370415ca3b43', applicant as Applicant);
+            }),
+            switchMap(() => jobPageDataService.changeJobData(jobPageDataService.getCurrentJob()))
+        ).subscribe(() => {
+            expect(backendService.updateJob).toHaveBeenCalled();
             done();
         });
     });
