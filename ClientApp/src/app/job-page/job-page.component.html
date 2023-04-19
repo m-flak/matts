@@ -26,7 +26,7 @@
             </div>
             <div *ngIf="this.currentApplicant !== null && _hasInterview(this.currentApplicant) === true" class="selected-job-applicant-details-with-interview">
                 <h2>{{ this.currentApplicant.name }}</h2>
-                <p><span class="emphasis">{{ this.currentApplicant.name }}</span> has an interview on DATE</p>
+                <p><span class="emphasis">{{ this.currentApplicant.name }}</span> has an interview on <span class="emphasis">{{ this.currentApplicant.interviewDate | date:'longDate' }}</span>.</p>
                 <div class="btn-group action-buttons">
                     <button mat-flat-button color="primary">Download ICS</button>
                     <button mat-flat-button color="warn" (click)="cancelInterview(this.currentApplicant)">Cancel Interview</button>

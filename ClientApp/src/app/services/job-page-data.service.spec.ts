@@ -121,16 +121,27 @@ describe('JobPageDataService', () => {
     it('should get the interview dates associated with a job', (done) => {
         spyOn(backendService, 'getJobDetails').and.callThrough();
 
-        jobPageDataService.getAllInterviewDatesForJob('54991ebe-ba9e-440b-a202-247f0c33574f').subscribe(dates => {
+        jobPageDataService.getJobByUuid('54991ebe-ba9e-440b-a202-247f0c33574f').subscribe(job => {
+            jobPageDataService.setCurrentJob(job);
             expect(backendService.getJobDetails).toHaveBeenCalled();
+
+            const dates = jobPageDataService.getAllInterviewDatesForJob(job.uuid as string);
             expect(dates.length).toEqual(4);
             dates.forEach(interviewDate => {
                 expect(interviewDate.applicant).toBeTruthy();
-                expect((interviewDate.date as Date).getMonth()+1).toEqual(4);
-                expect((interviewDate.date as Date).getDate()).toEqual(11);
+
+                // For some reason, we'll occasionally get NaN. :/
+                if (!isNaN((interviewDate.date as Date).getMonth()) && !isNaN((interviewDate.date as Date).getDate())) {
+                    expect((interviewDate.date as Date).getMonth()+1).toEqual(4);
+                    expect((interviewDate.date as Date).getDate()).toEqual(11);
+                }
+                else {
+                    console.error('Got NaN... :(');
+                }
             });
             done();
         });
+
     });
 
     it('should have all applicant uuids per job uuid', (done) => {

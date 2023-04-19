@@ -68,10 +68,11 @@ export class JobPageComponent implements OnInit, OnDestroy {
       this.activatedRoute.paramMap.pipe(
         switchMap((params: ParamMap) => this.jobPageDataService.getJobByUuid(params.get('id') ?? ''))
       ).subscribe(async (data) => {
+        this.currentApplicant = null;
         this.jobPageDataService.setCurrentJob(data);
         this.setMode(this.MODE_JOB_DETAILS);
 
-        const interviewDates = await lastValueFrom(this.jobPageDataService.getAllInterviewDatesForJob((data.uuid as string)));
+        const interviewDates = this.jobPageDataService.getAllInterviewDatesForJob(data.uuid as string);
         this.events = interviewDates.map(idate => this._mapInterviewDateToCalendarEvent(idate));
       });
   }

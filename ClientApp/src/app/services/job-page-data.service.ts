@@ -113,16 +113,19 @@ export class JobPageDataService {
         );
     }
 
-    getAllInterviewDatesForJob(jobUuid: string): Observable<InterviewDate[]> {
-        return this.getJobByUuid(jobUuid).pipe(
-            filter(job => job.applicants !== undefined),
-            map(job => (job.applicants as Applicant[]).map(applicant => {
-                return {
-                    applicant: { ...applicant },
-                    date: parseISO((applicant.interviewDate as string))
-                };
-            }))
-        );
+    getAllInterviewDatesForJob(jobUuid: string): InterviewDate[] {
+        let dates: InterviewDate[] = [];
+
+        const set: Set<string> = this.jobApplicants.get(jobUuid) ?? new Set<string>();
+        for (const applicantUuid of set) {
+            const applicant = this.applicants.get(applicantUuid);
+            dates.push({
+                applicant: { ...applicant },
+                date: parseISO((applicant?.interviewDate as string))
+            });
+        }
+
+        return dates;
     }
 
     resetService() {
