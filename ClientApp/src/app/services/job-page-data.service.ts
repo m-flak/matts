@@ -36,6 +36,7 @@ export class JobPageDataService {
     private _jobMap: Map<string, JobMapValue> = new Map();
     
     private _currentJob: Job | null = null;
+    private _currentApplicant: Applicant | null = null;
     currentJobSubject: Subject<Job> = new Subject<Job>();
     currentApplicantSubject: Subject<Applicant> = new Subject<Applicant>();
 
@@ -57,7 +58,16 @@ export class JobPageDataService {
     }
 
     assignCurrentApplicant(applicantUuid: string) {
-        this.currentApplicantSubject.next(this.applicants.get(applicantUuid) as Applicant);
+        const applicant = this.applicants.get(applicantUuid) as Applicant;
+        this._currentApplicant = applicant;
+        this.currentApplicantSubject.next(applicant);
+    }
+
+    updateApplicantDetails(applicant: Applicant) {
+        const uuid = applicant.uuid as string;
+        this.applicants.set(uuid, applicant);
+        this._currentApplicant = applicant;
+        this.currentApplicantSubject.next(applicant);
     }
 
     setCurrentJob(job: Job) {

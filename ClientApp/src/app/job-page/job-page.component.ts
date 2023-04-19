@@ -23,6 +23,7 @@ import { MonthViewDay, EventColor } from 'calendar-utils';
 import { CalendarEvent } from 'angular-calendar';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { InterviewDate, JobPageDataService } from '../services/job-page-data.service';
+import { formatISO } from 'date-fns';
 
 @Component({
   selector: 'app-job-page',
@@ -105,10 +106,22 @@ export class JobPageComponent implements OnInit, OnDestroy {
     this.modalService.open(this.confirmationModal, { ariaLabelledBy: 'modal-basic-title' }).result.then(async (result) => {
       if (result === 'yes') {
         //TODO: Update date
-        const response = await lastValueFrom(this.jobPageDataService.changeJobData(this.currentJob as Job));
-        console.log(response);
+        // const response = await lastValueFrom(this.jobPageDataService.changeJobData(this.currentJob as Job));
+        // console.log(response);
+        
+        const applicant = this.currentApplicant as Applicant;
+        //viewDate is the new interview date
+        applicant.interviewDate = formatISO(this.viewDate);
+        this.jobPageDataService.updateApplicantDetails(applicant);
+        
+        this.setMode(this.MODE_JOB_DETAILS);
       }
     });
+  }
+
+  cancelInterview(applicant: Applicant) {
+    applicant.interviewDate = undefined;
+    this.jobPageDataService.updateApplicantDetails(applicant);
   }
 
   _hasInterview(applicant: Applicant): boolean {

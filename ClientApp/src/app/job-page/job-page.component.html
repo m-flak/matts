@@ -29,7 +29,7 @@
                 <p><span class="emphasis">{{ this.currentApplicant.name }}</span> has an interview on DATE</p>
                 <div class="btn-group action-buttons">
                     <button mat-flat-button color="primary">Download ICS</button>
-                    <button mat-flat-button color="warn">Cancel Interview</button>
+                    <button mat-flat-button color="warn" (click)="cancelInterview(this.currentApplicant)">Cancel Interview</button>
                 </div>
             </div>
         </ng-container>
