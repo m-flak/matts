@@ -38,6 +38,7 @@ export class JobPageComponent implements OnInit, OnDestroy {
   private _subscription2: Subscription | null = null;
   private _subscription3: Subscription | null = null;
 
+  changesMadeToJob = false;
   events: CalendarEvent[] = [];
   viewDate: Date = new Date();
   mode = this.MODE_JOB_DETAILS;
@@ -68,6 +69,7 @@ export class JobPageComponent implements OnInit, OnDestroy {
       this.activatedRoute.paramMap.pipe(
         switchMap((params: ParamMap) => this.jobPageDataService.getJobByUuid(params.get('id') ?? ''))
       ).subscribe(async (data) => {
+        this.changesMadeToJob = false;
         this.currentApplicant = null;
         this.jobPageDataService.setCurrentJob(data);
         this.setMode(this.MODE_JOB_DETAILS);
@@ -103,17 +105,27 @@ export class JobPageComponent implements OnInit, OnDestroy {
     this.confirmInterview();
   }
 
+  async persistChanges() {
+    const response = await lastValueFrom(this.jobPageDataService.changeJobData(this.jobPageDataService.getCurrentJob()));
+    console.log(response);
+    this.changesMadeToJob = false;
+  }
+
   confirmInterview() {
     this.modalService.open(this.confirmationModal, { ariaLabelledBy: 'modal-basic-title' }).result.then(async (result) => {
       if (result === 'yes') {
-        //TODO: Update date
-        // const response = await lastValueFrom(this.jobPageDataService.changeJobData(this.currentJob as Job));
-        // console.log(response);
-        
         const applicant = this.currentApplicant as Applicant;
         //viewDate is the new interview date
         applicant.interviewDate = formatISO(this.viewDate);
         this.jobPageDataService.updateApplicantDetails(applicant);
+        this.changesMadeToJob = true;
+
+        const evIndex = this.events.findIndex(e => e.id === applicant.uuid);
+        if (evIndex !== -1) {
+          let event = this.events[evIndex];
+          event.start = new Date(this.viewDate);
+          this.events[evIndex] = event;
+        }
         
         this.setMode(this.MODE_JOB_DETAILS);
       }
@@ -123,6 +135,8 @@ export class JobPageComponent implements OnInit, OnDestroy {
   cancelInterview(applicant: Applicant) {
     applicant.interviewDate = undefined;
     this.jobPageDataService.updateApplicantDetails(applicant);
+    this.changesMadeToJob = true;
+    this.events = this.events.filter(e => e.id !== applicant.uuid);
   }
 
   _hasInterview(applicant: Applicant): boolean {
@@ -136,6 +150,7 @@ export class JobPageComponent implements OnInit, OnDestroy {
     };
 
     return {
+      id: `${interviewDate.applicant?.uuid}`,
       start: (interviewDate.date as Date),
       title: `${interviewDate.applicant?.name}: Interviewing for ${this.currentJob?.name}`,
       color: { ...color }

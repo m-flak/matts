@@ -1,6 +1,7 @@
 @use '../styles/text.scss';
 
 @include text.emphasis;
+@include text.italicized;
 
 .calendar-container {
     background-color: rgba(128,128,128,0.1);

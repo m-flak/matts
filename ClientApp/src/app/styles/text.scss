@@ -3,3 +3,9 @@
         font-weight: bold !important;
     }
 }
+
+@mixin italicized {
+    span.italicized {
+        font-style: italic !important;
+    }
+}

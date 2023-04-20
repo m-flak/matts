@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
+using System.Text.Json;
 
 namespace matts.Models;
 
@@ -42,4 +43,10 @@ public class Applicant
     public ProfileImage? ApplicantPhoto { get; set; }
 
     public DateTime? InterviewDate { get; set; }
+
+    public override string ToString()
+    {
+        var options = new JsonSerializerOptions { WriteIndented = true };
+        return JsonSerializer.Serialize(this, options);
+    }
 }

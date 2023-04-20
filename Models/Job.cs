@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
+using System.Text.Json;
 
 namespace matts.Models;
 
@@ -29,4 +30,10 @@ public class Job
     public string? Status { get; set; }
 
     public List<Applicant>? Applicants { get; set; }
+
+    public override string ToString()
+    {
+        var options = new JsonSerializerOptions { WriteIndented = true };
+        return JsonSerializer.Serialize(this, options);
+    }
 }

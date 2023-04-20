@@ -13,7 +13,7 @@ import { ComponentsModule } from './components/components.module';
 import { JobPageComponent } from './job-page/job-page.component';
 import { CalendarModule, DateAdapter } from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
-import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
+import {NgbAlertModule, NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
@@ -25,6 +25,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
   ],
   imports: [
     NgbModule,
+    NgbAlertModule,
     MatCardModule,
     MatButtonModule,
     ComponentsModule,
