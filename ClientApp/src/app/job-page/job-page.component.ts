@@ -24,6 +24,7 @@ import { CalendarEvent } from 'angular-calendar';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { InterviewDate, JobPageDataService } from '../services/job-page-data.service';
 import { formatISO } from 'date-fns';
+import { ChangeCommandData, JobPageChanges } from './job-page-changes';
 
 @Component({
   selector: 'app-job-page',
@@ -38,6 +39,7 @@ export class JobPageComponent implements OnInit, OnDestroy {
   private _subscription2: Subscription | null = null;
   private _subscription3: Subscription | null = null;
 
+  changeQueue: JobPageChanges[] = [];
   changesMadeToJob = false;
   events: CalendarEvent[] = [];
   viewDate: Date = new Date();
@@ -106,9 +108,40 @@ export class JobPageComponent implements OnInit, OnDestroy {
   }
 
   async persistChanges() {
-    const response = await lastValueFrom(this.jobPageDataService.changeJobData(this.jobPageDataService.getCurrentJob()));
-    console.log(response);
-    this.changesMadeToJob = false;
+    // There only needs to be one call to change job data
+    this.changeQueue.push(
+      new JobPageChanges('A', async (serviceInstance: JobPageDataService, commandData: ChangeCommandData) => { 
+          const response = await lastValueFrom(serviceInstance.changeJobData(commandData));
+          console.log(response);
+          return response.status === 200;
+        },
+        this.jobPageDataService.getCurrentJob()
+      )
+    );
+    
+    const changes = [ ...this.changeQueue ];
+    this.changeQueue = [];
+
+    changes.sort((a,b) => {
+      const tagA = a.sortTag.toUpperCase();
+      const tagB = b.sortTag.toUpperCase();
+      if (tagA < tagB) {
+        return -1;
+      }
+      if (tagA > tagB) {
+        return 1;
+      }
+      return 0;
+    });
+    
+    const responses = await Promise.all(changes.map(c => c.invokeCommand(this.jobPageDataService)));
+    if (responses[0] === true) {
+      this.changesMadeToJob = false;
+    }
+    else {
+      //TODO: Handle an error
+      console.error('YIKES! An error occurred!!');
+    }
   }
 
   confirmInterview() {
