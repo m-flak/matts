@@ -18,29 +18,50 @@
 namespace matts.Services;
 
 using System.Collections.Generic;
+using Microsoft.Extensions.Configuration;
 using matts.Interfaces;
 using matts.Models;
 
 public partial class JobService : IJobService
 {
-    private readonly List<Job> jobsDummyData;
+    private readonly List<Job> _jobsDummyData;
+    private readonly IConfiguration _configuration;
+    private readonly IJobRepository _repository;
 
-    public JobService()
+    private bool _useDummyData;
+
+    public JobService(IConfiguration configuration, IJobRepository repository)
     {
-        jobsDummyData = CreateJobs();
+        _configuration = configuration;
+        _repository = repository;
+
+        _jobsDummyData = CreateJobs();
+
+        ConfigureService();
     }
 
-    public IEnumerable<Job> GetJobs()
+    public async Task<IEnumerable<Job>> GetJobs()
     {
-        return jobsDummyData;
+        if (_useDummyData)
+        {
+            return _jobsDummyData;
+        }
+
+        return await _repository.GetAll();
     }
 
-    public Job GetJobDetails(string uuid)
+    public async Task<Job> GetJobDetails(string uuid)
     {
-        Job job = jobsDummyData
+        Job job = _jobsDummyData
             .Where(j => j.Uuid == uuid)
             .First();
         
         return job;
+    }
+
+    private void ConfigureService()
+    {
+        var useDummyData = _configuration.GetValue<bool>("DummyData:JobService", false);
+        _useDummyData = useDummyData;
     }
 }

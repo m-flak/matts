@@ -15,11 +15,28 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-namespace matts.Interfaces;
+using matts.Interfaces;
+using matts.Models.Db;
+using Neo4j.Driver;
 
-public interface IDataAccessObject<T> where T : class
+namespace matts.Daos;
+
+public class ApplicantDao : IDataAccessObject<ApplicantDb>
 {
-    public Task<List<T>> GetAll();
+    private readonly IDriver _driver;
 
-    public Task<List<T>> GetAllByRelationship(string relationship, string whomUuid);
+    public ApplicantDao(IDriver driver)
+    {
+        _driver = driver;
+    }
+
+    public async Task<List<ApplicantDb>> GetAll()
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<List<ApplicantDb>> GetAllByRelationship(string relationship, string whomUuid)
+    {
+        throw new NotImplementedException();
+    }
 }

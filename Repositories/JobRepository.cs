@@ -15,21 +15,27 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
+using MapsterMapper;
 using matts.Interfaces;
 using matts.Models;
+using matts.Models.Db;
 
 namespace matts.Repositories;
 
 public class JobRepository : IJobRepository
 {
-    private readonly IDataAccessObject<Job> _dao;
+    private readonly IDataAccessObject<JobDb> _daoJob;
+    private readonly IDataAccessObject<ApplicantDb> _daoApp;
+    private readonly IMapper _mapper;
 
-    public JobRepository(IDataAccessObject<Job> dao)
+    public JobRepository(IDataAccessObject<JobDb> daoJob, IDataAccessObject<ApplicantDb> daoApp, IMapper mapper)
     {
-        _dao = dao;
+        _daoJob = daoJob;
+        _daoApp = daoApp;
+        _mapper = mapper;
     }
 
-    public List<Job> GetAll()
+    public async Task<List<Job>> GetAll()
     {
         throw new NotImplementedException();
     }

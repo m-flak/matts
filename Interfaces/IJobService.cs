@@ -21,7 +21,7 @@ using matts.Models;
 
 public interface IJobService
 {
-    public IEnumerable<Job> GetJobs();
+    public Task<IEnumerable<Job>> GetJobs();
 
-    public Job GetJobDetails(string uuid);
+    public Task<Job> GetJobDetails(string uuid);
 }

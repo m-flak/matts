@@ -15,11 +15,17 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-namespace matts.Interfaces;
+using static matts.Models.Applicant;
 
-public interface IDataAccessObject<T> where T : class
+namespace matts.Models.Db;
+
+public class ApplicantDb
 {
-    public Task<List<T>> GetAll();
+    public string? Uuid { get; set; }
 
-    public Task<List<T>> GetAllByRelationship(string relationship, string whomUuid);
+    public string? Name { get; set; }
+
+    public ProfileImage? ApplicantPhoto { get; set; }
+
+    public DateTime? InterviewDate { get; set; }
 }

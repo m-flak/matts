@@ -15,8 +15,9 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
+using MapsterMapper;
 using Neo4j.Driver;
-using matts.Models;
+using matts.Models.Db;
 using matts.Interfaces;
 using matts.Services;
 using matts.Daos;
@@ -40,8 +41,11 @@ builder.Services.AddSingleton<IDriver>(implementationFactory: provider => {
 builder.Services.AddSingleton<IJobService, JobService>();
 
 // SCOPED
-builder.Services.AddScoped(typeof(IDataAccessObject<Job>), typeof(JobDao));
+builder.Services.AddScoped(typeof(IDataAccessObject<JobDb>), typeof(JobDao));
 builder.Services.AddScoped<IJobRepository, JobRepository>();
+
+// TRANSIENT
+builder.Services.AddTransient<IMapper, Mapper>();
 
 var app = builder.Build();
 

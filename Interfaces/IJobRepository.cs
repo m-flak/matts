@@ -21,5 +21,5 @@ namespace matts.Interfaces;
 
 public interface IJobRepository
 {
-    public List<Job> GetAll();
+    public Task<List<Job>> GetAll();
 }

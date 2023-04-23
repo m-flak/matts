@@ -38,24 +38,32 @@ public class JobsController : ControllerBase
 
     [HttpGet]
     [Route("getjobs")]
-    public IEnumerable<Job> GetJobs() 
+    public async Task<IEnumerable<Job>> GetJobs() 
     {
-        return _service.GetJobs();
+        return await _service.GetJobs();
     }
 
     [HttpGet]
     [Route("jobdetails/{uuid}")]
-    public Job GetJobDetails(string uuid)
+    public async Task<Job> GetJobDetails(string uuid)
     {
-        return _service.GetJobDetails(uuid);
+        return await _service.GetJobDetails(uuid);
     }
 
     [HttpPatch]
     [Consumes(MediaTypeNames.Application.Json)]
     [Route("updatejob")]
-    public IActionResult UpdateJob(Job job)
+    public async Task<IActionResult> UpdateJob(Job job)
     {
         _logger.LogInformation("{Job}", job);
+        return Ok();
+    }
+
+    [HttpPost]
+    [RequestSizeLimit(0)]
+    [Route("reject/{juuid}/{auuid}")]
+    public async Task<IActionResult> RejectForJob(string juuid, string auuid)
+    {
         return Ok();
     }
 }

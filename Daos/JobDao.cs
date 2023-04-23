@@ -16,12 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 using matts.Interfaces;
-using matts.Models;
+using matts.Models.Db;
 using Neo4j.Driver;
 
 namespace matts.Daos;
 
-public class JobDao : IDataAccessObject<Job>
+public class JobDao : IDataAccessObject<JobDb>
 {
     private readonly IDriver _driver;
 
@@ -30,7 +30,15 @@ public class JobDao : IDataAccessObject<Job>
         _driver = driver;
     }
 
-    public List<Job> GetAll()
+    public async Task<List<JobDb>> GetAll()
+    {
+        using (var session = _driver.AsyncSession())
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public async Task<List<JobDb>> GetAllByRelationship(string relationship, string whomUuid)
     {
         throw new NotImplementedException();
     }
