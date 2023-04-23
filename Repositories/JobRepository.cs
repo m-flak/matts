@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
+using Mapster;
 using MapsterMapper;
 using matts.Interfaces;
 using matts.Models;
@@ -37,6 +38,7 @@ public class JobRepository : IJobRepository
 
     public async Task<List<Job>> GetAll()
     {
-        throw new NotImplementedException();
+        var jobs = await _daoJob.GetAll();
+        return jobs.Select(j => j.Adapt<Job>()).ToList();
     }
 }

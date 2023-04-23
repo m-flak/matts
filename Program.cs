@@ -22,6 +22,7 @@ using matts.Interfaces;
 using matts.Services;
 using matts.Daos;
 using matts.Repositories;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,11 +39,12 @@ builder.Services.AddSingleton<IDriver>(implementationFactory: provider => {
     return GraphDatabase.Driver(connectionUrl, AuthTokens.Basic(username, password));
 });
 
-builder.Services.AddSingleton<IJobService, JobService>();
 
 // SCOPED
 builder.Services.AddScoped(typeof(IDataAccessObject<JobDb>), typeof(JobDao));
+builder.Services.AddScoped(typeof(IDataAccessObject<ApplicantDb>), typeof(ApplicantDao));
 builder.Services.AddScoped<IJobRepository, JobRepository>();
+builder.Services.AddScoped<IJobService, JobService>();
 
 // TRANSIENT
 builder.Services.AddTransient<IMapper, Mapper>();

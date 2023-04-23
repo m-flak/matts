@@ -15,9 +15,9 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
+using Neo4j.Driver;
 using matts.Interfaces;
 using matts.Models.Db;
-using Neo4j.Driver;
 
 namespace matts.Daos;
 
@@ -34,7 +34,27 @@ public class JobDao : IDataAccessObject<JobDb>
     {
         using (var session = _driver.AsyncSession())
         {
-            throw new NotImplementedException();
+            return await session.ExecuteReadAsync(
+                async tx =>
+                {
+                    var cursor = await tx.RunAsync(
+                        "MATCH (j:Job) " +
+                        "RETURN j"
+                    );
+                    var nodes = await cursor.ToListAsync(record => record.Values["j"].As<INode>());
+                    return nodes.Select(node =>
+                        {
+                            // Why tf can't I use Mapster for this?
+                            // It doesn't work :(
+                            return new JobDb
+                            {
+                                Uuid = node.Properties["uuid"].As<string>(),
+                                Name = node.Properties["name"].As<string>(),
+                                Status = node.Properties["status"].As<string>()
+                            };
+                        })
+                        .ToList();
+                });
         }
     }
 
