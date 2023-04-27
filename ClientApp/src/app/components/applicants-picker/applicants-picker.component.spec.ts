@@ -20,6 +20,40 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ApplicantsPickerComponent } from './applicants-picker.component';
 import { ApplicantComponent } from './applicant/applicant.component';
+import { ApplicantsPickerHarness } from './applicants-picker.harness';
+import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
+import { Applicant } from 'src/app/models';
+
+const applicantsList: Applicant[] = [
+  {
+      "id": 1,
+      "uuid": "db185379-70e8-4ec6-b5f7-370415ca3b43",
+      "name": "John Doe",
+      "applicantPhoto": null,
+      "interviewDate": "2023-04-11T16:10:30.0273024Z"
+  },
+  {
+      "id": 2,
+      "uuid": "cb9057c9-b504-4add-a5b8-0113ef08e9e4",
+      "name": "Jane Doe",
+      "applicantPhoto": null,
+      "interviewDate": "2023-04-11T16:10:30.0273449Z"
+  },
+  {
+      "id": 3,
+      "uuid": "ef4e92bc-8027-4fd2-9a13-450a1cfb8697",
+      "name": "John Public",
+      "applicantPhoto": null,
+      "interviewDate": "2023-04-11T16:10:30.0273453Z"
+  },
+  {
+      "id": 4,
+      "uuid": "3b785136-cafb-48ed-b58f-1b2150f74bf6",
+      "name": "Lee Cardholder",
+      "applicantPhoto": null,
+      "interviewDate": "2023-04-11T16:10:30.0273464Z"
+  }
+];
 
 describe('ApplicantsPickerComponent', () => {
   let component: ApplicantsPickerComponent;
@@ -38,5 +72,19 @@ describe('ApplicantsPickerComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should be loaded with the applicants', async () => {
+    component.applicants = [ ...applicantsList ];
+    fixture.detectChanges();
+
+    const harness = await TestbedHarnessEnvironment.harnessForFixture(
+      fixture,
+      ApplicantsPickerHarness
+    );
+
+    const applicantsInComponent = await harness.getApplicants();
+
+    expect(applicantsInComponent.length).toEqual(applicantsList.length);
   });
 });

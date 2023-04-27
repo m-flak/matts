@@ -58,4 +58,13 @@ export class BackendService {
                 catchError(e => throwError(() => new Error(e)))
             );
     }
+
+    rejectForJob(jobUuid: string, applicantUuid: string) : Observable<HttpResponse<any>> {
+        const endpoint = `/jobs/reject/${jobUuid}/${applicantUuid}`;
+
+        return this.http.post(Location.joinWithSlash(this.baseUrl, endpoint), null, { observe: "response" })
+            .pipe(
+                catchError(e => throwError(() => new Error(e)))
+            );
+    }
 }
