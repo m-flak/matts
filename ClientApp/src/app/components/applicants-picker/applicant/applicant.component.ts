@@ -34,6 +34,9 @@ export class ApplicantComponent implements OnInit {
   @Input()
   applicant: Applicant = {};
   
+  @Input()
+  isRejected: boolean = false;
+
   constructor() { }
 
   ngOnInit(): void {

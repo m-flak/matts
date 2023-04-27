@@ -23,4 +23,8 @@ export class ApplicantHarness extends ComponentHarness {
     static with(options: any = {}): HarnessPredicate<ApplicantHarness> {
         return new HarnessPredicate(ApplicantHarness, options);
     }
+
+    async isRejected(): Promise<boolean> {
+        return (await this.locatorForOptional('img.rejected-applicant')() !== null);
+    }
 }

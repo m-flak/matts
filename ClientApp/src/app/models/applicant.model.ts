@@ -24,4 +24,5 @@ export interface Applicant {
     name?: string;
     applicantPhoto?: ProfileImage | null;
     interviewDate?: string;
+    rejected?: boolean;
 }

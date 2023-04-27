@@ -1,4 +1,5 @@
 <div class="applicant" (click)="onClick()">
+    <img *ngIf="isRejected" class="rejected-applicant" src="assets/rejection.svg" />
     <img class="applicant-photo" src="assets/abstract-user-flat-1.svg" [alt]="applicant.name" [title]="applicant.name" />
     <span class="applicant-name">{{ applicant.name }}</span>
 </div>

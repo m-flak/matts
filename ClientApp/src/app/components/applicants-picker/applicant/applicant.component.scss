@@ -8,8 +8,15 @@
     }
 }
 
-.applicant-photo {
+.applicant-photo, .rejected-applicant {
     width: 4.0em;
     height: 4.0em;
     border-radius: 50%;
+}
+
+.rejected-applicant {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 100;
 }

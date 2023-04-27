@@ -87,4 +87,21 @@ describe('ApplicantsPickerComponent', () => {
 
     expect(applicantsInComponent.length).toEqual(applicantsList.length);
   });
+
+  it('should display rejected applicants as rejected', async () => {
+    component.applicants = applicantsList.map(a => ({...a, rejected: true}));
+    fixture.detectChanges();
+
+    const harness = await TestbedHarnessEnvironment.harnessForFixture(
+      fixture,
+      ApplicantsPickerHarness
+    );
+
+    const applicantsInComponent = await harness.getApplicants();
+
+    expect(applicantsInComponent.length).toEqual(applicantsList.length);
+    for await(const isReject of applicantsInComponent.map(a => a.isRejected())) {
+      expect(isReject).toBe(true);
+    }
+  });
 });
