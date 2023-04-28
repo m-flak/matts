@@ -26,7 +26,8 @@
                 <p>Information and such here....</p>
                 <div class="btn-group action-buttons">
                     <button mat-flat-button color="primary" (click)="setMode(MODE_INTERVIEW)">Schedule Interview</button>
-                    <button mat-flat-button color="warn">Reject</button>
+                    <button *ngIf="this.currentApplicant?.rejected !== true" mat-flat-button color="warn" (click)="rejectApplicant(this.currentApplicant)">Reject</button>
+                    <button *ngIf="this.currentApplicant?.rejected === true" mat-stroked-button color="warn" (click)="unrejectApplicant(this.currentApplicant)">Don't Reject</button>
                 </div>
             </div>
             <div *ngIf="this.currentApplicant !== null && _hasInterview(this.currentApplicant) === true" class="selected-job-applicant-details-with-interview">

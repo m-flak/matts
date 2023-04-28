@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 import {ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
-import { ApplicantHarness } from './applicant/applicant.harness';
+import { ApplicantHarness, ApplicantHarnessFilters } from './applicant/applicant.harness';
 
 export class ApplicantsPickerHarness extends ComponentHarness {
     static hostSelector = '.applicants-picker';
@@ -25,7 +25,7 @@ export class ApplicantsPickerHarness extends ComponentHarness {
         return new HarnessPredicate(ApplicantsPickerHarness, options);
     }
 
-    async getApplicants(filters: any = {}): Promise<ApplicantHarness[]> {
+    async getApplicants(filters: ApplicantHarnessFilters = {}): Promise<ApplicantHarness[]> {
         return await this.locatorForAll(ApplicantHarness.with(filters))();
     }
 }

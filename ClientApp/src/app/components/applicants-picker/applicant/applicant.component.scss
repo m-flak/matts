@@ -15,8 +15,8 @@
 }
 
 .rejected-applicant {
-    position: absolute;
-    top: 0;
-    left: 0;
+    position: fixed;
+    float: left;
+    margin-left: 8px;
     z-index: 100;
 }

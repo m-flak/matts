@@ -172,6 +172,18 @@ export class JobPageComponent implements OnInit, OnDestroy {
     this.events = this.events.filter(e => e.id !== applicant.uuid);
   }
 
+  rejectApplicant(applicant: Applicant) {
+    applicant.rejected = true;
+    this.jobPageDataService.updateApplicantDetails(applicant);
+    this.changesMadeToJob = true;
+  }
+
+  unrejectApplicant(applicant: Applicant) {
+    applicant.rejected = false;
+    this.jobPageDataService.updateApplicantDetails(applicant);
+    this.changesMadeToJob = true;
+  }
+
   _hasInterview(applicant: Applicant): boolean {
     return (applicant.interviewDate !== undefined && applicant.interviewDate !== null);
   }

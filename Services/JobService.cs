@@ -24,7 +24,7 @@ using matts.Models;
 
 public partial class JobService : IJobService
 {
-    private readonly List<Job> _jobsDummyData;
+    private static List<Job>? _jobsDummyData = null;
     private readonly IConfiguration _configuration;
     private readonly IJobRepository _repository;
 
@@ -35,8 +35,11 @@ public partial class JobService : IJobService
         _configuration = configuration;
         _repository = repository;
 
-        _jobsDummyData = CreateJobs();
-
+        if(_jobsDummyData == null)
+        {
+            _jobsDummyData = CreateJobs();
+        }
+        
         ConfigureService();
     }
 

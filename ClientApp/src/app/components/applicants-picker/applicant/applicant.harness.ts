@@ -15,13 +15,22 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-import {ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
+import {ComponentHarness, HarnessPredicate, BaseHarnessFilters } from '@angular/cdk/testing';
+
+export interface ApplicantHarnessFilters extends BaseHarnessFilters {
+    isRejected?: boolean;
+}
 
 export class ApplicantHarness extends ComponentHarness {
     static hostSelector = '.applicant';
 
-    static with(options: any = {}): HarnessPredicate<ApplicantHarness> {
-        return new HarnessPredicate(ApplicantHarness, options);
+    static with(options: ApplicantHarnessFilters = {}): HarnessPredicate<ApplicantHarness> {
+        return new HarnessPredicate(ApplicantHarness, options)
+            .addOption(
+                'isRejected',
+                options.isRejected,
+                async (harness, isRejected) => (await harness.isRejected()) === isRejected,
+            );
     }
 
     async isRejected(): Promise<boolean> {

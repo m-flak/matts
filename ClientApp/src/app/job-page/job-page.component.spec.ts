@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import {MatButtonModule} from '@angular/material/button';
 import { compareAsc, parseISO } from "date-fns";
 import { JobPageComponent } from './job-page.component';
@@ -25,8 +25,12 @@ import { ActivatedRoute, ParamMap } from '@angular/router';
 import { of } from 'rxjs';
 import { BackendService } from '../services/backend.service';
 import { HttpResponse } from '@angular/common/http';
-import { Job } from '../models';
+import { Applicant, Job } from '../models';
 import { JobPageDataService } from '../services/job-page-data.service';
+import { HarnessLoader } from '@angular/cdk/testing';
+import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
+import { ApplicantsPickerHarness } from '../components/applicants-picker/applicants-picker.harness';
+import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 
 const jobData: Job = {
   "id": 1,
@@ -74,10 +78,11 @@ describe('JobPageComponent', () => {
   let component: JobPageComponent;
   let fixture: ComponentFixture<JobPageComponent>;
   let pageService: JobPageDataService;
+  let loader: HarnessLoader;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ ComponentsModule, MatButtonModule ],
+      imports: [ ComponentsModule, MatButtonModule, NgbAlertModule ],
       declarations: [ JobPageComponent ],
       providers: [
         { provide: BackendService, useValue: FakeBackendService },
@@ -89,6 +94,7 @@ describe('JobPageComponent', () => {
 
     fixture = TestBed.createComponent(JobPageComponent);
     pageService = TestBed.inject(JobPageDataService);
+    loader = TestbedHarnessEnvironment.loader(fixture);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -119,5 +125,48 @@ describe('JobPageComponent', () => {
 
       expect(compareAsc(expectedDate, actualDate)).toEqual(0);
     });
+  }));
+
+  it('should have the applicants in the picker', waitForAsync(() => {
+    fixture.detectChanges();
+
+    fixture.whenStable().then(async () => {
+      const applicantsPicker = await loader.getHarness(ApplicantsPickerHarness);
+      const applicants = await applicantsPicker.getApplicants();
+      expect(applicants.length).toEqual((jobData.applicants?.length as number));
+    });
+  }));
+
+  it('should be able to reject applicants and display the rejection', waitForAsync(() => {
+    fixture.detectChanges();
+
+    fixture.whenStable()
+      .then(() => component.rejectApplicant( (jobData.applicants as Applicant[])[0] ))
+      .then(async () => {
+        fixture.detectChanges();
+        const applicantsPicker = await loader.getHarness(ApplicantsPickerHarness);
+        const rejectApplicants = await applicantsPicker.getApplicants({ isRejected: true });
+        expect(rejectApplicants.length).toEqual(1);
+      });
+  }));
+
+  it('should be able to reject applicants and then unreject applicants', waitForAsync(() => {
+    fixture.detectChanges();
+
+    fixture.whenStable()
+      .then(() => component.rejectApplicant( (jobData.applicants as Applicant[])[0] ))
+      .then(async () => {
+        fixture.detectChanges();
+        const applicantsPicker = await loader.getHarness(ApplicantsPickerHarness);
+        const rejectApplicants = await applicantsPicker.getApplicants({ isRejected: true });
+        expect(rejectApplicants.length).toEqual(1);
+      })
+      .then(() => component.unrejectApplicant( (jobData.applicants as Applicant[])[0] ))
+      .then(async () => {
+        fixture.detectChanges();
+        const applicantsPicker = await loader.getHarness(ApplicantsPickerHarness);
+        const rejectApplicants = await applicantsPicker.getApplicants({ isRejected: true });
+        expect(rejectApplicants.length).toEqual(0);
+      });
   }));
 });
