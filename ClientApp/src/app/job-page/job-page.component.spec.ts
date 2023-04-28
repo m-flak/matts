@@ -169,4 +169,19 @@ describe('JobPageComponent', () => {
         expect(rejectApplicants.length).toEqual(0);
       });
   }));
+
+  it('should call the persistChanges calls in the correct order', waitForAsync(() => {
+    spyOn(pageService, 'changeJobData').and.callFake(job => of(new HttpResponse<any>()));
+    spyOn(pageService, 'rejectApplicantFromJob').and.callFake((job,app) => of(new HttpResponse<any>()));
+
+    fixture.detectChanges();
+
+    fixture.whenStable()
+      .then(() => component.rejectApplicant( (jobData.applicants as Applicant[])[0] ))
+      .then(async () => {
+        fixture.detectChanges();
+        const wait4me = await component.persistChanges();
+        expect(pageService.changeJobData).toHaveBeenCalledBefore(pageService.rejectApplicantFromJob);
+      });
+  }));
 });

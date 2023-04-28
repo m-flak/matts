@@ -83,13 +83,19 @@ export class JobPageDataService {
         this.currentJobSubject.next(this._currentJob);
     }
 
-    getCurrentJob(): Job {
+    getCurrentJob(pruneRejected: boolean = false): Job {
         const returnJob = { ...this._currentJob };
         returnJob.applicants = [];
 
         const set: Set<string> = this.jobApplicants.get(returnJob.uuid as string) ?? new Set<string>();
         for (const applicantUuid of set) {
-            returnJob.applicants.push(this.applicants.get(applicantUuid) as Applicant);
+            const applicant = this.applicants.get(applicantUuid) as Applicant;
+
+            if (pruneRejected && applicant.rejected) {
+                continue;
+            }
+
+            returnJob.applicants.push(applicant);
         }
 
         return returnJob;
@@ -128,9 +134,35 @@ export class JobPageDataService {
         return dates;
     }
 
+    rejectApplicantFromJob(jobUuid: string, applicantUuid: string) : Observable<any> {
+        return this.backendService.rejectForJob(jobUuid, applicantUuid).pipe(
+            tap(() => this._jobMap.set(jobUuid, { ...(this._jobMap.get(jobUuid) as JobMapValue), isDirty: true})),
+            tap(() => {
+                const gatekept = new Set<string>();
+                let stillInTheGame = this.jobApplicants.get(jobUuid) as Set<string>;
+
+                gatekept.add(applicantUuid);
+                stillInTheGame = JobPageDataService._symmetricDifference(gatekept, stillInTheGame);
+                this.jobApplicants.set(jobUuid, stillInTheGame);
+            })
+        );
+    }
+
     resetService() {
         this._jobMap.clear();
         this.jobApplicants.clear();
         this.applicants.clear();
     }
+
+    private static _symmetricDifference(setA: Set<any>, setB: Set<any>): Set<any> {
+        const _difference = new Set(setA);
+        for (const elem of setB) {
+          if (_difference.has(elem)) {
+            _difference.delete(elem);
+          } else {
+            _difference.add(elem);
+          }
+        }
+        return _difference;
+      }
 }

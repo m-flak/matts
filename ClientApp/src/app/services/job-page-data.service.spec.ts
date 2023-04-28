@@ -63,7 +63,8 @@ const jobData: Job = {
 
 const FakeBackendService = {
     getJobDetails: (id: string) => of(jobData),
-    updateJob: (job: Job) => of(new HttpResponse<any>())
+    updateJob: (job: Job) => of(new HttpResponse<any>()),
+    rejectForJob: (jobUuid: string, applicantUuid: string) => of(new HttpResponse<any>())
 };
 
 describe('JobPageDataService', () => {
@@ -180,4 +181,19 @@ describe('JobPageDataService', () => {
             done();
         });
     });
+
+    it('should mark a job dirty and remove the applicant relationship', (done) => {
+        spyOn(backendService, 'rejectForJob').and.callThrough();
+        jobPageDataService.setCurrentJob(jobData);
+
+        jobPageDataService.rejectApplicantFromJob('54991ebe-ba9e-440b-a202-247f0c33574f', 'db185379-70e8-4ec6-b5f7-370415ca3b43').subscribe(() => {
+            expect(backendService.rejectForJob).toHaveBeenCalled();
+
+            // null bcuz it's dirty
+            expect(jobPageDataService._getJob('54991ebe-ba9e-440b-a202-247f0c33574f')).toBeNull();
+            expect(jobPageDataService.jobApplicants.get('54991ebe-ba9e-440b-a202-247f0c33574f')?.has('db185379-70e8-4ec6-b5f7-370415ca3b43')).toBe(false);
+            expect(jobPageDataService.getCurrentJob().applicants?.find(a => a.uuid === 'db185379-70e8-4ec6-b5f7-370415ca3b43')).toBeUndefined();
+            done();
+        });
+    })
 });
