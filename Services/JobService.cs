@@ -55,11 +55,16 @@ public partial class JobService : IJobService
 
     public async Task<Job> GetJobDetails(string uuid)
     {
-        Job job = _jobsDummyData
+        if (_useDummyData)
+        { 
+            Job job = _jobsDummyData
             .Where(j => j.Uuid == uuid)
             .First();
-        
-        return job;
+
+            return job;
+        }
+
+        return await _repository.GetJobByUuid(uuid);
     }
 
     private void ConfigureService()

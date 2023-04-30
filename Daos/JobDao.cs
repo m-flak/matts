@@ -18,6 +18,7 @@
 using Neo4j.Driver;
 using matts.Interfaces;
 using matts.Models.Db;
+using Mapster;
 
 namespace matts.Daos;
 
@@ -39,19 +40,22 @@ public class JobDao : IDataAccessObject<JobDb>
                 {
                     var cursor = await tx.RunAsync(
                         "MATCH (j:Job) " +
-                        "RETURN j"
+                        "MATCH (a:Applicant)-[r:HAS_APPLIED_TO]->(jj:Job) " +
+                        "WHERE j.uuid = jj.uuid " +
+                        "RETURN j, COUNT(a) as cA"
                     );
-                    var nodes = await cursor.ToListAsync(record => record.Values["j"].As<INode>());
-                    return nodes.Select(node =>
+                    var rows = await cursor.ToListAsync(record => new Tuple<INode, long>(record.Values["j"].As<INode>(), record.Values["cA"].As<long>()));
+                    return rows.Select(row =>
                         {
-                            // Why tf can't I use Mapster for this?
-                            // It doesn't work :(
-                            return new JobDb
-                            {
-                                Uuid = node.Properties["uuid"].As<string>(),
-                                Name = node.Properties["name"].As<string>(),
-                                Status = node.Properties["status"].As<string>()
-                            };
+                            (var job, long applicantCount) = row;
+
+                            TypeAdapterConfig<IReadOnlyDictionary<string, object>, JobDb>.NewConfig()
+                                .NameMatchingStrategy(NameMatchingStrategy.FromCamelCase)
+                                .Compile();
+
+                            JobDb result = TypeAdapter.Adapt<IReadOnlyDictionary<string, object>, JobDb>(job.Properties);
+                            result.ApplicantCount = applicantCount;
+                            return result;
                         })
                         .ToList();
                 });

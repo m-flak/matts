@@ -4,7 +4,7 @@
         <div>
             <span matListItemTitle class="job-list-item-title">{{ job.name }}</span>
             <span matListItemLine>Status: {{ job.status }}</span>
-            <span matListItemLine>{{ (job.applicants !== null) ? job.applicants?.length : 0 }} Applicants</span>
+            <span matListItemLine>{{ job.applicantCount }} Applicants</span>
         </div>
     </mat-list-item>
 </mat-list>

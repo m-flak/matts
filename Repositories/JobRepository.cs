@@ -39,6 +39,11 @@ public class JobRepository : IJobRepository
     public async Task<List<Job>> GetAll()
     {
         var jobs = await _daoJob.GetAll();
-        return jobs.Select(j => j.Adapt<Job>()).ToList();
+        return jobs.Select(j => _mapper.Map<Job>(j)).ToList();
+    }
+
+    public Task<Job> GetJobByUuid(string uuid)
+    {
+        throw new NotImplementedException();
     }
 }

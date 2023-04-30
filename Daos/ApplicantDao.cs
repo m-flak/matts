@@ -15,9 +15,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
+using Mapster;
 using matts.Interfaces;
+using matts.Models;
 using matts.Models.Db;
 using Neo4j.Driver;
+using System;
 
 namespace matts.Daos;
 
@@ -37,6 +40,33 @@ public class ApplicantDao : IDataAccessObject<ApplicantDb>
 
     public async Task<List<ApplicantDb>> GetAllByRelationship(string relationship, string whomUuid)
     {
-        throw new NotImplementedException();
+        using (var session = _driver.AsyncSession())
+        {
+            return await session.ExecuteReadAsync(
+                async tx =>
+                {
+                    var cursor = await tx.RunAsync(
+                        "MATCH(a: Applicant) -[r: $relation]->(j: Job) " +
+                        "WHERE j.uuid = $uuid " +
+                        "RETURN a ",
+                        new
+                        {
+                            relation = relationship,
+                            uuid = whomUuid
+                        }
+                    );
+
+                    var rows = await cursor.ToListAsync(record => record.Values["a"].As<INode>());
+                    return rows.Select(row =>
+                        {
+                            TypeAdapterConfig<IReadOnlyDictionary<string, object>, ApplicantDb>.NewConfig()
+                                        .NameMatchingStrategy(NameMatchingStrategy.FromCamelCase)
+                                        .Compile();
+
+                            return TypeAdapter.Adapt<IReadOnlyDictionary<string, object>, ApplicantDb>(row.Properties);
+                        })
+                        .ToList();
+                });
+        }
     }
 }

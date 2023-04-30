@@ -31,6 +31,8 @@ public class Job
 
     public List<Applicant>? Applicants { get; set; }
 
+    public long ApplicantCount { get; set; }
+
     public override string ToString()
     {
         var options = new JsonSerializerOptions { WriteIndented = true };

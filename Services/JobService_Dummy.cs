@@ -35,7 +35,8 @@ public partial class JobService : IJobService
             Uuid = System.Guid.NewGuid().ToString(),
             Name = name,
             Status = status,
-            Applicants = applicants
+            Applicants = applicants,
+            ApplicantCount = applicants?.Count ?? 0
         };
     }
 

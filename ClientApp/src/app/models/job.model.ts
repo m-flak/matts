@@ -24,4 +24,7 @@ export interface Job {
     name?: string;
     status?: string;
     applicants?: Applicant[];
+
+    // For the summarized versions of this object
+    applicantCount?: number;
 }
