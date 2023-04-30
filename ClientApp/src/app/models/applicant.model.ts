@@ -24,9 +24,5 @@ export interface Applicant {
     name?: string;
     applicantPhoto?: ProfileImage | null;
     interviewDate?: string;
-
-    applicantCount?: number;
-
-    // frontend only
     rejected?: boolean;
 }
