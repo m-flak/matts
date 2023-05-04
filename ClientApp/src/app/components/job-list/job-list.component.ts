@@ -25,8 +25,17 @@ import { Job } from 'src/app/models';
   styleUrls: ['./job-list.component.scss']
 })
 export class JobListComponent implements OnInit {
-  @Input()
-  jobs: Job[] = []
+  private _jobs: Job[] = [];
+  
+  @Input() set jobs(jjobss: Job[]) {
+    this.statuses = jjobss.map(j => j.status ?? '');
+    this._jobs = jjobss;
+  }
+  get jobs() {
+    return this._jobs;
+  }
+
+  statuses: string[] = [];
 
   @Output()
   selectedJob: EventEmitter<Job> = new EventEmitter();

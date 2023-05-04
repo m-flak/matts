@@ -2,6 +2,7 @@
 
 @include text.emphasis;
 @include text.italicized;
+@include text.thick-headings34;
 
 .calendar-container {
     background-color: rgba(128,128,128,0.1);
@@ -31,4 +32,14 @@
     button {
         border: 1px solid black;
     }
+}
+
+.job-description-body {
+    margin-top: 1rem;
+}
+
+.job-status {
+    padding: 0.33rem;
+
+    @include text.job-status-text;
 }

@@ -25,5 +25,7 @@ public class JobDb
 
     public string? Status { get; set; }
 
+    public string? Description { get; set; }
+    
     public long ApplicantCount { get; set; }
 }

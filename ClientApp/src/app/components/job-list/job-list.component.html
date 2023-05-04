@@ -1,9 +1,9 @@
 <mat-list>
-    <mat-list-item lines="3" [ngClass]="'job-list-item'" *ngFor="let job of jobs" (click)="onClick(job)">
+    <mat-list-item lines="3" [ngClass]="'job-list-item'" *ngFor="let job of jobs; index as i" (click)="onClick(job)">
         <img matListItemAvatar class="job-list-item-icon" src="assets/briefcase.svg" alt="Job" [title]="job.name" />
         <div>
             <span matListItemTitle class="job-list-item-title">{{ job.name }}</span>
-            <span matListItemLine>Status: {{ job.status }}</span>
+            <span matListItemLine>Status: <span [ngClass]="statuses[i].toLowerCase()">{{ job.status }}</span></span>
             <span matListItemLine>{{ job.applicantCount }} Applicants</span>
         </div>
     </mat-list-item>

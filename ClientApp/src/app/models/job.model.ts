@@ -23,6 +23,7 @@ export interface Job {
     uuid?: string;
     name?: string;
     status?: string;
+    description?: string;
     applicants?: Applicant[];
 
     // For the summarized versions of this object

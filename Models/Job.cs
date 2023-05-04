@@ -29,6 +29,8 @@ public class Job
 
     public string? Status { get; set; }
 
+    public string? Description { get; set; }
+
     public List<Applicant>? Applicants { get; set; }
 
     public long ApplicantCount { get; set; }

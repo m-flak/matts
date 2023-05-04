@@ -23,7 +23,8 @@ public class JobFixture
         {
             Uuid = System.Guid.NewGuid().ToString(),
             Name = name,
-            Status = status
+            Status = status,
+            Description = "JD"
         };
     }
 

@@ -20,16 +20,18 @@
         </ngb-alert>
         <div class="d-flex justify-content-between job-page-header">
             <h1>{{ this.currentJob.name }}</h1>
+            <span [ngClass]="['job-status', this.currentJob.status?.toLowerCase()]">{{ this.currentJob.status }}</span>
             <ng-container *ngIf="this.currentApplicant !== null">
-                <button mat-icon-button aria-label="Go back to job description" title="Go back to job description" (click)="clearCurrentApplicant()">
+                <button mat-icon-button color="primary" aria-label="Go back to job description" title="Go back to job description" (click)="clearCurrentApplicant()">
                     <mat-icon>arrow_left</mat-icon>
                 </button>
             </ng-container>
         </div>
         <ng-container *ngIf="this.mode === MODE_JOB_DETAILS">
             <cmp-applicants-picker [applicants]="this.currentJob.applicants ?? []" (applicantPicked)="onPickApplicant($event)"></cmp-applicants-picker>
-            <div *ngIf="this.currentApplicant === null">
-                <p>Job description here</p>
+            <div *ngIf="this.currentApplicant === null" class="job-description-body">
+                <h3>Job Description:</h3>
+                <p>{{ this.currentJob.description }}</p>
             </div>
             <div *ngIf="this.currentApplicant !== null && _hasInterview(this.currentApplicant) === false" class="selected-job-applicant-details">
                 <h2>{{ this.currentApplicant.name }}</h2>

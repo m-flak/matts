@@ -35,6 +35,7 @@ public partial class JobService : IJobService
             Uuid = System.Guid.NewGuid().ToString(),
             Name = name,
             Status = status,
+            Description = $"John Doe Corporation is looking for a talented {name} professional to work in a fast-paced, exciting environment!",
             Applicants = applicants,
             ApplicantCount = applicants?.Count ?? 0
         };
