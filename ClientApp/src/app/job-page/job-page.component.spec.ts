@@ -17,6 +17,7 @@
 **/
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
 import { compareAsc, parseISO } from "date-fns";
 import { JobPageComponent } from './job-page.component';
 import { JobConstants } from '../constants';
@@ -82,7 +83,7 @@ describe('JobPageComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ ComponentsModule, MatButtonModule, NgbAlertModule ],
+      imports: [ ComponentsModule, MatButtonModule, MatIconModule, NgbAlertModule ],
       declarations: [ JobPageComponent ],
       providers: [
         { provide: BackendService, useValue: FakeBackendService },

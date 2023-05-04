@@ -97,6 +97,10 @@ export class JobPageComponent implements OnInit, OnDestroy {
     this.jobPageDataService.assignCurrentApplicant(applicantUuid);
   }
 
+  clearCurrentApplicant() {
+    this.currentApplicant = null;
+  }
+
   setMode(mode: number) {
     this.mode = mode;
   }

@@ -17,8 +17,15 @@
             <div class="d-flex justify-content-between">
                 <span class="emphasis italicized">Changes to this job won't be saved until clicking SAVE.</span><button (click)="persistChanges()" mat-stroked-button>Save</button>
             </div>
-            </ngb-alert>
-        <h1>{{ this.currentJob.name }}</h1>
+        </ngb-alert>
+        <div class="d-flex justify-content-between job-page-header">
+            <h1>{{ this.currentJob.name }}</h1>
+            <ng-container *ngIf="this.currentApplicant !== null">
+                <button mat-icon-button aria-label="Go back to job description" title="Go back to job description" (click)="clearCurrentApplicant()">
+                    <mat-icon>arrow_left</mat-icon>
+                </button>
+            </ng-container>
+        </div>
         <ng-container *ngIf="this.mode === MODE_JOB_DETAILS">
             <cmp-applicants-picker [applicants]="this.currentJob.applicants ?? []" (applicantPicked)="onPickApplicant($event)"></cmp-applicants-picker>
             <div *ngIf="this.currentApplicant !== null && _hasInterview(this.currentApplicant) === false" class="selected-job-applicant-details">
