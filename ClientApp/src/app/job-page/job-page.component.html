@@ -28,6 +28,9 @@
         </div>
         <ng-container *ngIf="this.mode === MODE_JOB_DETAILS">
             <cmp-applicants-picker [applicants]="this.currentJob.applicants ?? []" (applicantPicked)="onPickApplicant($event)"></cmp-applicants-picker>
+            <div *ngIf="this.currentApplicant === null">
+                <p>Job description here</p>
+            </div>
             <div *ngIf="this.currentApplicant !== null && _hasInterview(this.currentApplicant) === false" class="selected-job-applicant-details">
                 <h2>{{ this.currentApplicant.name }}</h2>
                 <p>Information and such here....</p>
