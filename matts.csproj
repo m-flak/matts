@@ -17,6 +17,13 @@
     <PackageReference Include="Neo4j.Driver" Version="5.7.0" />
   </ItemGroup>
 
+  <!-- Allow the unit tests project to access internal members for testing purposes. -->
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>$(AssemblyName).Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
   <ItemGroup>
     <!-- Don't publish the SPA source files, but do show them in the project files list -->
     <Compile Remove="matts.Tests\**" />

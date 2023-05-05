@@ -17,6 +17,7 @@
 **/
 using Mapster;
 using MapsterMapper;
+using matts.Constants;
 using matts.Interfaces;
 using matts.Models;
 using matts.Models.Db;
@@ -45,7 +46,7 @@ public class JobRepository : IJobRepository
     public async Task<Job> GetJobByUuid(string uuid)
     {
         var job = await _daoJob.GetByUuid(uuid);
-        var applicants = await _daoApp.GetAllByRelationship("HAS_APPLIED_TO", uuid);
+        var applicants = await _daoApp.GetAllByRelationship(RelationshipConstants.HAS_APPLIED_TO, uuid);
 
         var returnJob = _mapper.Map<Job>(job);
         returnJob.Applicants = applicants.Select(a => _mapper.Map<Applicant>(a)).ToList();

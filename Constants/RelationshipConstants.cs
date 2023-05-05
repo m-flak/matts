@@ -17,12 +17,11 @@
 **/
 namespace matts.Constants;
 
-public sealed class JobConstants 
+public sealed class RelationshipConstants
 {
-    public const string STATUS_OPEN = "OPEN";
-    public const string STATUS_FILLED = "FILLED";
-    public const string STATUS_CLOSED = "CLOSED";
+    public const string HAS_APPLIED_TO = "HAS_APPLIED_TO";
+    public const string IS_INTERVIEWING_FOR = "IS_INTERVIEWING_FOR";
 
     // Constants class
-    private JobConstants() {}
+    private RelationshipConstants() {}
 }

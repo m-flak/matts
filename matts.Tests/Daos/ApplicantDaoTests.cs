@@ -1,4 +1,5 @@
 ﻿using matts.Tests.Fixture;
+using matts.Constants;
 using matts.Daos;
 using matts.Models.Db;
 using Moq;
@@ -19,6 +20,34 @@ public class ApplicantDaoTests
     }
 
     [Fact]
+    public void GetRelationshipParams_NullForUnknown()
+    {
+        var relParams = ApplicantDao.GetRelationshipParams("NONEXISTENT_RELATIONSHIP");
+        Assert.Null(relParams);
+    }
+
+    [Theory]
+    [InlineData(RelationshipConstants.HAS_APPLIED_TO, new string[]{ "rejected" })]
+    [InlineData(RelationshipConstants.IS_INTERVIEWING_FOR, new string[]{ "interviewDate" })]
+    public void GetRelationshipParams_ForEachRelationship(string relationship, string[] expectedParams) 
+    {
+        var relParams = ApplicantDao.GetRelationshipParams(relationship);
+
+        Assert.NotNull(relParams);
+        Assert.All(relParams, (p, i) => Assert.Equal(expectedParams[i], p));
+    }
+
+    [Theory]
+    [InlineData("NONEXISTENT_RELATIONSHIP", "")]
+    [InlineData(RelationshipConstants.HAS_APPLIED_TO, ", r.rejected ")]
+    [InlineData(RelationshipConstants.IS_INTERVIEWING_FOR, ", r.interviewDate ")]
+    public void AddReturnsForRelationshipParams_ForEachRelationship(string relationship, string expectedExtraReturns)
+    {
+        string extraReturns = ApplicantDao.AddReturnsForRelationshipParams(relationship);
+        Assert.Equal(expectedExtraReturns, extraReturns);
+    }
+
+    [Fact]
     public async void GetAllByRelationship_GetsTheApplicants()
     {
         _session.Setup(s => s.ExecuteReadAsync(It.IsAny<Func<IAsyncQueryRunner, Task<List<ApplicantDb>>>>(), It.IsAny<Action<TransactionConfigBuilder>>()))
@@ -27,7 +56,7 @@ public class ApplicantDaoTests
             .Returns(_session.Object);
         var sut = new ApplicantDao(_driver.Object);
 
-        var Applicants = await sut.GetAllByRelationship("HAS_APPLIED_TO", "7df53d53-7c25-4b37-a004-6d9e30d44abe");
+        var Applicants = await sut.GetAllByRelationship(RelationshipConstants.HAS_APPLIED_TO, "7df53d53-7c25-4b37-a004-6d9e30d44abe");
 
         Assert.NotNull(Applicants);
         Assert.Equal(4, Applicants.Count);

@@ -16,11 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 using Mapster;
+using matts.Constants;
 using matts.Interfaces;
 using matts.Models;
 using matts.Models.Db;
 using Neo4j.Driver;
 using System;
+using System.Text;
 
 namespace matts.Daos;
 
@@ -48,7 +50,7 @@ public class ApplicantDao : IDataAccessObject<ApplicantDb>
                     var cursor = await tx.RunAsync(
                         "MATCH(a: Applicant) -[r: " + $"{relationship}" +"]->(j: Job) " +
                         "WHERE j.uuid = $uuid " +
-                        "RETURN a ",
+                        $"RETURN a {AddReturnsForRelationshipParams(relationship)}",
                         new
                         {
                             uuid = whomUuid
@@ -72,5 +74,58 @@ public class ApplicantDao : IDataAccessObject<ApplicantDb>
     public Task<ApplicantDb> GetByUuid(string uuid)
     {
         throw new NotImplementedException();
+    }
+
+    internal static string[]? GetRelationshipParams(string relationship)
+    {
+        string[]? relParams = null;
+
+        switch (relationship)
+        {
+            case RelationshipConstants.HAS_APPLIED_TO:
+                {
+                    relParams = new string[]
+                    {
+                        "rejected"
+                    };
+                }
+                return relParams;
+            case RelationshipConstants.IS_INTERVIEWING_FOR:
+                {
+                    relParams = new string[]
+                    {
+                        "interviewDate"
+                    };
+                }
+                return relParams;
+            default:
+                return relParams;
+        }
+    }
+
+    internal static string AddReturnsForRelationshipParams(string relationship)
+    {
+        string returns = "";
+
+        switch (relationship)
+        {
+            case RelationshipConstants.HAS_APPLIED_TO:
+            case RelationshipConstants.IS_INTERVIEWING_FOR:
+                {
+                    var builder = new StringBuilder();
+
+                    foreach (string relParam in GetRelationshipParams(relationship) ?? Enumerable.Empty<string>())
+                    {
+                        builder.AppendFormat(", r.{0}", relParam);
+                    }
+
+                    builder.Append(" ");
+                    returns = builder.ToString();
+                }
+                return returns;
+            
+            default:
+                return returns;
+        }
     }
 }
