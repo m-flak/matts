@@ -4,6 +4,10 @@
 @include text.italicized;
 @include text.thick-headings34;
 
+article.selected-job {
+    height: 100%;
+}
+
 .calendar-container {
     background-color: rgba(128,128,128,0.1);
     padding: 0.25rem;
@@ -32,6 +36,11 @@
     button {
         border: 1px solid black;
     }
+}
+
+.job-page-body-footer {
+    border-top: 1px solid black;
+    margin-top: 4em;
 }
 
 .job-description-body {

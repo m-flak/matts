@@ -13,3 +13,7 @@
 .positions-card + .details-card {
     margin-left: 2rem;
 }
+
+.details-card mat-card-content {
+    height: 100%;
+}
