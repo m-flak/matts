@@ -46,12 +46,11 @@ public class ApplicantDao : IDataAccessObject<ApplicantDb>
                 async tx =>
                 {
                     var cursor = await tx.RunAsync(
-                        "MATCH(a: Applicant) -[r: $relation]->(j: Job) " +
+                        "MATCH(a: Applicant) -[r: " + $"{relationship}" +"]->(j: Job) " +
                         "WHERE j.uuid = $uuid " +
                         "RETURN a ",
                         new
                         {
-                            relation = relationship,
                             uuid = whomUuid
                         }
                     );
@@ -68,5 +67,10 @@ public class ApplicantDao : IDataAccessObject<ApplicantDb>
                         .ToList();
                 });
         }
+    }
+
+    public Task<ApplicantDb> GetByUuid(string uuid)
+    {
+        throw new NotImplementedException();
     }
 }

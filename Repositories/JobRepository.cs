@@ -42,8 +42,13 @@ public class JobRepository : IJobRepository
         return jobs.Select(j => _mapper.Map<Job>(j)).ToList();
     }
 
-    public Task<Job> GetJobByUuid(string uuid)
+    public async Task<Job> GetJobByUuid(string uuid)
     {
-        throw new NotImplementedException();
+        var job = await _daoJob.GetByUuid(uuid);
+        var applicants = await _daoApp.GetAllByRelationship("HAS_APPLIED_TO", uuid);
+
+        var returnJob = _mapper.Map<Job>(job);
+        returnJob.Applicants = applicants.Select(a => _mapper.Map<Applicant>(a)).ToList();
+        return returnJob;
     }
 }

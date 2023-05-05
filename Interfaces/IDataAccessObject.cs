@@ -22,4 +22,6 @@ public interface IDataAccessObject<T> where T : class
     public Task<List<T>> GetAll();
 
     public Task<List<T>> GetAllByRelationship(string relationship, string whomUuid);
+
+    public Task<T> GetByUuid(string uuid);
 }

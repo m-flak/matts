@@ -66,4 +66,32 @@ public class JobDao : IDataAccessObject<JobDb>
     {
         throw new NotImplementedException();
     }
+
+    public async Task<JobDb> GetByUuid(string uuid)
+    {
+        using (var session = _driver.AsyncSession())
+        {
+            return await session.ExecuteReadAsync(
+                async tx =>
+                {
+                    var cursor = await tx.RunAsync(
+                        "MATCH (j:Job) " +
+                        "WHERE j.uuid = $juuid " +
+                        "RETURN j",
+                        new
+                        {
+                            juuid = uuid
+                        }
+                    );
+
+                    var row = await cursor.SingleAsync(record => record.Values["j"].As<INode>());
+
+                    TypeAdapterConfig<IReadOnlyDictionary<string, object>, JobDb>.NewConfig()
+                                .NameMatchingStrategy(NameMatchingStrategy.FromCamelCase)
+                                .Compile();
+
+                    return TypeAdapter.Adapt<IReadOnlyDictionary<string, object>, JobDb>(row.Properties);
+                });
+        }
+    }
 }
