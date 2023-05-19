@@ -105,6 +105,11 @@ public class ApplicantDao : IDataAccessObject<ApplicantDb>
 
     internal static string AddReturnsForRelationshipParams(string relationship)
     {
+        return AddReturnsForRelationshipParams(relationship, "r");
+    }
+
+    internal static string AddReturnsForRelationshipParams(string relationship, string prefix)
+    {
         string returns = "";
 
         switch (relationship)
@@ -116,7 +121,7 @@ public class ApplicantDao : IDataAccessObject<ApplicantDb>
 
                     foreach (string relParam in GetRelationshipParams(relationship) ?? Enumerable.Empty<string>())
                     {
-                        builder.AppendFormat(", r.{0}", relParam);
+                        builder.AppendFormat(", {0}.{1}", prefix, relParam);
                     }
 
                     builder.Append(" ");
