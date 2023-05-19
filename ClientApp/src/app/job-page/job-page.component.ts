@@ -25,6 +25,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { InterviewDate, JobPageDataService } from '../services/job-page-data.service';
 import { formatISO } from 'date-fns';
 import { ChangeCommandData, JobPageChanges } from './job-page-changes';
+import { JobConstants } from '../constants';
 
 @Component({
   selector: 'app-job-page',
@@ -34,6 +35,8 @@ import { ChangeCommandData, JobPageChanges } from './job-page-changes';
 export class JobPageComponent implements OnInit, OnDestroy {
   readonly MODE_JOB_DETAILS: number = 0;
   readonly MODE_INTERVIEW: number = 1;
+
+  readonly _jobStatusConstants = JobConstants;
 
   private _subscription: Subscription | null = null;
   private _subscription2: Subscription | null = null;
@@ -109,6 +112,14 @@ export class JobPageComponent implements OnInit, OnDestroy {
     const date = data.day.date;
     this.viewDate = date;
     this.confirmInterview();
+  }
+
+  setCurrentJobStatus(status: string) {
+    if (this.currentJob !== null) {
+      this.currentJob.status = status;
+      this.jobPageDataService.setCurrentJob(this.currentJob);
+      this.changesMadeToJob = true;
+    }
   }
 
   async persistChanges() {

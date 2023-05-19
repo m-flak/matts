@@ -76,7 +76,30 @@
             </div>
             <div class="job-page-body-footer">
                 <div class="btn-group action-buttons">
-                    
+                    <button
+                        type="button" 
+                        [ngClass]="{'btn': true, 'btn-info': this.currentJob.status !== _jobStatusConstants.STATUS_FILLED, 'btn-outline-info': this.currentJob.status === _jobStatusConstants.STATUS_FILLED }"
+                        [disabled]="this.currentJob.status === _jobStatusConstants.STATUS_FILLED"
+                        (click)="setCurrentJobStatus(_jobStatusConstants.STATUS_FILLED)"
+                        title="Update the current job's status to FILLED.">
+                        Fill Job
+                    </button>
+                    <button 
+                        type="button"
+                        [ngClass]="{'btn': true, 'btn-success': this.currentJob.status !== _jobStatusConstants.STATUS_OPEN, 'btn-outline-success': this.currentJob.status === _jobStatusConstants.STATUS_OPEN }"
+                        [disabled]="this.currentJob.status === _jobStatusConstants.STATUS_OPEN"
+                        (click)="setCurrentJobStatus(_jobStatusConstants.STATUS_OPEN)"
+                        title="Update the current job's status to OPEN.">
+                        Open Job
+                    </button>
+                    <button 
+                        type="button" 
+                        [ngClass]="{'btn': true, 'btn-danger': this.currentJob.status !== _jobStatusConstants.STATUS_CLOSED, 'btn-outline-danger': this.currentJob.status === _jobStatusConstants.STATUS_CLOSED }"
+                        [disabled]="this.currentJob.status === _jobStatusConstants.STATUS_CLOSED"
+                        (click)="setCurrentJobStatus(_jobStatusConstants.STATUS_CLOSED)"
+                        title="Update the current job's status to CLOSED.">
+                        Close Job
+                    </button>
                 </div>
             </div>
         </div>

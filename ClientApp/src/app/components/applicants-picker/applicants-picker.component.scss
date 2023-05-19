@@ -9,6 +9,12 @@
     border-radius: 1rem;
 }
 
+.no-applicants-msg {
+    white-space: nowrap;
+    margin: 2px;
+    font-size: smaller;
+}
+
 cmp-applicant {
     cursor: pointer;
 }
