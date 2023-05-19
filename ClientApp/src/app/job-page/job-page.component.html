@@ -22,7 +22,7 @@
             <h1>{{ this.currentJob.name }}</h1>
             <span [ngClass]="['job-status', this.currentJob.status?.toLowerCase()]">{{ this.currentJob.status }}</span>
             <ng-container *ngIf="this.currentApplicant !== null">
-                <button mat-icon-button color="primary" aria-label="Go back to job description" title="Go back to job description" (click)="clearCurrentApplicant()">
+                <button mat-icon-button color="primary" aria-label="Go back to job description" title="Go back to job description" (click)="clearCurrentApplicant(); setMode(MODE_JOB_DETAILS)">
                     <mat-icon>arrow_back</mat-icon>
                 </button>
             </ng-container>
