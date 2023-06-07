@@ -16,6 +16,8 @@ import { CalendarModule, DateAdapter } from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import {NgbAlertModule, NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { UserRoleConstants } from './constants';
+import { HomeGuard } from './guards/home.guard';
 
 @NgModule({
   declarations: [
@@ -35,7 +37,18 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     HttpClientModule,
     FormsModule,
     RouterModule.forRoot([
-      { path: '', component: HomeComponent, children: [ { path: 'viewJob/:id', component: JobPageComponent} ] }
+      { 
+        path: '', 
+        component: HomeComponent,
+        data: { role: UserRoleConstants.USER_ROLE_EMPLOYER },
+        canActivate: [ /* TODO: Real Authentication Guard 1st */ HomeGuard ],
+        children: [
+          { 
+            path: 'viewJob/:id', 
+            component: JobPageComponent 
+          }
+        ] 
+      }
     ]),
     BrowserAnimationsModule,
     CalendarModule.forRoot({
