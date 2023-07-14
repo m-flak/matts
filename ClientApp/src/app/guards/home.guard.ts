@@ -16,8 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 import { Injectable } from "@angular/core";
-import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree } from "@angular/router";
+import { ActivatedRoute, ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree } from "@angular/router";
 import { environment } from './../../environments/environment';
+import { UserRoleConstants } from "../constants";
 
 @Injectable({
     providedIn: "root",
@@ -29,11 +30,25 @@ import { environment } from './../../environments/environment';
         // TODO: Actually implement instead of using env json values
         const activeRole = environment.activeRole;
 
+        sessionStorage.setItem('MenuBar_ActiveRole', activeRole);
+
         if (route.data.role && route.data.role === activeRole) {
             return true;
         }
 
-        // TODO: Use this.router.createUrlTree to navigate to the proper place
+        if (state.url === '/' && activeRole == UserRoleConstants.USER_ROLE_APPLICANT) {
+            return this.router.createUrlTree(['/applicant']);
+        }
+        else if (state.url === '/'  && activeRole == UserRoleConstants.USER_ROLE_EMPLOYER) {
+            return this.router.createUrlTree(['/employer']);
+        }
+        if (state.url.includes('employer') && activeRole == UserRoleConstants.USER_ROLE_APPLICANT) {
+            return this.router.createUrlTree(['/applicant']);
+        }
+        else if (state.url.includes('applicant') && activeRole == UserRoleConstants.USER_ROLE_EMPLOYER) {
+            return this.router.createUrlTree(['/employer']);
+        }
+
         return false;
     }
 }

@@ -32,7 +32,6 @@
     "bootstrap": "^5.2.0",
     "calendar-utils": "^0.10.4",
     "date-fns": "^2.29.3",
-    "ics": "^3.1.0",
     "jquery": "^3.6.0",
     "oidc-client": "^1.11.5",
     "popper.js": "^1.16.0",

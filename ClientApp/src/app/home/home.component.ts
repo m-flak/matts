@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { BackendService } from '../services/backend.service';
 import { Job } from '../models';
 import { Subscription } from 'rxjs';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -14,7 +14,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   jobs: Job[] = [];
 
-  constructor(private backendService: BackendService, private router: Router) {
+  constructor(private backendService: BackendService, private router: Router, private route: ActivatedRoute) {
   }
 
   ngOnDestroy(): void {
@@ -30,6 +30,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   onSelectJob(job: Job) {
-    this.router.navigate(['viewJob', `${job.uuid}`]);
+    this.router.navigate(['viewJob', `${job.uuid}`], { relativeTo: this.route.parent });
   }
 }

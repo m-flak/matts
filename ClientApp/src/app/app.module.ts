@@ -18,12 +18,17 @@ import {NgbAlertModule, NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { UserRoleConstants } from './constants';
 import { HomeGuard } from './guards/home.guard';
+import { AppRootHomeComponent } from './app-root-home';
+import { HomeApplicantComponent } from './home-applicant/home-applicant.component';
+import { AuthGuard } from './guards/auth.guard';
 
 @NgModule({
   declarations: [
     AppComponent,
+    AppRootHomeComponent,
     NavMenuComponent,
     HomeComponent,
+    HomeApplicantComponent,
     JobPageComponent
   ],
   imports: [
@@ -37,17 +42,35 @@ import { HomeGuard } from './guards/home.guard';
     HttpClientModule,
     FormsModule,
     RouterModule.forRoot([
-      { 
-        path: '', 
-        component: HomeComponent,
-        data: { role: UserRoleConstants.USER_ROLE_EMPLOYER },
-        canActivate: [ /* TODO: Real Authentication Guard 1st */ HomeGuard ],
+      {
+        path: '',
+        component: AppRootHomeComponent,
         children: [
+          {
+            path: "",
+            pathMatch: "full",
+            children: [], // Children lets us have an empty component.
+            canActivate: [HomeGuard], // Redirects based on role
+          },
           { 
-            path: 'viewJob/:id', 
-            component: JobPageComponent 
+            path: 'employer', 
+            component: HomeComponent,
+            data: { role: UserRoleConstants.USER_ROLE_EMPLOYER },
+            canActivate: [ AuthGuard, HomeGuard ],
+            children: [
+              { 
+                path: 'viewJob/:id', 
+                component: JobPageComponent 
+              }
+            ] 
+          },
+          { 
+            path: 'applicant', 
+            component: HomeApplicantComponent,
+            data: { role: UserRoleConstants.USER_ROLE_APPLICANT },
+            canActivate: [ AuthGuard, HomeGuard ]
           }
-        ] 
+        ]
       }
     ]),
     BrowserAnimationsModule,

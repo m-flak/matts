@@ -34,7 +34,6 @@
               "src/styles.scss"
             ],
             "scripts": [
-              "node_modules/ics/dist/index.js"
             ]
           },
           "configurations": {
