@@ -30,6 +30,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   onSelectJob(job: Job) {
-    this.router.navigate(['viewJob', `${job.uuid}`], { relativeTo: this.route.parent });
+    this.router.navigate(['viewJob', `${job.uuid}`], { relativeTo: this.route });
   }
 }

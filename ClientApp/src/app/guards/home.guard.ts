@@ -49,6 +49,6 @@ import { UserRoleConstants } from "../constants";
             return this.router.createUrlTree(['/employer']);
         }
 
-        return false;
+        return this.router.createUrlTree(['/welcome/login']);
     }
 }

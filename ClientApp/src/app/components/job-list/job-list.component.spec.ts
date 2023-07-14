@@ -29,7 +29,8 @@ const jobs = [
       id: 1,
       name: 'Tester',
       status: JobConstants.STATUS_OPEN,
-      applicants: []
+      applicants: [],
+      applicantCount: 0
   }
 ];
 

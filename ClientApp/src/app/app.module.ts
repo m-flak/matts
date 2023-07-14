@@ -21,6 +21,7 @@ import { HomeGuard } from './guards/home.guard';
 import { AppRootHomeComponent } from './app-root-home';
 import { HomeApplicantComponent } from './home-applicant/home-applicant.component';
 import { AuthGuard } from './guards/auth.guard';
+import { LoginPageComponent } from './login-page/login-page.component';
 
 @NgModule({
   declarations: [
@@ -29,7 +30,8 @@ import { AuthGuard } from './guards/auth.guard';
     NavMenuComponent,
     HomeComponent,
     HomeApplicantComponent,
-    JobPageComponent
+    JobPageComponent,
+    LoginPageComponent
   ],
   imports: [
     NgbModule,
@@ -69,6 +71,15 @@ import { AuthGuard } from './guards/auth.guard';
             component: HomeApplicantComponent,
             data: { role: UserRoleConstants.USER_ROLE_APPLICANT },
             canActivate: [ AuthGuard, HomeGuard ]
+          }
+        ]
+      },
+      {
+        path: 'welcome',
+        children: [
+          {
+            path: 'login',
+            component: LoginPageComponent
           }
         ]
       }
