@@ -1,3 +1,43 @@
-<a [routerLink]="['/employer']" (click)="this.fakeLoginEmp()">EMPLOYER LOGIN</a>
-<br/>
-<a [routerLink]="['/applicant']" (click)="this.fakeLoginApp()">APPLICANT LOGIN</a>
+<div class="container login-container login-bg pt-5">
+    <div class="text-center">
+        <h1>Welcome!</h1>
+    </div>
+    <mat-accordion [ngClass]="'text-center'" id="LoginAccordion">
+        <mat-expansion-panel id="EmployerLoginPanel" [expanded]="true">
+            <mat-expansion-panel-header>
+                <mat-panel-title>EMPLOYER LOGIN</mat-panel-title>
+            </mat-expansion-panel-header>
+            <form [formGroup]="employerLoginForm" class="d-flex flex-column" (ngSubmit)="performLogin(LOGIN_TYPE_EMPLOYER)">
+                <mat-form-field>
+                    <mat-label>User Name</mat-label>
+                    <input type="text" matInput formControlName="userName" />
+                    <mat-hint *ngIf="!this.employerLoginForm.controls.password.valid"><span class="require-text">*Required</span></mat-hint>
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>Password</mat-label>
+                    <input type="password" matInput formControlName="password" />
+                    <mat-hint *ngIf="!this.employerLoginForm.controls.password.valid"><span class="require-text">*Required</span></mat-hint>
+                </mat-form-field>
+                <button mat-flat-button color="primary" class="align-self-center" type="submit">Login</button>
+            </form>
+        </mat-expansion-panel>
+        <mat-expansion-panel id="ApplicantLoginPanel">
+            <mat-expansion-panel-header>
+                <mat-panel-title>APPLICANT LOGIN</mat-panel-title>
+            </mat-expansion-panel-header>
+            <form [formGroup]="applicantLoginForm" class="d-flex flex-column" (ngSubmit)="performLogin(LOGIN_TYPE_APPLICANT)">
+                <mat-form-field>
+                    <mat-label>User Name</mat-label>
+                    <input type="text" matInput formControlName="userName" />
+                    <mat-hint *ngIf="!this.applicantLoginForm.controls.userName.valid"><span class="require-text">*Required</span></mat-hint>
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>Password</mat-label>
+                    <input type="password" matInput formControlName="password" />
+                    <mat-hint *ngIf="!this.applicantLoginForm.controls.password.valid"><span class="require-text">*Required</span></mat-hint>
+                </mat-form-field>
+                <button mat-flat-button color="primary" class="align-self-center" type="submit">Login</button>
+            </form>
+        </mat-expansion-panel>
+    </mat-accordion>
+</div>
