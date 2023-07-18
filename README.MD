@@ -14,6 +14,8 @@ Run these powershell commands:
 ```Powershell
 $stream = [IO.MemoryStream]::new([Text.Encoding]::UTF8.GetBytes($(Get-Random).toString()))
 $sha = Get-FileHash -InputStream $stream -Algorithm SHA256
-dotnet user-secrets set "Jwt:SigningKey" $sha.Hash
+$bytes = [byte[]] -split ($sha.Hash -replace '..', '0x$& ')
+$key = [Convert]::ToBase64String($bytes)
+dotnet user-secrets set "Jwt:SigningKey" $key
 dotnet user-jwts create
 ```

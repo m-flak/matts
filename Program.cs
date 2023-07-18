@@ -15,9 +15,8 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-using System.Text;
 using MapsterMapper;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Neo4j.Driver;
 using matts.Models.Db;
@@ -31,18 +30,53 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddAuthorization();
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(o =>
+builder.Services.AddAuthentication("Bearer").AddJwtBearer(o =>
 {
     o.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        IssuerValidator = (string issuer, SecurityToken securityToken, TokenValidationParameters validationParameters) =>
+        {
+            var usersJwtIssuer = builder.Configuration["Authentication:Schemes:Bearer:ValidIssuer"];
+            var appJwtIssuer = builder.Configuration["Jwt:Issuer"];
+
+            if ( (usersJwtIssuer != null && issuer == usersJwtIssuer) || (appJwtIssuer != null && issuer == appJwtIssuer) )
+            {
+                return issuer;
+            }
+
+            throw new SecurityTokenInvalidIssuerException($"Invalid Issuer: {issuer}");
+        },
+        IssuerSigningKeyResolver = (string token, SecurityToken securityToken, string kid, TokenValidationParameters validationParameters) =>
+        {
+            var logger = builder.Logging.Services.BuildServiceProvider().GetRequiredService<ILogger<Program>>();
+            
+            List<SecurityKey> keys = new List<SecurityKey>();
+            
+            // Add key for dotnet-user-jwts
+            var userJwtKey = builder.Configuration["Authentication:Schemes:Bearer:SigningKeys:0:Value"];
+            if (userJwtKey != null)
+            {
+                keys.Add(new SymmetricSecurityKey(Convert.FromBase64String(userJwtKey)));
+            }
+            else
+            {
+                logger.LogError("The dotnet-user-jwts Jwt Signing Key is missing from Config!");
+            }
+
+            // Add key for the app
+            var appJwtKey = builder.Configuration["Jwt:SigningKey"];
+            if (appJwtKey != null)
+            {
+                keys.Add(new SymmetricSecurityKey(Convert.FromBase64String(appJwtKey)));
+            }
+            else
+            {
+                logger.LogError("The application Jwt Signing Key is missing from Config!");
+            }
+            
+            return keys;
+        },
         ValidAudiences = builder.Configuration.GetSection("Authentication:Schemes:Bearer:ValidAudiences").Get<string[]>(),
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SigningKey"])),
         ValidateIssuer = true,
         ValidateAudience = true,
         ValidateLifetime = false,
@@ -80,12 +114,11 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseAuthentication();
-app.UseAuthorization();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
-
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
