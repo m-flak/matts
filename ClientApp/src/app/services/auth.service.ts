@@ -17,7 +17,7 @@
 **/
 
 import { Location } from "@angular/common";
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable, Inject } from "@angular/core";
 import { JwtHelperService } from "@auth0/angular-jwt";
 import { User } from "../models";
@@ -37,14 +37,15 @@ export class AuthService {
         return ( localStorage.getItem('access_token') !== null );
     }
 
-    loginUser(user: User) : Observable<string> {
+    loginUser(user: User, requestedRole: string) : Observable<string> {
         const currentToken: string | null = localStorage.getItem('access_token');
         if (currentToken !== null) {
             return of(currentToken);
         }
 
         const endpoint = '/auth/login';
-        return this.http.post(Location.joinWithSlash(this.baseUrl, endpoint), user)
+        const params = new HttpParams().set('requestedRole', requestedRole);
+        return this.http.post(Location.joinWithSlash(this.baseUrl, endpoint), user, { params: params })
             .pipe(
                 catchError(e => throwError(() => new Error(e))),
                 map((t: any) => t || ''),

@@ -7,6 +7,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import {MatInputModule} from '@angular/material/input';
 import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 
 describe('LoginPageComponent', () => {
   let component: LoginPageComponent;
@@ -21,6 +22,7 @@ describe('LoginPageComponent', () => {
         RouterModule,
         MatExpansionModule,
         MatInputModule,
+        NgbAlertModule,
         RouterTestingModule.withRoutes([])
       ],
       providers: [

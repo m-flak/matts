@@ -7,6 +7,7 @@ const PROXY_CONFIG = [
   {
     context: [
       "/jobs/**",
+      "/auth/**"
    ],
     target: target,
     secure: false,

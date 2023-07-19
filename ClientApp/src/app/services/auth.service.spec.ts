@@ -96,7 +96,7 @@ describe('AuthService', () => {
         password: 'password'
       };
 
-      authService.loginUser(user).subscribe(token => {
+      authService.loginUser(user, UserRoleConstants.USER_ROLE_EMPLOYER).subscribe(token => {
         expect(token).toEqual(dummyToken);
         done();
       });
@@ -114,7 +114,7 @@ describe('AuthService', () => {
         password: 'password'
       };
 
-      authService.loginUser(user).subscribe(token => {
+      authService.loginUser(user, UserRoleConstants.USER_ROLE_EMPLOYER).subscribe(token => {
         expect(token).toEqual(dummyToken);
         done();
       });
