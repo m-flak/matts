@@ -1,5 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { Location } from "@angular/common";
+import { InjectionToken, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
@@ -24,6 +25,9 @@ import { AppRootHomeComponent } from './app-root-home';
 import { HomeApplicantComponent } from './home-applicant/home-applicant.component';
 import { AuthGuard } from './guards/auth.guard';
 import { LoginPageComponent } from './login-page/login-page.component';
+import { JWT_OPTIONS, JwtModule } from '@auth0/angular-jwt';
+
+export const BASE_URL = new InjectionToken<string>('BASE_URL');
 
 @NgModule({
   declarations: [
@@ -93,9 +97,32 @@ import { LoginPageComponent } from './login-page/login-page.component';
     CalendarModule.forRoot({
       provide: DateAdapter,
       useFactory: adapterFactory,
+    }),
+    JwtModule.forRoot({
+      jwtOptionsProvider: {
+        provide: JWT_OPTIONS,
+        deps: [ BASE_URL ],
+        useFactory: jwtOptionsFactory
+      }
     })
   ],
   providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
+
+export function tokenGetter() {
+  return localStorage.getItem("access_token");
+}
+
+export function jwtOptionsFactory(baseUrl: string) {
+  return {
+    tokenGetter: tokenGetter,
+    allowedDomains: [ 
+      baseUrl 
+    ],
+    disallowedRoutes: [
+      `${Location.joinWithSlash(baseUrl, 'auth')}/`
+    ]
+  };
+}
