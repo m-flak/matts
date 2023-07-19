@@ -17,18 +17,21 @@
 **/
 import { Injectable } from "@angular/core";
 import { ActivatedRoute, ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree } from "@angular/router";
-import { environment } from './../../environments/environment';
 import { UserRoleConstants } from "../constants";
+import { AuthService } from "../services/auth.service";
 
 @Injectable({
     providedIn: "root",
   })
   export class HomeGuard implements CanActivate {
-    constructor(private router: Router) {}
+    constructor(private router: Router, private authService: AuthService) {}
 
     async canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<boolean | UrlTree> {
-        // TODO: Actually implement instead of using env json values
-        const activeRole = environment.activeRole;
+        const activeRole = this.authService.getLoggedInUserRole();
+
+        if (activeRole === null) {
+            return this.router.createUrlTree(['/welcome/login']);
+        }
 
         sessionStorage.setItem('MenuBar_ActiveRole', activeRole);
 

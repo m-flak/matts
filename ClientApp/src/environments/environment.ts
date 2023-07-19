@@ -4,8 +4,6 @@
 
 export const environment = {
   production: false,
-  activeRole: "employer",
-  isAuthorized: true
 };
 
 /*

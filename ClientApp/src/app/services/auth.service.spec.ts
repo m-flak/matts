@@ -21,6 +21,8 @@ import { TestBed } from "@angular/core/testing";
 import { JWT_OPTIONS, JwtHelperService, JwtModule } from "@auth0/angular-jwt";
 import { jwtOptionsFactory } from "../app.module";
 import { AuthService } from "./auth.service";
+import { UserRoleConstants } from "../constants";
+import { User } from "../models";
 
 // Contains the 'role' claim set to 'employer'
 const dummyToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJyb2xlIjoiZW1wbG95ZXIifQ.fZngtAMmz_CZw4XZk0gxifPm37-GmPOdMSzq_cgpcGU";
@@ -66,7 +68,55 @@ describe('AuthService', () => {
       httpMock = TestBed.inject(HttpTestingController);
     });
 
+    afterEach(() => {
+      localStorage = {};
+    });
+
     it('should instantiate', () => {
         expect(authService).toBeTruthy();
+    });
+
+    it('should be able to retrieve the role claim for the current token', () => {
+      localStorage['access_token'] = dummyToken;
+
+      const role: string | null = authService.getLoggedInUserRole();
+
+      expect(role).toEqual(UserRoleConstants.USER_ROLE_EMPLOYER);
+    });
+
+    it('should be return null when unable to get the claim from the token', () => {
+      const role: string | null = authService.getLoggedInUserRole();
+
+      expect(role).toBeNull();
+    });
+
+    it('should receive token for login endpoint when logged out', (done) => {
+      const user: User = {
+        userName: 'admin',
+        password: 'password'
+      };
+
+      authService.loginUser(user).subscribe(token => {
+        expect(token).toEqual(dummyToken);
+        done();
+      });
+
+      const request = httpMock.expectOne('https://localhost/auth/login');
+      request.flush(dummyToken);
+
+      httpMock.verify();
+    });
+
+    it('should receive token for login endpoint when logged in', (done) => {
+      localStorage['access_token'] = dummyToken;
+      const user: User = {
+        userName: 'admin',
+        password: 'password'
+      };
+
+      authService.loginUser(user).subscribe(token => {
+        expect(token).toEqual(dummyToken);
+        done();
+      });
     });
 });

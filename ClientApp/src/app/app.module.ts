@@ -106,7 +106,12 @@ export const BASE_URL = new InjectionToken<string>('BASE_URL');
       }
     })
   ],
-  providers: [],
+  providers: [ 
+    {
+      provide: BASE_URL,
+      useExisting: 'BASE_URL'
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
