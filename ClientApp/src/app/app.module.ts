@@ -61,7 +61,7 @@ export const BASE_URL = new InjectionToken<string>('BASE_URL');
             path: "",
             pathMatch: "full",
             children: [], // Children lets us have an empty component.
-            canActivate: [HomeGuard], // Redirects based on role
+            canActivate: [ AuthGuard, HomeGuard ],
           },
           { 
             path: 'employer', 

@@ -33,8 +33,6 @@ import { AuthService } from "../services/auth.service";
             return this.router.createUrlTree(['/welcome/login']);
         }
 
-        sessionStorage.setItem('MenuBar_ActiveRole', activeRole);
-
         if (route.data.role && route.data.role === activeRole) {
             return true;
         }

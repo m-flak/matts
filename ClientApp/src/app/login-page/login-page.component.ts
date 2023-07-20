@@ -4,7 +4,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { User } from '../models';
-import { Subscription } from 'rxjs';
+import { Subscription, take } from 'rxjs';
 
 @Component({
   selector: 'app-login-page',
@@ -55,15 +55,19 @@ export class LoginPageComponent implements OnInit, OnDestroy {
       const formData = this.employerLoginForm.value;
       let user: User | null = {
         userName: formData.userName,
-        password: formData.password
+        password: formData.password,
+        role: UserRoleConstants.USER_ROLE_EMPLOYER
       };
-      this._subscription = this.authService.loginUser(user, UserRoleConstants.USER_ROLE_EMPLOYER).subscribe(() => {
-        user = null;
-        this.router.navigate(['/employer']);
-      },
-      () => {
-        this.loginFailure = true;
-      });
+      this._subscription = this.authService.loginUser(user).pipe(take(1)).subscribe({
+        complete: () => {
+          user = null;
+          this.loginFailure = false;
+          this.router.navigate(['/employer']);
+        },
+        error: err => {
+          console.error(err);
+          this.loginFailure = true;
+        }});
     }
     else if (loginType === this.LOGIN_TYPE_APPLICANT) {
       if (this.applicantLoginForm.invalid) {
@@ -73,15 +77,19 @@ export class LoginPageComponent implements OnInit, OnDestroy {
       const formData = this.applicantLoginForm.value;
       let user: User | null = {
         userName: formData.userName,
-        password: formData.password
+        password: formData.password,
+        role: UserRoleConstants.USER_ROLE_APPLICANT
       };
-      this._subscription = this.authService.loginUser(user, UserRoleConstants.USER_ROLE_APPLICANT).subscribe(() => {
-        user = null;
-        this.router.navigate(['/applicant']);
-      },
-      () => {
-        this.loginFailure = true;
-      });
+      this._subscription = this.authService.loginUser(user).pipe((take(1))).subscribe({
+        complete: () => {
+          user = null;
+          this.loginFailure = false;
+          this.router.navigate(['/applicant']);
+        },
+        error: err => {
+          console.error(err);
+          this.loginFailure = true;
+        }});
     }
   }
 }

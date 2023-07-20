@@ -43,7 +43,7 @@ public class AuthController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Route("login")]
-    public IActionResult Login([FromBody] User user, [BindRequired] string requestedRole)
+    public IActionResult Login([FromBody] User user)
     {
         var issuer = _configuration["Jwt:Issuer"];
         var audience = _configuration["Jwt:Audience"];
@@ -53,7 +53,7 @@ public class AuthController : ControllerBase
             Subject = new ClaimsIdentity(new[]
             {
                 new Claim("id", Guid.NewGuid().ToString()),
-                new Claim("role", requestedRole),
+                new Claim("role", user.Role),
                 new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             }),

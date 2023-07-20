@@ -76,27 +76,61 @@ describe('AuthService', () => {
         expect(authService).toBeTruthy();
     });
 
-    it('should be able to retrieve the role claim for the current token', () => {
-      localStorage['access_token'] = dummyToken;
-
-      const role: string | null = authService.getLoggedInUserRole();
-
-      expect(role).toEqual(UserRoleConstants.USER_ROLE_EMPLOYER);
-    });
-
     it('should be return null when unable to get the claim from the token', () => {
       const role: string | null = authService.getLoggedInUserRole();
 
       expect(role).toBeNull();
     });
 
+    it('should be able to retrieve the role claim for the current token', (done) => {
+      const user: User = {
+        userName: 'admin',
+        password: 'password',
+        role: UserRoleConstants.USER_ROLE_EMPLOYER
+      };
+
+      authService.loginUser(user).subscribe(() => {
+        const role: string | null = authService.getLoggedInUserRole();
+
+        expect(role).toEqual(UserRoleConstants.USER_ROLE_EMPLOYER);
+        done();
+      });
+
+      const request = httpMock.expectOne('https://localhost/auth/login');
+      request.flush(dummyToken);
+
+      httpMock.verify();
+    });
+
+    it('should store current user info for the current user', (done) => {
+      const user: User = {
+        userName: 'admin',
+        password: 'password',
+        role: UserRoleConstants.USER_ROLE_EMPLOYER
+      };
+
+      authService.loginUser(user).subscribe(() => {
+        const c_user = authService.currentUser;
+        expect(c_user?.userName).toEqual(user.userName);
+        expect(c_user?.password).toEqual('');
+        expect(c_user?.role).toEqual(user.role);
+        done();
+      });
+
+      const request = httpMock.expectOne('https://localhost/auth/login');
+      request.flush(dummyToken);
+
+      httpMock.verify();
+    });
+
     it('should receive token for login endpoint when logged out', (done) => {
       const user: User = {
         userName: 'admin',
-        password: 'password'
+        password: 'password',
+        role: UserRoleConstants.USER_ROLE_EMPLOYER
       };
 
-      authService.loginUser(user, UserRoleConstants.USER_ROLE_EMPLOYER).subscribe(token => {
+      authService.loginUser(user).subscribe(token => {
         expect(token).toEqual(dummyToken);
         done();
       });
@@ -111,10 +145,11 @@ describe('AuthService', () => {
       localStorage['access_token'] = dummyToken;
       const user: User = {
         userName: 'admin',
-        password: 'password'
+        password: 'password',
+        role: UserRoleConstants.USER_ROLE_EMPLOYER
       };
 
-      authService.loginUser(user, UserRoleConstants.USER_ROLE_EMPLOYER).subscribe(token => {
+      authService.loginUser(user).subscribe(token => {
         expect(token).toEqual(dummyToken);
         done();
       });

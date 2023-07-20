@@ -1,3 +1,7 @@
+@use '../styles/text.scss';
+
+@include text.emphasis;
+
 a.navbar-brand {
   white-space: normal;
   text-align: center;
@@ -19,4 +23,13 @@ html {
 
 header {
   box-shadow: 0px -8px 16px 2px;
+}
+
+li.nav-item {
+  &:hover {
+    background-color: rgba(128,128,128,0.1);
+  }
+  a {
+    cursor: pointer;
+  }
 }

@@ -25,7 +25,12 @@
             [routerLinkActive]="['link-active']"
             [routerLinkActiveOptions]="{ exact: true }"
           >
-            <a class="nav-link text-dark" [routerLink]="['/']">Home &#124; {{this.homeTitle | titlecase }}</a>
+            <a class="nav-link text-dark" [routerLink]="['/']"><span class="emphasis">Home &#124; {{this.homeTitle | titlecase }}</span></a>
+          </li>
+          <li
+            class="nav-item"
+          >
+            <a class="nav-link text-dark" (click)="performLogout()"><span class="emphasis">Log Out, {{this.homeUser}}</span></a>
           </li>
         </ul>
       </div>

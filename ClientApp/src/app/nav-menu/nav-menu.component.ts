@@ -1,16 +1,22 @@
 import { Component, OnInit } from '@angular/core';
+import { AuthService } from '../services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-nav-menu',
   templateUrl: './nav-menu.component.html',
-  styleUrls: ['./nav-menu.component.css']
+  styleUrls: ['./nav-menu.component.scss']
 })
 export class NavMenuComponent implements OnInit {
   homeTitle: string = '';
+  homeUser: string = '';
   isExpanded = false;
 
+  constructor(private authService: AuthService, private router: Router) {}
+
   ngOnInit(): void {
-    this.homeTitle = sessionStorage.getItem('MenuBar_ActiveRole') ?? '';
+    this.homeTitle = this.authService.currentUser?.role ?? '';
+    this.homeUser = this.authService.currentUser?.userName ?? '';
   }
 
   collapse() {
@@ -19,5 +25,10 @@ export class NavMenuComponent implements OnInit {
 
   toggle() {
     this.isExpanded = !this.isExpanded;
+  }
+
+  performLogout() {
+    this.authService.logoutUser();
+    this.router.navigate(['/welcome/login']);
   }
 }

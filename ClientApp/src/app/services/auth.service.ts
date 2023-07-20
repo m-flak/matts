@@ -21,44 +21,83 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable, Inject } from "@angular/core";
 import { JwtHelperService } from "@auth0/angular-jwt";
 import { User } from "../models";
-import { Observable, catchError, map, of, tap, throwError } from "rxjs";
+import { Observable, catchError, from, tap, throwError } from "rxjs";
 
 @Injectable({
     providedIn: 'root'
 })
 export class AuthService {
+    private _currentUser: User | null = null;
+
     constructor(
         private http: HttpClient,
         private jwtHelper: JwtHelperService,
         @Inject('BASE_URL') private baseUrl: string
     ) {}
 
-    isLoggedIn(): boolean {
-        return ( localStorage.getItem('access_token') !== null );
+    get currentUser(): User | null {
+        return this._currentUser;
+    }
+    set currentUser(user: User | null) {
+        this._currentUser = user;
     }
 
-    loginUser(user: User, requestedRole: string) : Observable<string> {
-        const currentToken: string | null = localStorage.getItem('access_token');
-        if (currentToken !== null) {
-            return of(currentToken);
-        }
-
-        const endpoint = '/auth/login';
-        const params = new HttpParams().set('requestedRole', requestedRole);
-        return this.http.post(Location.joinWithSlash(this.baseUrl, endpoint), user, { params: params })
-            .pipe(
-                catchError(e => throwError(() => new Error(e))),
-                map((t: any) => t || ''),
-                tap(token => localStorage.setItem('access_token', token))
-            );
-    }
-
-    getLoggedInUserRole(): string | null {
+    private _populateCurrentUser() {
         const decodedToken: any = this.jwtHelper.decodeToken();
+        let name: string | null = null;
         let role: string | null = null;
 
         if (decodedToken !== null && decodedToken.hasOwnProperty('role')) {
             role = (decodedToken.role as string);
+        }
+        if (decodedToken !== null && decodedToken.hasOwnProperty('sub')) {
+            name = (decodedToken.sub as string);
+        }
+
+        if (name !== null && role !== null) {
+            this.currentUser = {
+                userName: name,
+                password: '',
+                role: role
+            };
+        }
+    }
+
+    hasToken(): boolean {
+        return ( localStorage.getItem('access_token') !== null );
+    }
+
+    isLoggedIn(): boolean {
+        return ( this.currentUser !== null && this.hasToken() );
+    }
+
+    loginUser(user?: User) : Observable<string> {
+        const currentToken: string | null = localStorage.getItem('access_token');
+        if (currentToken !== null) {
+            return from(currentToken).pipe(
+                tap(token => this._populateCurrentUser())
+            );
+        }
+
+        const endpoint = '/auth/login';
+        return this.http.post(Location.joinWithSlash(this.baseUrl, endpoint), user, { responseType: 'text' })
+            .pipe(
+                catchError(e => throwError(() => new Error(e))),
+                tap(token => localStorage.setItem('access_token', token)),
+                tap(token => this._populateCurrentUser())
+            );
+    }
+
+    logoutUser() {
+        localStorage.removeItem('access_token');
+        this.currentUser = null;
+    }
+
+    getLoggedInUserRole(): string | null {
+        let role: string | null = null;
+
+        if (this.currentUser !== null) {
+            role = this.currentUser.role;
         }
 
         return role;
