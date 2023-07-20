@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
+using FluentValidation;
 using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
@@ -28,23 +29,32 @@ using System.Security.Claims;
 [Route("[controller]")]
 public class AuthController : ControllerBase
 {
+    private readonly IValidator<User> _validator;
     private readonly ILogger<AuthController> _logger;
     private readonly IConfiguration _configuration;
 
-    public AuthController(ILogger<AuthController> logger, IConfiguration configuration) 
+    public AuthController(ILogger<AuthController> logger, IConfiguration configuration, IValidator<User> validator) 
     {
         _logger = logger;
         _configuration = configuration;
+        _validator = validator;
     }
 
     [AllowAnonymous]
     [HttpPost]
     [Consumes(MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Route("login")]
     public IActionResult Login([FromBody] User user)
     {
+        var validationResult = _validator.Validate(user);
+        if (!validationResult.IsValid) 
+        {
+           return new BadRequestObjectResult(validationResult.Errors);
+        }
+
         var issuer = _configuration["Jwt:Issuer"];
         var audience = _configuration["Jwt:Audience"];
         var signingKey = _configuration["Jwt:SigningKey"];
