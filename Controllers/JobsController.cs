@@ -52,6 +52,7 @@ public class JobsController : ControllerBase
         return await _service.GetJobDetails(uuid);
     }
 
+    [Authorize(Policy = "Employers")]
     [HttpPatch]
     [Consumes(MediaTypeNames.Application.Json)]
     [Route("updatejob")]
@@ -61,6 +62,7 @@ public class JobsController : ControllerBase
         return Ok();
     }
 
+    [Authorize(Policy = "Employers")]
     [HttpPost]
     [RequestSizeLimit(0)]
     [Route("reject/{juuid}/{auuid}")]

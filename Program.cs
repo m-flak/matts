@@ -33,6 +33,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddAuthorization(options =>
 {
+    options.AddPolicy("Employers", policy =>
+                  policy.RequireRole("employer"));
+
     options.AddPolicy("LoggedInUsers", policy =>
                   policy.RequireAuthenticatedUser());
 });

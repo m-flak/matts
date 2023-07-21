@@ -63,7 +63,7 @@ public class AuthController : ControllerBase
             Subject = new ClaimsIdentity(new[]
             {
                 new Claim("id", Guid.NewGuid().ToString()),
-                new Claim("role", user.Role),
+                new Claim(ClaimTypes.Role, user.Role),
                 new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             }),

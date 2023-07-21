@@ -4,7 +4,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { User } from '../models';
-import { Subscription, take } from 'rxjs';
+import { Subscription, first } from 'rxjs';
 
 @Component({
   selector: 'app-login-page',
@@ -58,7 +58,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
         password: formData.password,
         role: UserRoleConstants.USER_ROLE_EMPLOYER
       };
-      this._subscription = this.authService.loginUser(user).pipe(take(1)).subscribe({
+      this._subscription = this.authService.loginUser(user).pipe(first()).subscribe({
         complete: () => {
           user = null;
           this.loginFailure = false;
@@ -80,7 +80,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
         password: formData.password,
         role: UserRoleConstants.USER_ROLE_APPLICANT
       };
-      this._subscription = this.authService.loginUser(user).pipe((take(1))).subscribe({
+      this._subscription = this.authService.loginUser(user).pipe(first()).subscribe({
         complete: () => {
           user = null;
           this.loginFailure = false;
