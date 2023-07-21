@@ -5,6 +5,7 @@ using matts.Models.Db;
 using matts.Repositories;
 using matts.Tests.Fixture;
 using matts.Models;
+using matts.Constants;
 
 namespace matts.Tests.Repositories;
 
@@ -53,5 +54,27 @@ public class JobRepositoryTests
             {
                 Assert.IsType<Job>(j);
             });
+    }
+
+    [Fact]
+    public async void GetJobByUuid_GetsTheJob()
+    {
+        JobDb jobDb = JobFixture.CreateJob("Some Job", JobConstants.STATUS_OPEN);
+        jobDb.ApplicantCount = 1;
+        ApplicantDb applicantDb = JobFixture.CreateApplicant("Some Applicant", null, true);
+
+        _daoJob.Setup(dj => dj.GetByUuid(It.IsAny<string>()))
+            .Returns(Task.FromResult(jobDb));
+        _daoApp.Setup(da => da.GetAllByRelationship(It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string>()))
+            .Returns(Task.FromResult(new List<ApplicantDb> { applicantDb }));
+
+        var sut = new JobRepository(_daoJob.Object, _daoApp.Object, new MapsterMapper.Mapper());
+
+        var job = await sut.GetJobByUuid("abc123");
+
+        Assert.Equal(1, job.ApplicantCount);
+        Assert.NotNull(job.Applicants);
+        Assert.Equal(applicantDb.Rejected, job.Applicants.First().Rejected);
+        Assert.Equal(applicantDb.InterviewDate, job.Applicants.First().InterviewDate);
     }
 }

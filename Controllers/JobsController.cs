@@ -17,12 +17,14 @@
 **/
 using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.AspNetCore.Authorization;
 using matts.Interfaces;
 using matts.Models;
 
+
 namespace matts.Controllers;
 
+[Authorize(Policy = "LoggedInUsers")]
 [ApiController]
 [Route("[controller]")]
 public class JobsController : ControllerBase

@@ -28,4 +28,6 @@ public class ApplicantDb
     public ProfileImage? ApplicantPhoto { get; set; }
 
     public DateTime? InterviewDate { get; set; }
+
+    public bool? Rejected { get; set; }
 }

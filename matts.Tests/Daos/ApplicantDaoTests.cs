@@ -38,6 +38,7 @@ public class ApplicantDaoTests
     }
 
     [Theory]
+    [InlineData(null, "")]
     [InlineData("NONEXISTENT_RELATIONSHIP", "")]
     [InlineData(RelationshipConstants.HAS_APPLIED_TO, ", r.rejected ")]
     [InlineData(RelationshipConstants.IS_INTERVIEWING_FOR, ", r.interviewDate ")]
@@ -45,6 +46,20 @@ public class ApplicantDaoTests
     {
         string extraReturns = ApplicantDao.AddReturnsForRelationshipParams(relationship);
         Assert.Equal(expectedExtraReturns, extraReturns);
+    }
+
+    [Fact]
+    public void CreateOptionalMatchClause_WithoutRelationship()
+    {
+        string optionalClause = ApplicantDao.CreateOptionalMatchClause(null);
+        Assert.Equal("", optionalClause);
+    }
+
+    [Fact]
+    public void CreateOptionalMatchClause_WithRelationship()
+    {
+        string optionalClause = ApplicantDao.CreateOptionalMatchClause(RelationshipConstants.IS_INTERVIEWING_FOR);
+        Assert.Equal("OPTIONAL MATCH (a)-[r2:IS_INTERVIEWING_FOR]->(j) ", optionalClause);
     }
 
     [Fact]
@@ -56,7 +71,7 @@ public class ApplicantDaoTests
             .Returns(_session.Object);
         var sut = new ApplicantDao(_driver.Object);
 
-        var Applicants = await sut.GetAllByRelationship(RelationshipConstants.HAS_APPLIED_TO, "7df53d53-7c25-4b37-a004-6d9e30d44abe");
+        var Applicants = await sut.GetAllByRelationship(RelationshipConstants.HAS_APPLIED_TO, null, "7df53d53-7c25-4b37-a004-6d9e30d44abe");
 
         Assert.NotNull(Applicants);
         Assert.Equal(4, Applicants.Count);

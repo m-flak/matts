@@ -15,13 +15,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-namespace matts.Interfaces;
+namespace matts.Constants;
 
-public interface IDataAccessObject<T> where T : class
+public sealed class UserRoleConstants
 {
-    public Task<List<T>> GetAll();
+    public const string USER_ROLE_EMPLOYER = "employer";
+    public const string USER_ROLE_APPLICANT = "applicant";
 
-    public Task<List<T>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid);
-
-    public Task<T> GetByUuid(string uuid);
+    // Constants class
+    private UserRoleConstants() { }
 }

@@ -44,6 +44,8 @@ public class Applicant
 
     public DateTime? InterviewDate { get; set; }
 
+    public bool? Rejected { get; set; }
+
     public override string ToString()
     {
         var options = new JsonSerializerOptions { WriteIndented = true };

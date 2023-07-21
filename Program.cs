@@ -31,7 +31,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("LoggedInUsers", policy =>
+                  policy.RequireAuthenticatedUser());
+});
 builder.Services.AddAuthentication("Bearer").AddJwtBearer(o =>
 {
     o.TokenValidationParameters = new TokenValidationParameters

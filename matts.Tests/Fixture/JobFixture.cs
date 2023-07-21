@@ -13,7 +13,8 @@ public class JobFixture
             Uuid = System.Guid.NewGuid().ToString(),
             Name = name,
             ApplicantPhoto = profilePic,
-            InterviewDate = (hasInterview) ? DateTime.UtcNow : null
+            InterviewDate = (hasInterview) ? DateTime.UtcNow : null,
+            Rejected = !hasInterview
         };
     }
 

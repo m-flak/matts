@@ -40,31 +40,68 @@ public class ApplicantDao : IDataAccessObject<ApplicantDb>
         throw new NotImplementedException();
     }
 
-    public async Task<List<ApplicantDb>> GetAllByRelationship(string relationship, string whomUuid)
+    public async Task<List<ApplicantDb>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid)
     {
         using (var session = _driver.AsyncSession())
         {
             return await session.ExecuteReadAsync(
                 async tx =>
                 {
+                    var addOptionalParams = (string? optRel) => (optRel != null) ? AddReturnsForRelationshipParams(optRel, "r2") : "";
+
                     var cursor = await tx.RunAsync(
                         "MATCH(a: Applicant) -[r: " + $"{relationship}" +"]->(j: Job) " +
+                        $"{CreateOptionalMatchClause(optionalRelationship)}" +
                         "WHERE j.uuid = $uuid " +
-                        $"RETURN a {AddReturnsForRelationshipParams(relationship)}",
+                        $"RETURN a {AddReturnsForRelationshipParams(relationship)} {addOptionalParams(optionalRelationship)}",
                         new
                         {
                             uuid = whomUuid
                         }
                     );
 
-                    var rows = await cursor.ToListAsync(record => record.Values["a"].As<INode>());
+                    var rows = await cursor.ToListAsync(record => record.Values);
                     return rows.Select(row =>
                         {
-                            TypeAdapterConfig<IReadOnlyDictionary<string, object>, ApplicantDb>.NewConfig()
-                                        .NameMatchingStrategy(NameMatchingStrategy.FromCamelCase)
-                                        .Compile();
+                            IReadOnlyDictionary<string, object> applicantData;
+                            string[]? relationshipParams = GetRelationshipParams(relationship);
+                            string[]? optRelationshipParams = GetRelationshipParams(optionalRelationship);
 
-                            return TypeAdapter.Adapt<IReadOnlyDictionary<string, object>, ApplicantDb>(row.Properties);
+                            if (relationshipParams != null || optRelationshipParams != null)
+                            {
+                                var applicant = new Dictionary<string, object>(row["a"].As<INode>().Properties);
+
+                                if (relationshipParams != null)
+                                {
+                                    foreach (string param in relationshipParams)
+                                    {
+                                        var paramValue = row[$"r.{param}"];
+                                        applicant.Add(param, paramValue);
+                                    }
+                                }
+
+                                if (optRelationshipParams != null)
+                                {
+                                    foreach (string param in optRelationshipParams)
+                                    {
+                                        var paramValue = row[$"r2.{param}"];
+                                        applicant.Add(param, paramValue);
+                                    }
+                                }
+
+                                applicantData = applicant;
+                            }
+                            else
+                            {
+                                applicantData = row["a"].As<INode>().Properties;
+                            }
+                            
+
+                            TypeAdapterConfig<IReadOnlyDictionary<string, object>, ApplicantDb>.NewConfig()
+                                            .NameMatchingStrategy(NameMatchingStrategy.FromCamelCase)
+                                            .Compile();
+
+                            return TypeAdapter.Adapt<IReadOnlyDictionary<string, object>, ApplicantDb>(applicantData);
                         })
                         .ToList();
                 });
@@ -76,7 +113,7 @@ public class ApplicantDao : IDataAccessObject<ApplicantDb>
         throw new NotImplementedException();
     }
 
-    internal static string[]? GetRelationshipParams(string relationship)
+    internal static string[]? GetRelationshipParams(string? relationship)
     {
         string[]? relParams = null;
 
@@ -103,12 +140,12 @@ public class ApplicantDao : IDataAccessObject<ApplicantDb>
         }
     }
 
-    internal static string AddReturnsForRelationshipParams(string relationship)
+    internal static string AddReturnsForRelationshipParams(string? relationship)
     {
         return AddReturnsForRelationshipParams(relationship, "r");
     }
 
-    internal static string AddReturnsForRelationshipParams(string relationship, string prefix)
+    internal static string AddReturnsForRelationshipParams(string? relationship, string prefix)
     {
         string returns = "";
 
@@ -132,5 +169,17 @@ public class ApplicantDao : IDataAccessObject<ApplicantDb>
             default:
                 return returns;
         }
+    }
+
+    internal static string CreateOptionalMatchClause(string? optionalRelationship)
+    {
+        string clause = "";
+
+        if (optionalRelationship != null)
+        {
+            clause = $"OPTIONAL MATCH (a)-[r2:{optionalRelationship}]->(j) ";
+        }
+
+        return clause;
     }
 }

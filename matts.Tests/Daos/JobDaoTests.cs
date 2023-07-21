@@ -45,6 +45,8 @@ public class JobDaoTests
             .Returns(_session.Object);
         var sut = new JobDao(_driver.Object);
 
+        Assert.NotNull(job.Uuid);
+
         var jobFromSut = await sut.GetByUuid(job.Uuid);
 
         Assert.NotNull(jobFromSut);

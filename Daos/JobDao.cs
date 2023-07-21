@@ -62,7 +62,7 @@ public class JobDao : IDataAccessObject<JobDb>
         }
     }
 
-    public async Task<List<JobDb>> GetAllByRelationship(string relationship, string whomUuid)
+    public async Task<List<JobDb>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid)
     {
         throw new NotImplementedException();
     }
