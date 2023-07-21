@@ -1,19 +1,4 @@
-@use '../styles/layouts.scss';
+@use '../styles/home-common.scss' as home;
 
-.home-container {
-    @include layouts.flex(false);
-    
-    min-height: 100%;
-    height: 100%;
-}
-
-.positions-card, .details-card {
-    min-width: 48%;
-}
-.positions-card + .details-card {
-    margin-left: 2rem;
-}
-
-.details-card mat-card-content {
-    height: 100%;
-}
+@include home.home-container;
+@include home.cards;

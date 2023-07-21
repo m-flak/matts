@@ -55,4 +55,26 @@ public class JobDaoTests
         Assert.Equal(job.Status, jobFromSut.Status);
         Assert.Equal(job.Description, jobFromSut.Description);
     }
+
+    [Fact]
+    public async void GetAllAndFilterByProperties_GetsTheJobs()
+    {
+        var allJobs = JobFixture.CreateJobList();
+        var expectedOpenJobs = allJobs.Where(j => j.Status == JobConstants.STATUS_OPEN).ToList();
+
+        _session.Setup(s => s.ExecuteReadAsync(It.IsAny<Func<IAsyncQueryRunner, Task<List<JobDb>>>>(), It.IsAny<Action<TransactionConfigBuilder>>()))
+            .Returns(Task.FromResult(expectedOpenJobs));
+        _driver.Setup(d => d.AsyncSession())
+            .Returns(_session.Object);
+        var sut = new JobDao(_driver.Object);
+
+        var statusPropertyFilter = new Dictionary<string, string>();
+        statusPropertyFilter.Add("status", JobConstants.STATUS_OPEN);
+
+        var actualOpenJobs = await sut.GetAllAndFilterByProperties(statusPropertyFilter);
+
+        Assert.True(actualOpenJobs.Count < allJobs.Count);
+        Assert.Equal(expectedOpenJobs.Count, actualOpenJobs.Count);
+        Assert.All(actualOpenJobs, job => Assert.Equal(JobConstants.STATUS_OPEN, job.Status));
+    }
 }

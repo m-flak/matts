@@ -26,6 +26,7 @@ using matts.Interfaces;
 using matts.Services;
 using matts.Daos;
 using matts.Repositories;
+using matts.Constants;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,7 +35,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("Employers", policy =>
-                  policy.RequireRole("employer"));
+                  policy.RequireRole(UserRoleConstants.USER_ROLE_EMPLOYER));
 
     options.AddPolicy("LoggedInUsers", policy =>
                   policy.RequireAuthenticatedUser());

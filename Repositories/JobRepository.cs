@@ -43,6 +43,15 @@ public class JobRepository : IJobRepository
         return jobs.Select(j => _mapper.Map<Job>(j)).ToList();
     }
 
+    public async Task<List<Job>> GetAllByStatus(string status)
+    {
+        var statusPropertyFilter = new Dictionary<string, string>();
+        statusPropertyFilter.Add("status", status);
+
+        var jobs = await _daoJob.GetAllAndFilterByProperties(statusPropertyFilter);
+        return jobs.Select(j => _mapper.Map<Job>(j)).ToList();
+    }
+
     public async Task<Job> GetJobByUuid(string uuid)
     {
         var job = await _daoJob.GetByUuid(uuid);

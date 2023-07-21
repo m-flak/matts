@@ -1,1 +1,13 @@
-<p>home-applicant works!</p>
+<div class="container home-container">
+    <mat-card [ngClass]="'positions-card'" appearance="outlined">
+        <mat-card-header><h1>Open Positions:</h1></mat-card-header>
+        <mat-card-content>
+            <cmp-job-list [jobs]="this.openJobs"></cmp-job-list>
+        </mat-card-content>
+    </mat-card>
+    <mat-card [ngClass]="'details-card'" appearance="outlined">
+        <mat-card-content>
+            <router-outlet></router-outlet>
+        </mat-card-content>
+    </mat-card>
+</div>

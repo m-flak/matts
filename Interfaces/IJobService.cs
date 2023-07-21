@@ -23,5 +23,7 @@ public interface IJobService
 {
     public Task<IEnumerable<Job>> GetJobs();
 
+    public Task<IEnumerable<Job>> GetOpenJobs();
+
     public Task<Job> GetJobDetails(string uuid);
 }

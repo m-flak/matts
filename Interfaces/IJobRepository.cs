@@ -22,5 +22,6 @@ namespace matts.Interfaces;
 public interface IJobRepository
 {
     public Task<List<Job>> GetAll();
+    public Task<List<Job>> GetAllByStatus(string status);
     public Task<Job> GetJobByUuid(string uuid);
 }

@@ -67,6 +67,12 @@ public class JobDao : IDataAccessObject<JobDb>
         throw new NotImplementedException();
     }
 
+    public async Task<List<JobDb>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, string> filterProperties)
+    {
+        throw new NotImplementedException();
+    }
+
+
     public async Task<JobDb> GetByUuid(string uuid)
     {
         using (var session = _driver.AsyncSession())

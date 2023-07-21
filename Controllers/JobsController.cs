@@ -20,7 +20,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using matts.Interfaces;
 using matts.Models;
-
+using System.Security.Claims;
+using matts.Constants;
 
 namespace matts.Controllers;
 
@@ -39,10 +40,29 @@ public class JobsController : ControllerBase
     }
 
     [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<Job>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [Route("getjobs")]
-    public async Task<IEnumerable<Job>> GetJobs() 
+    public async Task<IActionResult> GetJobs() 
     {
-        return await _service.GetJobs();
+        string tokenRole = "";
+        
+        try 
+        {
+            tokenRole = this.User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).First();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error when attempting to get the job list by user role!");
+            return BadRequest();
+        }
+
+        if (tokenRole == UserRoleConstants.USER_ROLE_APPLICANT)
+        {
+            return Ok(await _service.GetOpenJobs());
+        }
+        
+        return Ok(await _service.GetJobs());
     }
 
     [HttpGet]

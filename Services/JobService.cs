@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using matts.Interfaces;
 using matts.Models;
+using matts.Constants;
 
 public partial class JobService : IJobService
 {
@@ -51,6 +52,16 @@ public partial class JobService : IJobService
         }
 
         return await _repository.GetAll();
+    }
+
+    public async Task<IEnumerable<Job>> GetOpenJobs()
+    {
+        if (_useDummyData)
+        {
+            return _jobsDummyData.Where(j => j.Status == JobConstants.STATUS_OPEN);
+        }
+
+        return await _repository.GetAllByStatus(JobConstants.STATUS_OPEN);
     }
 
     public async Task<Job> GetJobDetails(string uuid)

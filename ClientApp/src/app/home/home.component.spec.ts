@@ -50,7 +50,7 @@ describe('HomeComponent', () => {
       imports: [ HttpClientModule, HttpClientTestingModule, ComponentsModule, MatCardModule, RouterTestingModule.withRoutes([]) ],
       declarations: [ HomeComponent ],
       providers: [
-        { provide: 'BASE_URL', useValue: '' },
+        //{ provide: 'BASE_URL', useValue: '' },
         { provide: BackendService, useValue: FakeBackendService }
       ]
     })

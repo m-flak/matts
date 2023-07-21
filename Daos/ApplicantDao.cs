@@ -108,7 +108,12 @@ public class ApplicantDao : IDataAccessObject<ApplicantDb>
         }
     }
 
-    public Task<ApplicantDb> GetByUuid(string uuid)
+    public async Task<List<ApplicantDb>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, string> filterProperties)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<ApplicantDb> GetByUuid(string uuid)
     {
         throw new NotImplementedException();
     }
