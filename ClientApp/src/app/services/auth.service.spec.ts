@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-import { HttpClientModule } from "@angular/common/http";
+import { HttpClientModule, HttpResponse } from "@angular/common/http";
 import { HttpTestingController, HttpClientTestingModule } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { JWT_OPTIONS, JwtHelperService, JwtModule } from "@auth0/angular-jwt";
@@ -23,9 +23,10 @@ import { jwtOptionsFactory } from "../app.module";
 import { AuthService } from "./auth.service";
 import { UserRoleConstants } from "../constants";
 import { User } from "../models";
+import { map, toArray } from "rxjs";
 
 // Contains the 'role' claim set to 'employer'
-const dummyToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJyb2xlIjoiZW1wbG95ZXIifQ.fZngtAMmz_CZw4XZk0gxifPm37-GmPOdMSzq_cgpcGU";
+const dummyToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsIm5hbWUiOiJKb2huIERvZSIsImlhdCI6MTUxNjIzOTAyMiwicm9sZSI6ImVtcGxveWVyIn0.2sqxyiZcJHaLkSmBTTPu3gUqXEpJJKGJxNJi3_OuxrQ";
 
 describe('AuthService', () => {
     let httpMock: HttpTestingController;

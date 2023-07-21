@@ -21,7 +21,7 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable, Inject } from "@angular/core";
 import { JwtHelperService } from "@auth0/angular-jwt";
 import { User } from "../models";
-import { Observable, catchError, from, tap, throwError } from "rxjs";
+import { Observable, catchError, of, tap, throwError } from "rxjs";
 
 @Injectable({
     providedIn: 'root'
@@ -74,7 +74,7 @@ export class AuthService {
     loginUser(user?: User) : Observable<string> {
         const currentToken: string | null = localStorage.getItem('access_token');
         if (currentToken !== null) {
-            return from(currentToken).pipe(
+            return of(currentToken).pipe(
                 tap(token => this._populateCurrentUser())
             );
         }

@@ -8,6 +8,15 @@ import {MatInputModule} from '@angular/material/input';
 import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
+import { HttpClientModule } from '@angular/common/http';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { User } from '../models';
+import { of } from 'rxjs';
+import { AuthService } from '../services/auth.service';
+
+const FakeAuthService = {
+  loginUser: (user?: User) => of('yay!')
+}
 
 describe('LoginPageComponent', () => {
   let component: LoginPageComponent;
@@ -16,6 +25,8 @@ describe('LoginPageComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
+        HttpClientModule, 
+        HttpClientTestingModule,
         BrowserAnimationsModule,
         FormsModule,
         ReactiveFormsModule,
@@ -26,6 +37,7 @@ describe('LoginPageComponent', () => {
         RouterTestingModule.withRoutes([])
       ],
       providers: [
+        { provide: AuthService, useValue: FakeAuthService },
         FormBuilder
       ],
       declarations: [LoginPageComponent]
