@@ -4,7 +4,7 @@
         <div>
             <span matListItemTitle class="job-list-item-title">{{ job.name }}</span>
             <span matListItemLine>Status: <span [ngClass]="statuses[i].toLowerCase()">{{ job.status }}</span></span>
-            <span matListItemLine>{{ job.applicantCount }} Applicants</span>
+            <span *ngIf="!hideApplicantCount" matListItemLine>{{ job.applicantCount }} Applicants</span>
         </div>
     </mat-list-item>
 </mat-list>

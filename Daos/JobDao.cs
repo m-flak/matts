@@ -19,6 +19,8 @@ using Neo4j.Driver;
 using matts.Interfaces;
 using matts.Models.Db;
 using Mapster;
+using System.Text;
+using matts.Models;
 
 namespace matts.Daos;
 
@@ -67,9 +69,31 @@ public class JobDao : IDataAccessObject<JobDb>
         throw new NotImplementedException();
     }
 
-    public async Task<List<JobDb>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, string> filterProperties)
+    public async Task<List<JobDb>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties)
     {
-        throw new NotImplementedException();
+        using (var session = _driver.AsyncSession())
+        {
+            return await session.ExecuteReadAsync(
+                async tx =>
+                {
+                    var cursor = await tx.RunAsync(
+                        "MATCH (j:Job) " +
+                        $"WHERE {CreateWhereClauseFromDict(filterProperties)} " +
+                        "RETURN j"
+                    );
+                    var rows = await cursor.ToListAsync(record => record.Values["j"].As<INode>());
+                    return rows.Select(row =>
+                        {
+                            TypeAdapterConfig<IReadOnlyDictionary<string, object>, JobDb>.NewConfig()
+                                .NameMatchingStrategy(NameMatchingStrategy.FromCamelCase)
+                                .Compile();
+
+                            JobDb result = TypeAdapter.Adapt<IReadOnlyDictionary<string, object>, JobDb>(row.Properties);
+                            return result;
+                        })
+                        .ToList();
+                });
+        }
     }
 
 
@@ -99,5 +123,40 @@ public class JobDao : IDataAccessObject<JobDb>
                     return TypeAdapter.Adapt<IReadOnlyDictionary<string, object>, JobDb>(row.Properties);
                 });
         }
+    }
+
+    internal static string CreateWhereClauseFromDict(IReadOnlyDictionary<string, object> filterProperties)
+    {
+        var keys = filterProperties.Keys.ToList();
+        var builder = new StringBuilder();
+
+        builder.Append("( ");
+        for (int i = 0; i < keys.Count; ++i)
+        {
+            var value = filterProperties.GetValueOrDefault(keys[i]);
+            var type = value?.GetType();
+
+            if (typeof(string).IsEquivalentTo(type))
+            {
+                builder.Append($"j.{keys[i]} = '{value}'");
+            }
+            else if (typeof(bool).IsEquivalentTo(type))
+            {
+                builder.Append($"j.{keys[i]} = {value?.ToString()?.ToLower()}");
+            }
+            else
+            {
+                builder.Append($"j.{keys[i]} = {value}");
+            }
+
+
+            if (i+1 != keys.Count)
+            {
+                builder.Append(" AND ");
+            }
+        }
+        builder.Append(" )");
+
+        return builder.ToString();
     }
 }

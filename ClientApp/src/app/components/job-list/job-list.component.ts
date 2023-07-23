@@ -35,6 +35,9 @@ export class JobListComponent implements OnInit {
     return this._jobs;
   }
 
+  @Input()
+  hideApplicantCount = false;
+
   statuses: string[] = [];
 
   @Output()

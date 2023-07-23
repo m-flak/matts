@@ -108,7 +108,7 @@ public class ApplicantDao : IDataAccessObject<ApplicantDb>
         }
     }
 
-    public async Task<List<ApplicantDb>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, string> filterProperties)
+    public async Task<List<ApplicantDb>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties)
     {
         throw new NotImplementedException();
     }

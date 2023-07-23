@@ -21,6 +21,18 @@ public class JobDaoTests
     }
 
     [Fact]
+    public void CreateWhereClauseFromDict_CreatesTheClause()
+    {
+        var dict = new Dictionary<string, object>();
+        dict.Add("someBool", true);
+        dict.Add("someInt", 1);
+        dict.Add("someStr", "value");
+
+        string whereClause = JobDao.CreateWhereClauseFromDict(dict);
+        Assert.Equal("( j.someBool = true AND j.someInt = 1 AND j.someStr = 'value' )", whereClause);
+    }
+
+    [Fact]
     public async void GetAll_GetsTheJobs()
     {
         _session.Setup(s => s.ExecuteReadAsync(It.IsAny<Func<IAsyncQueryRunner, Task<List<JobDb>>>>(), It.IsAny<Action<TransactionConfigBuilder>>()))
@@ -68,7 +80,7 @@ public class JobDaoTests
             .Returns(_session.Object);
         var sut = new JobDao(_driver.Object);
 
-        var statusPropertyFilter = new Dictionary<string, string>();
+        var statusPropertyFilter = new Dictionary<string, object>();
         statusPropertyFilter.Add("status", JobConstants.STATUS_OPEN);
 
         var actualOpenJobs = await sut.GetAllAndFilterByProperties(statusPropertyFilter);

@@ -45,7 +45,7 @@ public class JobRepository : IJobRepository
 
     public async Task<List<Job>> GetAllByStatus(string status)
     {
-        var statusPropertyFilter = new Dictionary<string, string>();
+        var statusPropertyFilter = new Dictionary<string, object>();
         statusPropertyFilter.Add("status", status);
 
         var jobs = await _daoJob.GetAllAndFilterByProperties(statusPropertyFilter);

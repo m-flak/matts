@@ -59,7 +59,7 @@ public class JobRepositoryTests
     [Fact]
     public async void GetAllByStatus_GetsTheJobs() 
     {
-        _daoJob.Setup(d => d.GetAllAndFilterByProperties(It.IsAny<IReadOnlyDictionary<string,string>>()))
+        _daoJob.Setup(d => d.GetAllAndFilterByProperties(It.IsAny<IReadOnlyDictionary<string,object>>()))
             .Returns(Task.FromResult(JobFixture.CreateJobList().Where(j => j.Status == JobConstants.STATUS_OPEN).ToList()));
         var sut = new JobRepository(_daoJob.Object, _daoApp.Object, new MapsterMapper.Mapper());
 
