@@ -1,0 +1,11 @@
+@use '../styles/text.scss';
+@use '../styles/job-page-common.scss' as job;
+
+@include text.emphasis;
+@include text.italicized;
+@include text.thick-headings34;
+
+@include job.job-page-container;
+@include job.job-page-header;
+@include job.job-page-footer;
+@include job.job-desc-body;

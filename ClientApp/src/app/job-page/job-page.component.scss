@@ -1,12 +1,14 @@
 @use '../styles/text.scss';
+@use '../styles/job-page-common.scss' as job;
 
 @include text.emphasis;
 @include text.italicized;
 @include text.thick-headings34;
 
-article.selected-job {
-    height: 100%;
-}
+@include job.job-page-container;
+@include job.job-page-header;
+@include job.job-page-footer;
+@include job.job-desc-body;
 
 .calendar-container {
     background-color: rgba(128,128,128,0.1);
@@ -23,28 +25,6 @@ article.selected-job {
         margin-left: 0.5rem;
         margin-right: 0.5rem;
     }
-}
-
-.job-page-header {
-    border-bottom: 1px solid black;
-    margin-bottom: 0.5rem;
-
-    h1 {
-        margin-bottom: 0.25rem;
-    }
-
-    button {
-        border: 1px solid black;
-    }
-}
-
-.job-page-body-footer {
-    border-top: 1px solid black;
-    margin-top: 4em;
-}
-
-.job-description-body {
-    margin-top: 1rem;
 }
 
 .job-status {

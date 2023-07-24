@@ -15,11 +15,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BackendService } from '../services/backend.service';
 import { AuthService } from '../services/auth.service';
 import { Subscription, switchMap } from 'rxjs';
+import { Job } from '../models';
 
 @Component({
   selector: 'app-apply-job-page',
@@ -28,6 +29,9 @@ import { Subscription, switchMap } from 'rxjs';
 })
 export class ApplyJobPageComponent implements OnInit, OnDestroy {
   private _subscription: Subscription | null = null;
+
+  @Input()
+  currentJob: Job | null = null;
 
   constructor(private activatedRoute: ActivatedRoute, private backendService: BackendService, private authService: AuthService) {}
 
@@ -38,7 +42,7 @@ export class ApplyJobPageComponent implements OnInit, OnDestroy {
       this.activatedRoute.paramMap.pipe(
         switchMap((params: ParamMap) => this.backendService.getJobDetails(params.get('id') ?? ''))
       ).subscribe(async (data) => {
-        console.log(data);
+        this.currentJob = data;
       });
   }
 

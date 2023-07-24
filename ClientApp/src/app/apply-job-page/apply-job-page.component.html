@@ -1,1 +1,23 @@
-<p>apply-job-page works!</p>
+<article class="selected-job">
+    <ng-container *ngIf="this.currentJob !== null; else loading">
+        <div class="d-flex justify-content-between job-page-header">
+            <h1>{{ this.currentJob.name }}</h1>
+        </div>
+        <div class="d-flex flex-column">
+            <div class="job-description-body">
+                <h3>Job Description:</h3>
+                <p>{{ this.currentJob.description }}</p>
+            </div>
+            <div class="apply-to-job-section">
+                <h3>Apply to this job:</h3>
+                <p>Click <span class="emphasis">Apply Now</span> to apply for this position. Your account information will be used to generate your application to the employer.</p>
+                <div class="d-flex flex-column justify-content-center">
+                    <button mat-flat-button color="primary">Apply Now</button>
+                </div>
+            </div>
+        </div>
+    </ng-container>
+    <ng-template #loading>
+        <h1>Loading...</h1>
+    </ng-template>
+</article>

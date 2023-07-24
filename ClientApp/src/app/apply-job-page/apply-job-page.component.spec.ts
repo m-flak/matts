@@ -24,6 +24,7 @@ import { Job } from '../models';
 import { BackendService } from '../services/backend.service';
 import { AuthService, CurrentUser } from '../services/auth.service';
 import { UserRoleConstants } from '../constants';
+import { MatButtonModule } from '@angular/material/button';
 
 const jobData: Job = {
   "id": 1,
@@ -81,6 +82,7 @@ describe('ApplyJobPageComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      imports: [ MatButtonModule ],
       declarations: [ ApplyJobPageComponent ],
       providers: [
         { provide: AuthService, useValue: FakeAuthService },
