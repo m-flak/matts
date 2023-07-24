@@ -3,7 +3,7 @@
         <p>Invalid credentials. Unable to login.</p>
     </ngb-alert>
     <div class="text-center">
-        <h1>Welcome!</h1>
+        <h1>Welcome</h1>
     </div>
     <mat-accordion [ngClass]="'text-center'" id="LoginAccordion">
         <mat-expansion-panel id="EmployerLoginPanel" [expanded]="true">
@@ -41,6 +41,38 @@
                 </mat-form-field>
                 <button mat-flat-button color="primary" class="align-self-center" type="submit">Login</button>
             </form>
+        </mat-expansion-panel>
+        <mat-expansion-panel id="NewUserRegistrationPanel">
+            <mat-expansion-panel-header>
+                <mat-panel-title>NEW USER REGISTRATION</mat-panel-title>
+            </mat-expansion-panel-header>
+            <section>
+                <h3 class="registration-section-header">Employers:</h3>
+                <p>
+                    To be implemented...
+                </p>
+            </section>
+            <section>
+                <h3 class="registration-section-header">Applicants:</h3>
+                <form [formGroup]="applicantRegistrationForm" class="d-flex flex-column" (ngSubmit)="performRegistration(REGISTRATION_TYPE_APPLICANT)">
+                    <mat-form-field>
+                        <mat-label>Full Name</mat-label>
+                        <input type="text" matInput formControlName="fullName" />
+                        <mat-hint *ngIf="!this.applicantRegistrationForm.controls.fullName.valid"><span class="require-text">*Required</span></mat-hint>
+                    </mat-form-field>
+                    <mat-form-field>
+                        <mat-label>User Name</mat-label>
+                        <input type="text" matInput formControlName="userName" />
+                        <mat-hint *ngIf="!this.applicantRegistrationForm.controls.userName.valid"><span class="require-text">*Required</span></mat-hint>
+                    </mat-form-field>
+                    <mat-form-field>
+                        <mat-label>Password</mat-label>
+                        <input type="password" matInput formControlName="password" />
+                        <mat-hint *ngIf="!this.applicantRegistrationForm.controls.password.valid"><span class="require-text">*Required</span></mat-hint>
+                    </mat-form-field>
+                    <button mat-flat-button color="primary" class="align-self-center" type="submit">Register</button>
+                </form>
+            </section>
         </mat-expansion-panel>
     </mat-accordion>
 </div>

@@ -25,3 +25,7 @@ $bottom-gradient: mat.get-color-from-palette($accent-palette, 50);
 .require-text {
     color: red !important;
 }
+
+.registration-section-header {
+    border-bottom: black 2px dotted;
+}

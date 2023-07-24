@@ -24,6 +24,8 @@ matListItemTitle {
 
         span.job-list-item-title {
             font-weight: bold;
+            font-family: GTAmericaBlack !important;
+            text-transform: uppercase;
         }
         
         span:not(.job-list-item-title) {
