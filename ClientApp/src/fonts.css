@@ -2,3 +2,11 @@
     font-family: GTAmericaBlack;
     src: url(assets/GT-America-Compressed-Black-Trial.otf) format("opentype");
 }
+@font-face {
+    font-family: GTAmericaMedium;
+    src: url(assets/GT-America-Condensed-Medium-Trial.otf) format("opentype");
+}
+@font-face {
+    font-family: GTAmericaRegular;
+    src: url(assets/GT-America-Condensed-Regular-Trial.otf) format("opentype");
+}

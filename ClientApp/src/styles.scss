@@ -47,3 +47,13 @@ h1, h2, h3, h4, .mat-expansion-panel-header-title {
   font-family: GTAmericaBlack !important;
   text-transform: uppercase !important;
 }
+
+button {
+  font-family: GTAmericaMedium !important;
+  text-transform: uppercase !important;
+
+  & > * {
+    font-family: GTAmericaMedium !important;
+    text-transform: uppercase !important;
+  }
+}
