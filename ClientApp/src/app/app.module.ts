@@ -26,6 +26,7 @@ import { HomeApplicantComponent } from './home-applicant/home-applicant.componen
 import { AuthGuard } from './guards/auth.guard';
 import { LoginPageComponent } from './login-page/login-page.component';
 import { JWT_OPTIONS, JwtModule } from '@auth0/angular-jwt';
+import { ApplyJobPageComponent } from './apply-job-page/apply-job-page.component';
 
 export const BASE_URL = new InjectionToken<string>('BASE_URL');
 
@@ -37,7 +38,8 @@ export const BASE_URL = new InjectionToken<string>('BASE_URL');
     HomeComponent,
     HomeApplicantComponent,
     JobPageComponent,
-    LoginPageComponent
+    LoginPageComponent,
+    ApplyJobPageComponent
   ],
   imports: [
     NgbModule,
@@ -79,7 +81,13 @@ export const BASE_URL = new InjectionToken<string>('BASE_URL');
             path: 'applicant', 
             component: HomeApplicantComponent,
             data: { role: UserRoleConstants.USER_ROLE_APPLICANT },
-            canActivate: [ AuthGuard, HomeGuard ]
+            canActivate: [ AuthGuard, HomeGuard ],
+            children: [
+              { 
+                path: 'applyToJob/:id', 
+                component: ApplyJobPageComponent 
+              }
+            ] 
           }
         ]
       },

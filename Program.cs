@@ -112,6 +112,7 @@ builder.Services.AddScoped(typeof(IDataAccessObject<JobDb>), typeof(JobDao));
 builder.Services.AddScoped(typeof(IDataAccessObject<ApplicantDb>), typeof(ApplicantDao));
 builder.Services.AddScoped<IJobRepository, JobRepository>();
 builder.Services.AddScoped<IJobService, JobService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 // TRANSIENT
 builder.Services.AddTransient<IMapper, Mapper>();

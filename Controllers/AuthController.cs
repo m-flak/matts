@@ -24,6 +24,8 @@ using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using matts.Interfaces;
+using matts.Constants;
 
 [ApiController]
 [Route("[controller]")]
@@ -32,12 +34,14 @@ public class AuthController : ControllerBase
     private readonly IValidator<User> _validator;
     private readonly ILogger<AuthController> _logger;
     private readonly IConfiguration _configuration;
+    private readonly IUserService _userService;
 
-    public AuthController(ILogger<AuthController> logger, IConfiguration configuration, IValidator<User> validator) 
+    public AuthController(ILogger<AuthController> logger, IConfiguration configuration, IValidator<User> validator, IUserService userService) 
     {
         _logger = logger;
         _configuration = configuration;
         _validator = validator;
+        _userService = userService;
     }
 
     [AllowAnonymous]
@@ -47,7 +51,7 @@ public class AuthController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Route("login")]
-    public IActionResult Login([FromBody] User user)
+    public async Task<IActionResult> Login([FromBody] User user)
     {
         var validationResult = _validator.Validate(user);
         if (!validationResult.IsValid) 
@@ -55,18 +59,32 @@ public class AuthController : ControllerBase
            return new BadRequestObjectResult(validationResult.Errors);
         }
 
+        bool authenticated = await _userService.AuthenticateUser(user);
+        if (!authenticated)
+        {
+            return Unauthorized();
+        }
+
         var issuer = _configuration["Jwt:Issuer"];
         var audience = _configuration["Jwt:Audience"];
         var signingKey = _configuration["Jwt:SigningKey"];
+
+        var claims = new List<Claim>()
+        {
+            new Claim("id", Guid.NewGuid().ToString()),
+            new Claim(ClaimTypes.Role, user.Role),
+            new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+        };
+
+        if (user.Role == UserRoleConstants.USER_ROLE_APPLICANT)
+        {
+            claims.Add(new Claim("applicantId", await _userService.GetUserApplicantId(user)));
+        }
+
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity(new[]
-            {
-                new Claim("id", Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.Role, user.Role),
-                new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            }),
+            Subject = new ClaimsIdentity(claims),
             Expires = DateTime.UtcNow.AddDays(1),
             Issuer = issuer,
             Audience = audience,

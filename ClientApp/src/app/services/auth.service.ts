@@ -23,11 +23,15 @@ import { JwtHelperService } from "@auth0/angular-jwt";
 import { User } from "../models";
 import { Observable, catchError, of, tap, throwError } from "rxjs";
 
+export interface CurrentUser extends User {
+    applicantId: string | null;
+};
+
 @Injectable({
     providedIn: 'root'
 })
 export class AuthService {
-    private _currentUser: User | null = null;
+    private _currentUser: CurrentUser | null = null;
 
     constructor(
         private http: HttpClient,
@@ -35,10 +39,10 @@ export class AuthService {
         @Inject('BASE_URL') private baseUrl: string
     ) {}
 
-    get currentUser(): User | null {
+    get currentUser(): CurrentUser | null {
         return this._currentUser;
     }
-    set currentUser(user: User | null) {
+    set currentUser(user: CurrentUser | null) {
         this._currentUser = user;
     }
 
@@ -46,6 +50,7 @@ export class AuthService {
         const decodedToken: any = this.jwtHelper.decodeToken();
         let name: string | null = null;
         let role: string | null = null;
+        let applicantId: string | null = null;
 
         if (decodedToken !== null && decodedToken.hasOwnProperty('role')) {
             role = (decodedToken.role as string);
@@ -53,12 +58,16 @@ export class AuthService {
         if (decodedToken !== null && decodedToken.hasOwnProperty('sub')) {
             name = (decodedToken.sub as string);
         }
+        if (decodedToken !== null && decodedToken.hasOwnProperty('applicantId')) {
+            applicantId = (decodedToken.applicantId as string);
+        }
 
         if (name !== null && role !== null) {
             this.currentUser = {
                 userName: name,
                 password: '',
-                role: role
+                role: role,
+                applicantId: applicantId
             };
         }
     }

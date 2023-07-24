@@ -15,40 +15,37 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Job } from '../models';
-import { Subscription } from 'rxjs';
-import { Router, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BackendService } from '../services/backend.service';
+import { AuthService } from '../services/auth.service';
+import { Subscription, switchMap } from 'rxjs';
 
 @Component({
-  selector: 'app-home-applicant',
-  templateUrl: './home-applicant.component.html',
-  styleUrls: ['./home-applicant.component.scss']
+  selector: 'app-apply-job-page',
+  templateUrl: './apply-job-page.component.html',
+  styleUrls: ['./apply-job-page.component.scss']
 })
-export class HomeApplicantComponent implements OnInit, OnDestroy {
-  private _jobSubscription: Subscription | null = null;
+export class ApplyJobPageComponent implements OnInit, OnDestroy {
+  private _subscription: Subscription | null = null;
 
-  openJobs: Job[] = [];
-
-  constructor(private backendService: BackendService, private router: Router, private route: ActivatedRoute) { }
+  constructor(private activatedRoute: ActivatedRoute, private backendService: BackendService, private authService: AuthService) {}
 
   ngOnInit(): void {
-    // backend will use the role claim to return all open jobs
-    this._jobSubscription = this.backendService.getAllJobs().subscribe(theJobs => {
-      this.openJobs = theJobs;
-    });
+    console.log(this.authService.currentUser?.applicantId);
+    
+    this._subscription = 
+      this.activatedRoute.paramMap.pipe(
+        switchMap((params: ParamMap) => this.backendService.getJobDetails(params.get('id') ?? ''))
+      ).subscribe(async (data) => {
+        console.log(data);
+      });
   }
 
   ngOnDestroy(): void {
-    if (this._jobSubscription !== null) {
-      this._jobSubscription.unsubscribe();
+    if (this._subscription !== null) {
+      this._subscription.unsubscribe();
     }
-  }
-
-  onSelectJob(job: Job) {
-    this.router.navigate(['applyToJob', `${job.uuid}`], { relativeTo: this.route });
   }
 
 }
