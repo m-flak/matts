@@ -21,6 +21,7 @@ using matts.Models.Db;
 using Mapster;
 using System.Text;
 using matts.Models;
+using matts.Utils;
 
 namespace matts.Daos;
 
@@ -78,19 +79,11 @@ public class JobDao : IDataAccessObject<JobDb>
                 {
                     var cursor = await tx.RunAsync(
                         "MATCH (j:Job) " +
-                        $"WHERE {CreateWhereClauseFromDict(filterProperties)} " +
+                        $"WHERE {DaoUtils.CreateWhereClauseFromDict(filterProperties, "j")} " +
                         "RETURN j"
                     );
                     var rows = await cursor.ToListAsync(record => record.Values["j"].As<INode>());
-                    return rows.Select(row =>
-                        {
-                            TypeAdapterConfig<IReadOnlyDictionary<string, object>, JobDb>.NewConfig()
-                                .NameMatchingStrategy(NameMatchingStrategy.FromCamelCase)
-                                .Compile();
-
-                            JobDb result = TypeAdapter.Adapt<IReadOnlyDictionary<string, object>, JobDb>(row.Properties);
-                            return result;
-                        })
+                    return rows.Select(row => DaoUtils.MapSimpleRow<JobDb>(row))
                         .ToList();
                 });
         }
@@ -116,47 +109,13 @@ public class JobDao : IDataAccessObject<JobDb>
 
                     var row = await cursor.SingleAsync(record => record.Values["j"].As<INode>());
 
-                    TypeAdapterConfig<IReadOnlyDictionary<string, object>, JobDb>.NewConfig()
-                                .NameMatchingStrategy(NameMatchingStrategy.FromCamelCase)
-                                .Compile();
-
-                    return TypeAdapter.Adapt<IReadOnlyDictionary<string, object>, JobDb>(row.Properties);
+                    return DaoUtils.MapSimpleRow<JobDb>(row);
                 });
         }
     }
 
-    internal static string CreateWhereClauseFromDict(IReadOnlyDictionary<string, object> filterProperties)
+    public async Task<JobDb> CreateNew(JobDb createWhat)
     {
-        var keys = filterProperties.Keys.ToList();
-        var builder = new StringBuilder();
-
-        builder.Append("( ");
-        for (int i = 0; i < keys.Count; ++i)
-        {
-            var value = filterProperties.GetValueOrDefault(keys[i]);
-            var type = value?.GetType();
-
-            if (typeof(string).IsEquivalentTo(type))
-            {
-                builder.Append($"j.{keys[i]} = '{value}'");
-            }
-            else if (typeof(bool).IsEquivalentTo(type))
-            {
-                builder.Append($"j.{keys[i]} = {value?.ToString()?.ToLower()}");
-            }
-            else
-            {
-                builder.Append($"j.{keys[i]} = {value}");
-            }
-
-
-            if (i+1 != keys.Count)
-            {
-                builder.Append(" AND ");
-            }
-        }
-        builder.Append(" )");
-
-        return builder.ToString();
+        throw new NotImplementedException();
     }
 }

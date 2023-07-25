@@ -26,4 +26,6 @@ public interface IDataAccessObject<T> where T : class
     public Task<List<T>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties);
 
     public Task<T> GetByUuid(string uuid);
+
+    public Task<T> CreateNew(T createWhat);
 }
