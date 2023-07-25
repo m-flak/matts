@@ -1,0 +1,99 @@
+/* matts
+ * "Matthew's ATS" - Portfolio Project
+ * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**/
+using Neo4j.Driver;
+using matts.Interfaces;
+using matts.Utils;
+
+namespace matts.Daos;
+
+public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
+{
+    protected readonly IDriver _driver;
+
+    protected DaoAbstractBase(IDriver driver)
+    {
+        _driver = driver;
+    }
+
+    protected async Task<List<T>> GetAllByRelationshipImpl(Type lhNode, Type rhNode, string relationship, string? optionalRelationship, string whomUuid)
+    {
+        var lhAttr = Attribute.GetCustomAttribute(lhNode, typeof(DbNodeAttribute)) as DbNodeAttribute;
+        var rhAttr = Attribute.GetCustomAttribute(rhNode, typeof(DbNodeAttribute)) as DbNodeAttribute;
+
+        if (lhAttr == null || rhAttr == null)
+        {
+            throw new ArgumentException("Unable to find the DbNodeAttribute that should be attached to `lhNode` or `rhNode`!");
+        }
+
+        using (var session = _driver.AsyncSession())
+        {
+            return await session.ExecuteReadAsync(
+                async tx =>
+                {
+                    var addOptionalParams = (string? optRel) => (optRel != null) ? DaoUtils.AddReturnsForRelationshipParams(optRel, "r2") : "";
+
+                    var cursor = await tx.RunAsync(
+                        $"MATCH({lhAttr.Selector}: {lhAttr.Node}) -[r: " + $"{relationship}" + $"]->({rhAttr.Selector}: {rhAttr.Node}) " +
+                        $"{DaoUtils.CreateOptionalMatchClause(optionalRelationship, lhAttr.Selector, rhAttr.Selector)}" +
+                        $"WHERE {lhAttr.Selector}.uuid = $uuid " +
+                        $"RETURN {lhAttr.Selector} {DaoUtils.AddReturnsForRelationshipParams(relationship, "r")} {addOptionalParams(optionalRelationship)}",
+                        new
+                        {
+                            uuid = whomUuid
+                        }
+                    );
+
+                    var rows = await cursor.ToListAsync(record => record.Values);
+                    return rows.Select(row => DaoUtils.MapRowWithRelationships<T>(row, lhAttr.Selector, relationship, optionalRelationship, "r", "r2"))
+                        .ToList();
+                });
+        }
+    }
+
+    protected async Task<List<T>> GetAllAndFilterByPropertiesImpl(Type node, IReadOnlyDictionary<string, object> filterProperties)
+    {
+        var nodeAttr = Attribute.GetCustomAttribute(node, typeof(DbNodeAttribute)) as DbNodeAttribute;
+
+        if (nodeAttr == null)
+        {
+            throw new ArgumentException("Unable to find the DbNodeAttribute that should be attached to `node`!");
+        }
+
+        using (var session = _driver.AsyncSession())
+        {
+            return await session.ExecuteReadAsync(
+                async tx =>
+                {
+                    var cursor = await tx.RunAsync(
+                        $"MATCH ({nodeAttr.Selector}: {nodeAttr.Node}) " +
+                        $"WHERE {DaoUtils.CreateWhereClauseFromDict(filterProperties, nodeAttr.Selector)} " +
+                        $"RETURN {nodeAttr.Selector}"
+                    );
+                    var rows = await cursor.ToListAsync(record => record.Values[nodeAttr.Selector].As<INode>());
+                    return rows.Select(row => DaoUtils.MapSimpleRow<T>(row))
+                        .ToList();
+                });
+        }
+    }
+
+    public abstract Task<T> CreateNew(T createWhat);
+    public abstract Task<List<T>> GetAll();
+    public abstract Task<List<T>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties);
+    public abstract Task<List<T>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid);
+    public abstract Task<T> GetByUuid(string uuid);
+}
