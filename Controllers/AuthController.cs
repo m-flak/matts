@@ -26,6 +26,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using matts.Interfaces;
 using matts.Constants;
+using matts.Models;
+
+namespace matts.Controllers;
 
 [ApiController]
 [Route("[controller]")]

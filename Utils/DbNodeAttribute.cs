@@ -15,28 +15,19 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-namespace matts.Models;
+namespace matts.Utils;
 
-using FluentValidation;
-using matts.Utils;
+using System;
 
-[DbNode("User", "u")]
-public class User
+[AttributeUsage(AttributeTargets.Class)]
+public class DbNodeAttribute : Attribute
 {
-    public string? UserName { get; set; }
-    public string? Password { get; set; }
-    public string? Role { get; set; }
-}
+    public string Node;
+    public string Selector;
 
-public class UserValidator : AbstractValidator<User>
-{
-    public UserValidator()
+    public DbNodeAttribute(string node, string selector)
     {
-        RuleFor(x => x.UserName).NotNull();
-        RuleFor(x => x.UserName.Length).GreaterThan(0).When(x => x.UserName != null);
-        RuleFor(x => x.Password).NotNull();
-        RuleFor(x => x.Password.Length).GreaterThan(0).When(x => x.Password != null);
-        RuleFor(x => x.Role).NotNull();
-        RuleFor(x => x.Role.Length).GreaterThan(0).When(x => x.Role != null);
+        Node = node;
+        Selector = selector;
     }
 }

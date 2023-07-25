@@ -17,6 +17,9 @@
 **/
 namespace matts.Models.Db;
 
+using matts.Utils;
+
+[DbNode("Job", "j")]
 public class JobDb
 {
     public string? Uuid { get; set; }

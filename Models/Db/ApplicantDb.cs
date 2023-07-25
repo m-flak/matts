@@ -16,9 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 using static matts.Models.Applicant;
+using matts.Utils;
 
 namespace matts.Models.Db;
 
+[DbNode("Applicant", "a")]
 public class ApplicantDb
 {
     public string? Uuid { get; set; }

@@ -3,6 +3,7 @@ using matts.Tests.Fixture;
 using matts.Models.Db;
 using matts.Constants;
 using matts.Utils;
+using matts.Models;
 using Neo4j.Driver;
 using System;
 using System.Collections.Generic;

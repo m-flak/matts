@@ -17,6 +17,7 @@
 **/
 using matts.Interfaces;
 using matts.Models.Db;
+using matts.Models;
 using matts.Utils;
 using Neo4j.Driver;
 using System;

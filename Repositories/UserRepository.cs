@@ -18,6 +18,7 @@
 using MapsterMapper;
 using matts.Daos;
 using matts.Interfaces;
+using matts.Models;
 using matts.Models.Db;
 using System;
 using System.Collections.Generic;
