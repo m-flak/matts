@@ -1,4 +1,4 @@
-/* matts
+﻿/* matts
  * "Matthew's ATS" - Portfolio Project
  * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
  * 
@@ -15,14 +15,16 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-namespace matts.Constants;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-public sealed class RelationshipConstants
+namespace matts.Interfaces;
+
+public interface IUserRepository
 {
-    public const string HAS_APPLIED_TO = "HAS_APPLIED_TO";
-    public const string IS_INTERVIEWING_FOR = "IS_INTERVIEWING_FOR";
-    public const string IS_USER_FOR = "IS_USER_FOR";
-
-    // Constants class
-    private RelationshipConstants() {}
+    public Task<User> GetUserByName(string userName);
+    public Task<string> GetApplicantIdForUserByUserName(string userName);
 }

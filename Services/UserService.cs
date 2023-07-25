@@ -22,16 +22,21 @@ using matts.Interfaces;
 using matts.Models;
 using matts.Constants;
 using System.Threading.Tasks;
+using BCrypt.Net;
 
 public class UserService : IUserService
 {
     private readonly IConfiguration _configuration;
+    private readonly ILogger<UserService> _logger;
+    private readonly IUserRepository _repository;
 
     private bool _useDummyData;
 
-    public UserService(IConfiguration configuration)
+    public UserService(IConfiguration configuration, ILogger<UserService> logger, IUserRepository repository)
     {
         _configuration = configuration;
+        _logger = logger;
+        _repository = repository;
 
         ConfigureService();
     }
@@ -43,8 +48,15 @@ public class UserService : IUserService
             return true;
         }
 
-        // TODO: Implement
-        return false;
+        // TODO: Employer auth
+        if (user.Role == UserRoleConstants.USER_ROLE_EMPLOYER)
+        {
+            return true;
+        }
+        
+        var userDb = await _repository.GetUserByName(user.UserName);
+
+        return BCrypt.Verify(user.Password, userDb.Password);
     }
 
     public async Task<string> GetUserApplicantId(User user)
@@ -54,8 +66,7 @@ public class UserService : IUserService
             return System.Guid.NewGuid().ToString();
         }
 
-        // TODO: Implement
-        return System.Guid.NewGuid().ToString();
+        return await _repository.GetApplicantIdForUserByUserName(user.UserName);
     }
 
     private void ConfigureService()

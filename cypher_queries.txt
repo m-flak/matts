@@ -2,6 +2,7 @@
 
 CREATE CONSTRAINT FOR(a:Applicant) REQUIRE a.uuid IS UNIQUE
 CREATE CONSTRAINT FOR(j:Job) REQUIRE j.uuid IS UNIQUE
+CREATE CONSTRAINT FOR(u:User) REQUIRE u.userName IS UNIQUE
 
 # DATA #######################################################################################################################
 
@@ -14,6 +15,10 @@ MATCH (full_stack_software_developer:Job { uuid: '7df53d53-7c25-4b37-a004-6d9e30
 CREATE (lee_cardholder: Applicant { uuid: 'e2a17b6b-0e40-4eea-94a8-c07d7fe3bb5d', name: 'Lee Cardholder' }),
 	(lee_cardholder)-[:HAS_APPLIED_TO {rejected: true}]->(full_stack_software_developer)
 
+# password is 123
+CREATE (u:User { userName: 'alexis', password: '$2a$11$cD.oCT/QzAgQvza7pDWhI.mjUwpNoNuVMulxyUgXHXZbOJTdji0f6', role: 'applicant' }),
+	(a:Applicant { uuid: '41cdfb73-0a28-4ccf-85d5-d0c424f6fa08', name: 'Alexis Powers'}),
+	(u)-[:IS_USER_FOR]->(a)
 
 # FULL JOB DETAILS BY UUID QUERY #############################################################################################
 

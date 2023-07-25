@@ -1,4 +1,4 @@
-/* matts
+﻿/* matts
  * "Matthew's ATS" - Portfolio Project
  * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
  * 
@@ -15,14 +15,35 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-namespace matts.Constants;
+using MapsterMapper;
+using matts.Daos;
+using matts.Interfaces;
+using matts.Models.Db;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-public sealed class RelationshipConstants
-{
-    public const string HAS_APPLIED_TO = "HAS_APPLIED_TO";
-    public const string IS_INTERVIEWING_FOR = "IS_INTERVIEWING_FOR";
-    public const string IS_USER_FOR = "IS_USER_FOR";
+namespace matts.Repositories;
 
-    // Constants class
-    private RelationshipConstants() {}
+public class UserRepository : IUserRepository
+{ 
+    private readonly IDataAccessObject<User> _daoUser;
+
+    public UserRepository(IDataAccessObject<User> daoUser)
+    {
+        _daoUser = daoUser;
+    }
+
+    public async Task<string> GetApplicantIdForUserByUserName(string userName)
+    {
+        UserDao dao = (UserDao) _daoUser;
+        return await dao.GetApplicantIdForUserName(userName);
+    }
+
+    public async Task<User> GetUserByName(string userName)
+    {
+        return await _daoUser.GetByUuid(userName);
+    }
 }
