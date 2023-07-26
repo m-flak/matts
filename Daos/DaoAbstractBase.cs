@@ -91,6 +91,31 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
         }
     }
 
+    protected async Task<List<T>> GetAllImpl(Type node)
+    {
+        var nodeAttr = Attribute.GetCustomAttribute(node, typeof(DbNodeAttribute)) as DbNodeAttribute;
+
+        if (nodeAttr == null)
+        {
+            throw new ArgumentException("Unable to find the DbNodeAttribute that should be attached to `node`!");
+        }
+
+        using (var session = _driver.AsyncSession())
+        {
+            return await session.ExecuteReadAsync(
+                async tx =>
+                {
+                    var cursor = await tx.RunAsync(
+                        $"MATCH ({nodeAttr.Selector}: {nodeAttr.Node}) " +
+                        $"RETURN {nodeAttr.Selector}"
+                    );
+                    var rows = await cursor.ToListAsync(record => record.Values[nodeAttr.Selector].As<INode>());
+                    return rows.Select(row => DaoUtils.MapSimpleRow<T>(row))
+                        .ToList();
+                });
+        }
+    }
+
     public abstract Task<T> CreateNew(T createWhat);
     public abstract Task<List<T>> GetAll();
     public abstract Task<List<T>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties);
