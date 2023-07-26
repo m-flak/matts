@@ -20,6 +20,7 @@ using MapsterMapper;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Neo4j.Driver;
+using matts.Configuration;
 using matts.Models;
 using matts.Models.Db;
 using matts.Interfaces;
@@ -93,6 +94,9 @@ builder.Services.AddAuthentication("Bearer").AddJwtBearer(o =>
         ValidateIssuerSigningKey = true
     };
 });
+
+// CONFIGURATION FOR IOPTIONS
+builder.Services.Configure<JwtConfiguration>(builder.Configuration.GetSection("Jwt"));
 
 builder.Services.AddControllersWithViews();
 

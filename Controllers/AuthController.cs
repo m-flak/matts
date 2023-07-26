@@ -21,9 +21,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using matts.Configuration;
 using matts.Interfaces;
 using matts.Constants;
 using matts.Models;
@@ -36,13 +38,13 @@ public class AuthController : ControllerBase
 {
     private readonly IValidator<User> _validator;
     private readonly ILogger<AuthController> _logger;
-    private readonly IConfiguration _configuration;
+    private readonly IOptions<JwtConfiguration> _options;
     private readonly IUserService _userService;
 
-    public AuthController(ILogger<AuthController> logger, IConfiguration configuration, IValidator<User> validator, IUserService userService) 
+    public AuthController(ILogger<AuthController> logger, IOptions<JwtConfiguration> options, IValidator<User> validator, IUserService userService) 
     {
         _logger = logger;
-        _configuration = configuration;
+        _options = options;
         _validator = validator;
         _userService = userService;
     }
@@ -68,9 +70,9 @@ public class AuthController : ControllerBase
             return Unauthorized();
         }
 
-        var issuer = _configuration["Jwt:Issuer"];
-        var audience = _configuration["Jwt:Audience"];
-        var signingKey = _configuration["Jwt:SigningKey"];
+        var issuer = _options.Value.Issuer;
+        var audience = _options.Value.Audience;
+        var signingKey = _options.Value.SigningKey;
 
         var claims = new List<Claim>()
         {
