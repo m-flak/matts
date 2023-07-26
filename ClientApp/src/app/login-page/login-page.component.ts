@@ -38,6 +38,8 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   private _subscription: Subscription | null = null;
 
   loginFailure = false;
+  registrationSuccessful = false;
+  registrationTypeMessage = '';
 
   employerLoginForm: FormGroup;
   applicantLoginForm: FormGroup;
@@ -131,6 +133,8 @@ export class LoginPageComponent implements OnInit, OnDestroy {
 
       const formData = this.applicantRegistrationForm.value;
       console.log(formData);
+      this.registrationSuccessful = true;
+      this.registrationTypeMessage = 'Applicant';
     }
   }
 }

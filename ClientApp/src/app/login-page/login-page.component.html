@@ -2,6 +2,9 @@
     <ngb-alert *ngIf="loginFailure" type="danger" [dismissible]="false">
         <p>Invalid credentials. Unable to login.</p>
     </ngb-alert>
+    <ngb-alert *ngIf="registrationSuccessful" type="success" [dismissible]="false">
+        <p>Registration Successful! You may now login with your account through <span class="emphasis">{{this.registrationTypeMessage}} Login</span>.</p>
+    </ngb-alert>
     <div class="text-center">
         <h1>Welcome</h1>
     </div>

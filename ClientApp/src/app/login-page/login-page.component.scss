@@ -1,6 +1,9 @@
 @use 'SASS:map';
 @use '@angular/material' as mat;
 @use '../../theming.scss' as global;
+@use '../styles/text.scss';
+
+@include text.emphasis;
 
 $color-config:    mat.get-color-config(global.$theme);
 $primary-palette: map.get($color-config, 'primary');
