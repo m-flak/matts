@@ -25,16 +25,13 @@ using matts.Utils;
 
 namespace matts.Daos;
 
-public class JobDao : IDataAccessObject<JobDb>
+public class JobDao : DaoAbstractBase<JobDb>
 {
-    private readonly IDriver _driver;
-
-    public JobDao(IDriver driver)
+    public JobDao(IDriver driver) : base(driver)
     {
-        _driver = driver;
     }
 
-    public async Task<List<JobDb>> GetAll()
+    public override async Task<List<JobDb>> GetAll()
     {
         using (var session = _driver.AsyncSession())
         {
@@ -65,32 +62,33 @@ public class JobDao : IDataAccessObject<JobDb>
         }
     }
 
-    public async Task<List<JobDb>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid)
+    public override async Task<List<JobDb>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<List<JobDb>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties)
+    public override async Task<List<JobDb>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties)
     {
-        using (var session = _driver.AsyncSession())
-        {
-            return await session.ExecuteReadAsync(
-                async tx =>
-                {
-                    var cursor = await tx.RunAsync(
-                        "MATCH (j:Job) " +
-                        $"WHERE {DaoUtils.CreateWhereClauseFromDict(filterProperties, "j")} " +
-                        "RETURN j"
-                    );
-                    var rows = await cursor.ToListAsync(record => record.Values["j"].As<INode>());
-                    return rows.Select(row => DaoUtils.MapSimpleRow<JobDb>(row))
-                        .ToList();
-                });
-        }
+        // using (var session = _driver.AsyncSession())
+        // {
+        //     return await session.ExecuteReadAsync(
+        //         async tx =>
+        //         {
+        //             var cursor = await tx.RunAsync(
+        //                 "MATCH (j:Job) " +
+        //                 $"WHERE {DaoUtils.CreateWhereClauseFromDict(filterProperties, "j")} " +
+        //                 "RETURN j"
+        //             );
+        //             var rows = await cursor.ToListAsync(record => record.Values["j"].As<INode>());
+        //             return rows.Select(row => DaoUtils.MapSimpleRow<JobDb>(row))
+        //                 .ToList();
+        //         });
+        // }
+        return await this.GetAllAndFilterByPropertiesImpl(typeof(JobDb), filterProperties);
     }
 
 
-    public async Task<JobDb> GetByUuid(string uuid)
+    public override async Task<JobDb> GetByUuid(string uuid)
     {
         using (var session = _driver.AsyncSession())
         {
@@ -114,7 +112,7 @@ public class JobDao : IDataAccessObject<JobDb>
         }
     }
 
-    public async Task<JobDb> CreateNew(JobDb createWhat)
+    public override async Task<JobDb> CreateNew(JobDb createWhat)
     {
         throw new NotImplementedException();
     }

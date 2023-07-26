@@ -27,58 +27,66 @@ using System.Text;
 
 namespace matts.Daos;
 
-public class ApplicantDao : IDataAccessObject<ApplicantDb>
+public class ApplicantDao : DaoAbstractBase<ApplicantDb>
 {
-    private readonly IDriver _driver;
-
-    public ApplicantDao(IDriver driver)
+    public ApplicantDao(IDriver driver) : base(driver)
     {
-        _driver = driver;
     }
 
-    public async Task<List<ApplicantDb>> GetAll()
+    public override async Task<List<ApplicantDb>> GetAll()
+    {
+        return await this.GetAllImpl(typeof(ApplicantDb));
+    }
+
+    public override async Task<List<ApplicantDb>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid)
+    {
+        // using (var session = _driver.AsyncSession())
+        // {
+        //     return await session.ExecuteReadAsync(
+        //         async tx =>
+        //         {
+        //             var addOptionalParams = (string? optRel) => (optRel != null) ? DaoUtils.AddReturnsForRelationshipParams(optRel, "r2") : "";
+
+        //             var cursor = await tx.RunAsync(
+        //                 "MATCH(a: Applicant) -[r: " + $"{relationship}" +"]->(j: Job) " +
+        //                 $"{DaoUtils.CreateOptionalMatchClause(optionalRelationship, "a", "j")}" +
+        //                 "WHERE j.uuid = $uuid " +
+        //                 $"RETURN a {DaoUtils.AddReturnsForRelationshipParams(relationship, "r")} {addOptionalParams(optionalRelationship)}",
+        //                 new
+        //                 {
+        //                     uuid = whomUuid
+        //                 }
+        //             );
+
+        //             var rows = await cursor.ToListAsync(record => record.Values);
+        //             return rows.Select(row => DaoUtils.MapRowWithRelationships<ApplicantDb>(row, "a", relationship, optionalRelationship, "r", "r2"))
+        //                 .ToList();
+        //         });
+        // }
+        return await this.GetAllByRelationshipImpl(
+            typeof(ApplicantDb), 
+            typeof(JobDb), 
+            new GetAllByRelationshipConfig(
+                GetAllByRelationshipConfig.WhereNodeSelctor.RIGHT, 
+                GetAllByRelationshipConfig.ReturnNodeSelector.LEFT
+            ), 
+            relationship, 
+            optionalRelationship, 
+            whomUuid
+        );
+    }
+
+    public override async Task<List<ApplicantDb>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties)
+    {
+        return await this.GetAllAndFilterByPropertiesImpl(typeof(ApplicantDb), filterProperties);
+    }
+
+    public override async Task<ApplicantDb> GetByUuid(string uuid)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<List<ApplicantDb>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid)
-    {
-        using (var session = _driver.AsyncSession())
-        {
-            return await session.ExecuteReadAsync(
-                async tx =>
-                {
-                    var addOptionalParams = (string? optRel) => (optRel != null) ? DaoUtils.AddReturnsForRelationshipParams(optRel, "r2") : "";
-
-                    var cursor = await tx.RunAsync(
-                        "MATCH(a: Applicant) -[r: " + $"{relationship}" +"]->(j: Job) " +
-                        $"{DaoUtils.CreateOptionalMatchClause(optionalRelationship, "a", "j")}" +
-                        "WHERE j.uuid = $uuid " +
-                        $"RETURN a {DaoUtils.AddReturnsForRelationshipParams(relationship, "r")} {addOptionalParams(optionalRelationship)}",
-                        new
-                        {
-                            uuid = whomUuid
-                        }
-                    );
-
-                    var rows = await cursor.ToListAsync(record => record.Values);
-                    return rows.Select(row => DaoUtils.MapRowWithRelationships<ApplicantDb>(row, "a", relationship, optionalRelationship, "r", "r2"))
-                        .ToList();
-                });
-        }
-    }
-
-    public async Task<List<ApplicantDb>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<ApplicantDb> GetByUuid(string uuid)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<ApplicantDb> CreateNew(ApplicantDb createWhat)
+    public override async Task<ApplicantDb> CreateNew(ApplicantDb createWhat)
     {
         throw new NotImplementedException();
     }

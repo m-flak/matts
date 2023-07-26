@@ -30,7 +30,30 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
         _driver = driver;
     }
 
-    protected async Task<List<T>> GetAllByRelationshipImpl(Type lhNode, Type rhNode, string relationship, string? optionalRelationship, string whomUuid)
+    protected readonly struct GetAllByRelationshipConfig
+    {
+        public enum WhereNodeSelctor
+        {
+            LEFT,
+            RIGHT
+        }
+        public enum ReturnNodeSelector
+        {
+            LEFT,
+            RIGHT
+        }
+
+        public GetAllByRelationshipConfig(WhereNodeSelctor whereSelector, ReturnNodeSelector returnSelector)
+        {
+            WhereSelctor = whereSelector;
+            ReturnSelector = returnSelector;
+        }
+
+        public WhereNodeSelctor WhereSelctor { get; init; }
+        public ReturnNodeSelector ReturnSelector  { get; init; }
+    }
+
+    protected async Task<List<T>> GetAllByRelationshipImpl(Type lhNode, Type rhNode, GetAllByRelationshipConfig config, string relationship, string? optionalRelationship, string whomUuid)
     {
         var lhAttr = Attribute.GetCustomAttribute(lhNode, typeof(DbNodeAttribute)) as DbNodeAttribute;
         var rhAttr = Attribute.GetCustomAttribute(rhNode, typeof(DbNodeAttribute)) as DbNodeAttribute;
@@ -47,11 +70,14 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
                 {
                     var addOptionalParams = (string? optRel) => (optRel != null) ? DaoUtils.AddReturnsForRelationshipParams(optRel, "r2") : "";
 
+                    string whereSelector = (config.WhereSelctor == GetAllByRelationshipConfig.WhereNodeSelctor.LEFT) ? lhAttr.Selector : rhAttr.Selector;
+                    string returnSelector = (config.ReturnSelector == GetAllByRelationshipConfig.ReturnNodeSelector.LEFT) ? lhAttr.Selector : rhAttr.Selector;
+
                     var cursor = await tx.RunAsync(
                         $"MATCH({lhAttr.Selector}: {lhAttr.Node}) -[r: " + $"{relationship}" + $"]->({rhAttr.Selector}: {rhAttr.Node}) " +
                         $"{DaoUtils.CreateOptionalMatchClause(optionalRelationship, lhAttr.Selector, rhAttr.Selector)}" +
-                        $"WHERE {lhAttr.Selector}.uuid = $uuid " +
-                        $"RETURN {lhAttr.Selector} {DaoUtils.AddReturnsForRelationshipParams(relationship, "r")} {addOptionalParams(optionalRelationship)}",
+                        $"WHERE {whereSelector}.uuid = $uuid " +
+                        $"RETURN {returnSelector} {DaoUtils.AddReturnsForRelationshipParams(relationship, "r")} {addOptionalParams(optionalRelationship)}",
                         new
                         {
                             uuid = whomUuid
