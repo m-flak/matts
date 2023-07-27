@@ -90,26 +90,27 @@ public class JobDao : DaoAbstractBase<JobDb>
 
     public override async Task<JobDb> GetByUuid(string uuid)
     {
-        using (var session = _driver.AsyncSession())
-        {
-            return await session.ExecuteReadAsync(
-                async tx =>
-                {
-                    var cursor = await tx.RunAsync(
-                        "MATCH (j:Job) " +
-                        "WHERE j.uuid = $juuid " +
-                        "RETURN j",
-                        new
-                        {
-                            juuid = uuid
-                        }
-                    );
+        // using (var session = _driver.AsyncSession())
+        // {
+        //     return await session.ExecuteReadAsync(
+        //         async tx =>
+        //         {
+        //             var cursor = await tx.RunAsync(
+        //                 "MATCH (j:Job) " +
+        //                 "WHERE j.uuid = $juuid " +
+        //                 "RETURN j",
+        //                 new
+        //                 {
+        //                     juuid = uuid
+        //                 }
+        //             );
 
-                    var row = await cursor.SingleAsync(record => record.Values["j"].As<INode>());
+        //             var row = await cursor.SingleAsync(record => record.Values["j"].As<INode>());
 
-                    return DaoUtils.MapSimpleRow<JobDb>(row);
-                });
-        }
+        //             return DaoUtils.MapSimpleRow<JobDb>(row);
+        //         });
+        // }
+        return await this.GetByUuidImpl(typeof(JobDb), uuid);
     }
 
     public override async Task<JobDb> CreateNew(JobDb createWhat)

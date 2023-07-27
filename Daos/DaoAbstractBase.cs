@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
+using System.Reflection;
 using Neo4j.Driver;
 using matts.Interfaces;
 using matts.Utils;
@@ -138,6 +139,49 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
                     var rows = await cursor.ToListAsync(record => record.Values[nodeAttr.Selector].As<INode>());
                     return rows.Select(row => DaoUtils.MapSimpleRow<T>(row))
                         .ToList();
+                });
+        }
+    }
+
+    protected async Task<T> GetByUuidImpl(Type node, string uuid)
+    {
+        var nodeAttr = Attribute.GetCustomAttribute(node, typeof(DbNodeAttribute)) as DbNodeAttribute;
+
+        if (nodeAttr == null)
+        {
+            throw new ArgumentException("Unable to find the DbNodeAttribute that should be attached to `node`!");
+        }
+
+        PropertyInfo? uuidInfo = null;
+        string? uuidFieldName = null;
+        try 
+        {
+            uuidInfo = node.GetProperties().Where(p => p.GetCustomAttribute(typeof(DbNodeUuidAttribute)) != null).Single();
+            uuidFieldName = System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(uuidInfo.Name);
+        }
+        catch (InvalidOperationException ioe)
+        {
+            throw new ArgumentException("Unable to find the property with DbNodeUuidAttribute within `node`!", ioe);
+        }
+
+        using (var session = _driver.AsyncSession())
+        {
+            return await session.ExecuteReadAsync(
+                async tx =>
+                {
+                    var cursor = await tx.RunAsync(
+                        $"MATCH ({nodeAttr.Selector}: {nodeAttr.Node}) " +
+                        $"WHERE {nodeAttr.Selector}.{uuidFieldName} = $nuuid " +
+                        $"RETURN {nodeAttr.Selector}",
+                        new
+                        {
+                            nuuid = uuid
+                        }
+                    );
+
+                    var row = await cursor.SingleAsync(record => record.Values[nodeAttr.Selector].As<INode>());
+
+                    return DaoUtils.MapSimpleRow<T>(row);
                 });
         }
     }

@@ -23,6 +23,7 @@ namespace matts.Models.Db;
 [DbNode("Applicant", "a")]
 public class ApplicantDb
 {
+    [DbNodeUuid]
     public string? Uuid { get; set; }
 
     public string? Name { get; set; }

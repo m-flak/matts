@@ -20,7 +20,7 @@ namespace matts.Utils;
 using System;
 
 [AttributeUsage(AttributeTargets.Class)]
-public class DbNodeAttribute : Attribute
+public sealed class DbNodeAttribute : Attribute
 {
     public string Node;
     public string Selector;

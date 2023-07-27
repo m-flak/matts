@@ -28,57 +28,55 @@ using System.Threading.Tasks;
 
 namespace matts.Daos;
 
-public class UserDao : IDataAccessObject<User>
+public class UserDao : DaoAbstractBase<User>
 {
-    private readonly IDriver _driver;
-
-    public UserDao(IDriver driver)
+    public UserDao(IDriver driver) : base(driver)
     {
-        _driver = driver;
     }
 
-    public async Task<User> CreateNew(User createWhat)
+    public override async Task<User> CreateNew(User createWhat)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<List<User>> GetAll()
+    public override async Task<List<User>> GetAll()
     {
         throw new NotImplementedException();
     }
 
-    public async Task<List<User>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties)
+    public override async Task<List<User>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<List<User>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid)
+    public override async Task<List<User>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<User> GetByUuid(string uuid)
+    public override async Task<User> GetByUuid(string uuid)
     {
-        using (var session = _driver.AsyncSession())
-        {
-            return await session.ExecuteReadAsync(
-                async tx =>
-                {
-                    var cursor = await tx.RunAsync(
-                        "MATCH (u:User) " +
-                        "WHERE u.userName = $username " +
-                        "RETURN u",
-                        new
-                        {
-                            username = uuid
-                        }
-                    );
+        // using (var session = _driver.AsyncSession())
+        // {
+        //     return await session.ExecuteReadAsync(
+        //         async tx =>
+        //         {
+        //             var cursor = await tx.RunAsync(
+        //                 "MATCH (u:User) " +
+        //                 "WHERE u.userName = $username " +
+        //                 "RETURN u",
+        //                 new
+        //                 {
+        //                     username = uuid
+        //                 }
+        //             );
 
-                    var row = await cursor.SingleAsync(record => record.Values["u"].As<INode>());
+        //             var row = await cursor.SingleAsync(record => record.Values["u"].As<INode>());
 
-                    return DaoUtils.MapSimpleRow<User>(row);
-                });
-        }
+        //             return DaoUtils.MapSimpleRow<User>(row);
+        //         });
+        // }
+        return await this.GetByUuidImpl(typeof(User), uuid);
     }
 
     public async Task<string> GetApplicantIdForUserName(string userName)

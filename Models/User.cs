@@ -23,6 +23,7 @@ using matts.Utils;
 [DbNode("User", "u")]
 public class User
 {
+    [DbNodeUuid]
     public string? UserName { get; set; }
     public string? Password { get; set; }
     public string? Role { get; set; }

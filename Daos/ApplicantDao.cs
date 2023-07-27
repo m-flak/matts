@@ -83,7 +83,7 @@ public class ApplicantDao : DaoAbstractBase<ApplicantDb>
 
     public override async Task<ApplicantDb> GetByUuid(string uuid)
     {
-        throw new NotImplementedException();
+        return await this.GetByUuidImpl(typeof(ApplicantDb), uuid);
     }
 
     public override async Task<ApplicantDb> CreateNew(ApplicantDb createWhat)
