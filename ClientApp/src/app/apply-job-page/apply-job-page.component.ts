@@ -19,8 +19,9 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BackendService } from '../services/backend.service';
 import { AuthService } from '../services/auth.service';
-import { Subscription, switchMap } from 'rxjs';
+import { Subscription, map, switchMap } from 'rxjs';
 import { Job } from '../models';
+import { ApplicantDataService } from '../services/applicant-data.service';
 
 @Component({
   selector: 'app-apply-job-page',
@@ -33,14 +34,21 @@ export class ApplyJobPageComponent implements OnInit, OnDestroy {
   @Input()
   currentJob: Job | null = null;
 
-  constructor(private activatedRoute: ActivatedRoute, private backendService: BackendService, private authService: AuthService) {}
+  constructor(private activatedRoute: ActivatedRoute, private applicantDataService: ApplicantDataService, private backendService: BackendService, private authService: AuthService) {}
 
   ngOnInit(): void {
     console.log(this.authService.currentUser?.applicantId);
     
     this._subscription = 
       this.activatedRoute.paramMap.pipe(
-        switchMap((params: ParamMap) => this.backendService.getJobDetails(params.get('id') ?? ''))
+        switchMap((params: ParamMap) => this.backendService.getJobDetails(params.get('id') ?? '')),
+        map(job => {
+          const appliedFor = this.applicantDataService.isJobAppliedFor(job);
+          if (appliedFor) {
+            return { ...job, hasAppliedTo: appliedFor };
+          }
+          return job;
+        })
       ).subscribe(async (data) => {
         this.currentJob = data;
       });

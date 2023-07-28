@@ -45,6 +45,10 @@ export class ApplicantDataService {
         this._appliedJobMap.clear();
     }
 
+    isJobAppliedFor(job: Job): boolean {
+        return (this._appliedJobMap.get(job?.uuid as string) !== undefined);
+    }
+
     getOpenAndAppliedJobs(applicantId: string): Observable<Job[]> {
         return this.backendService.getAllAppliedJobs(applicantId).pipe(
             tap(jobs => jobs.forEach(j => this._appliedJobMap.set(j?.uuid as string, true))),

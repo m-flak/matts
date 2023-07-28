@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 
 import { ApplyJobPageComponent } from './apply-job-page.component';
 import { ActivatedRoute, ParamMap } from '@angular/router';
@@ -25,6 +25,11 @@ import { BackendService } from '../services/backend.service';
 import { AuthService, CurrentUser } from '../services/auth.service';
 import { UserRoleConstants } from '../constants';
 import { MatButtonModule } from '@angular/material/button';
+import { ApplicantDataService } from '../services/applicant-data.service';
+import { HarnessLoader } from '@angular/cdk/testing';
+import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
+import {MatButtonHarness}  from '@angular/material/button/testing';
+
 
 const jobData: Job = {
   "id": 1,
@@ -79,6 +84,9 @@ const FakeAuthService = {
 describe('ApplyJobPageComponent', () => {
   let component: ApplyJobPageComponent;
   let fixture: ComponentFixture<ApplyJobPageComponent>;
+  let applicantDataService: ApplicantDataService;
+
+  let loader: HarnessLoader;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -87,12 +95,16 @@ describe('ApplyJobPageComponent', () => {
       providers: [
         { provide: AuthService, useValue: FakeAuthService },
         { provide: BackendService, useValue: FakeBackendService },
-        { provide: ActivatedRoute, useValue: { 'paramMap': of((() => { let m = new Map(); m.set('id', '54991ebe-ba9e-440b-a202-247f0c33574f'); return m as unknown as ParamMap;})()) } }
+        { provide: ActivatedRoute, useValue: { 'paramMap': of((() => { let m = new Map(); m.set('id', '54991ebe-ba9e-440b-a202-247f0c33574f'); return m as unknown as ParamMap;})()) } },
+        ApplicantDataService
       ]
     })
     .compileComponents();
 
+    applicantDataService = TestBed.inject(ApplicantDataService);
+
     fixture = TestBed.createComponent(ApplyJobPageComponent);
+    loader = TestbedHarnessEnvironment.loader(fixture);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -100,4 +112,25 @@ describe('ApplyJobPageComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should disallow an application if the job is applied for', fakeAsync(async () => {
+    spyOn(applicantDataService, "isJobAppliedFor").and.returnValue(true);
+    component.ngOnInit();
+    tick(2);
+    fixture.detectChanges();
+
+    await fixture.whenStable();
+
+    const compiled = fixture.debugElement;
+    const applyForText = compiled.nativeElement.querySelector('p.have-not-applied');
+    const alreadApplyText = compiled.nativeElement.querySelector('p.have-applied');
+
+    const button = await loader.getHarness(MatButtonHarness);
+    const buttonIsDisabled = await button.isDisabled();
+
+    expect(applicantDataService.isJobAppliedFor).toHaveBeenCalled();
+    expect(applyForText).toBeNull();
+    expect(alreadApplyText).not.toBeNull();
+    expect(buttonIsDisabled).toBe(true);
+  }));
 });

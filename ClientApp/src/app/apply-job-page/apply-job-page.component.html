@@ -10,9 +10,10 @@
             </div>
             <div class="apply-to-job-section">
                 <h3>Apply to this job:</h3>
-                <p>Click <span class="emphasis">Apply Now</span> to apply for this position. Your account information will be used to generate your application to the employer.</p>
+                <p *ngIf="this.currentJob?.hasAppliedTo !== true" class="have-not-applied">Click <span class="emphasis">Apply Now</span> to apply for this position. Your account information will be used to generate your application to the employer.</p>
+                <p *ngIf="this.currentJob?.hasAppliedTo === true" class="have-applied">You have already applied to this job.</p>
                 <div class="d-flex flex-column justify-content-center">
-                    <button mat-flat-button color="primary">Apply Now</button>
+                    <button mat-flat-button color="primary" [disabled]="this.currentJob.hasAppliedTo === true">Apply Now</button>
                 </div>
             </div>
         </div>
