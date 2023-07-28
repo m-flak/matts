@@ -19,7 +19,7 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BackendService } from '../services/backend.service';
 import { AuthService } from '../services/auth.service';
-import { Subscription, map, switchMap } from 'rxjs';
+import { Subscription, lastValueFrom, map, switchMap } from 'rxjs';
 import { Job } from '../models';
 import { ApplicantDataService } from '../services/applicant-data.service';
 
@@ -30,6 +30,7 @@ import { ApplicantDataService } from '../services/applicant-data.service';
 })
 export class ApplyJobPageComponent implements OnInit, OnDestroy {
   private _subscription: Subscription | null = null;
+  private _subscription2: Subscription | null = null;
 
   @Input()
   currentJob: Job | null = null;
@@ -58,6 +59,19 @@ export class ApplyJobPageComponent implements OnInit, OnDestroy {
     if (this._subscription !== null) {
       this._subscription.unsubscribe();
     }
+    if (this._subscription2 !== null) {
+      this._subscription2.unsubscribe();
+    }
   }
 
+  applyToJob(): void {
+    this._subscription2 = this.applicantDataService.applyToJob(this.authService.currentUser?.applicantId as string, this.currentJob?.uuid as string).subscribe(async (response) => {
+      if (response.status === 200) {
+
+        const jobs = await lastValueFrom(this.applicantDataService.getOpenAndAppliedJobs(this.authService.currentUser?.applicantId as string));
+        this.applicantDataService.jobsListSubject.next(jobs);
+        this.currentJob = { ...this.currentJob, hasAppliedTo: true };
+      }
+    });
+  }
 }

@@ -31,6 +31,7 @@ import { AuthService } from '../services/auth.service';
 })
 export class HomeApplicantComponent implements OnInit, OnDestroy {
   private _jobSubscription: Subscription | null = null;
+  private _jobSubscription2: Subscription | null = null;
 
   openJobs: Job[] = [];
 
@@ -41,11 +42,18 @@ export class HomeApplicantComponent implements OnInit, OnDestroy {
     this._jobSubscription = this.applicantDataService.getOpenAndAppliedJobs(this.authService.currentUser?.applicantId as string).subscribe(jobs => {
       this.openJobs = jobs;
     });
+
+    this._jobSubscription2 = this.applicantDataService.jobsListSubject.subscribe(jobs => {
+      this.openJobs = jobs;
+    });
   }
 
   ngOnDestroy(): void {
     if (this._jobSubscription !== null) {
       this._jobSubscription.unsubscribe();
+    }
+    if (this._jobSubscription2 !== null) {
+      this._jobSubscription2.unsubscribe();
     }
   }
 

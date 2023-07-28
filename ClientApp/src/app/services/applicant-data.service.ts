@@ -19,7 +19,8 @@
 import { Injectable } from "@angular/core";
 import { BackendService } from "./backend.service";
 import { Observable, Subject, map, switchMap, tap } from "rxjs";
-import { Job } from "../models";
+import { ApplyToJob, Job } from "../models";
+import { HttpResponse } from "@angular/common/http";
 
 @Injectable({
     providedIn: 'root'
@@ -54,6 +55,21 @@ export class ApplicantDataService {
             tap(jobs => jobs.forEach(j => this._appliedJobMap.set(j?.uuid as string, true))),
             switchMap(() => this.backendService.getAllJobs()),
             map(jobs => this.updateJobArray(jobs))
+        );
+    }
+
+    applyToJob(applicantId: string, jobId: string): Observable<HttpResponse<any>> {
+        const application: ApplyToJob = {
+            jobUuid: jobId,
+            applicantUuid: applicantId
+        };
+
+        return this.backendService.applyToJob(application).pipe(
+            tap(response => {
+                if (response.status === 200) {
+                    this._appliedJobMap.set(jobId, true);
+                }
+            })
         );
     }
 }

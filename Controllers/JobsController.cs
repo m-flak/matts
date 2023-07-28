@@ -23,6 +23,7 @@ using matts.Models;
 using System.Security.Claims;
 using matts.Constants;
 using System.ComponentModel.DataAnnotations;
+using FluentValidation;
 
 namespace matts.Controllers;
 
@@ -31,12 +32,14 @@ namespace matts.Controllers;
 [Route("[controller]")]
 public class JobsController : ControllerBase
 {
+    private readonly IValidator<ApplyToJob> _applyValidator;
     private readonly ILogger<JobsController> _logger;
     private readonly IJobService             _service;
 
-    public JobsController(ILogger<JobsController> logger, IJobService service)
+    public JobsController(ILogger<JobsController> logger, IValidator<ApplyToJob> applyValidator, IJobService service)
     {
         _logger = logger;
+        _applyValidator = applyValidator;
         _service = service;
     }
 
@@ -78,6 +81,22 @@ public class JobsController : ControllerBase
     public async Task<Job> GetJobDetails(string uuid)
     {
         return await _service.GetJobDetails(uuid);
+    }
+
+    [HttpPost]
+    [Consumes(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [Route("applytojob")]
+    public async Task<IActionResult> ApplyToJob(ApplyToJob applyToJob)
+    {
+        var validationResult = _applyValidator.Validate(applyToJob);
+        if (!validationResult.IsValid) 
+        {
+           return new BadRequestObjectResult(validationResult.Errors);
+        }
+
+        return Ok();
     }
 
     [Authorize(Policy = "Employers")]

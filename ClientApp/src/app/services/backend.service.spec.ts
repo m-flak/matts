@@ -20,7 +20,7 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { HttpClientModule} from "@angular/common/http";
 import { BackendService } from './backend.service';
 import { JobConstants } from '../constants';
-import { Job } from '../models';
+import { ApplyToJob, Job } from '../models';
 
 describe('BackendService', () => {
     let httpMock: HttpTestingController;
@@ -114,6 +114,23 @@ describe('BackendService', () => {
 
         const request = httpMock.expectOne('/jobs/jobdetails/3ebb58d3-a24c-499b-8c65-75636e7b57de');
         request.flush(job);
+
+        httpMock.verify();
+    });
+
+    it('should apply to a job using backend', (done) => {
+        const application: ApplyToJob = {
+            jobUuid: '3ebb58d3-a24c-499b-8c65-75636e7b57de',
+            applicantUuid: '3b785136-cafb-48ed-b58f-1b2150f74bf6'
+        };
+
+        backendService.applyToJob(application).subscribe(response => {
+            expect(response.status).toEqual(200);
+            done();
+        });
+
+        const request = httpMock.expectOne('/jobs/applytojob');
+        request.flush(null, { status: 200, statusText: 'OK' });
 
         httpMock.verify();
     });

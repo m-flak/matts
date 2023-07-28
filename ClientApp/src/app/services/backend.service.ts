@@ -20,7 +20,7 @@ import { Location } from "@angular/common";
 import { HttpClient, HttpHeaders, HttpParams, HttpResponse } from "@angular/common/http";
 import { Inject, Injectable } from "@angular/core";
 import { Observable, catchError, throwError, map } from "rxjs";
-import { Job } from "../models";
+import { ApplyToJob, Job } from "../models";
 
 @Injectable({
     providedIn: 'root'
@@ -52,6 +52,19 @@ export class BackendService {
             .pipe(
                 catchError(e => throwError(() => new Error(e))),
                 map((j: any) => j || {})
+            );
+    }
+
+    applyToJob(applyToJob: ApplyToJob): Observable<HttpResponse<any>> {
+        const endpoint = `/jobs/applytojob`;
+
+        const httpHeaders = new HttpHeaders({
+            'Content-Type' : 'application/json'
+        });
+
+        return this.http.post(Location.joinWithSlash(this.baseUrl, endpoint), applyToJob, { headers: httpHeaders, observe: "response" })
+            .pipe(
+                catchError(e => throwError(() => new Error(e)))
             );
     }
 
