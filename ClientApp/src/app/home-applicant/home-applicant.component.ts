@@ -21,6 +21,8 @@ import { Job } from '../models';
 import { Subscription } from 'rxjs';
 import { Router, ActivatedRoute } from '@angular/router';
 import { BackendService } from '../services/backend.service';
+import { ApplicantDataService } from '../services/applicant-data.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-home-applicant',
@@ -32,12 +34,12 @@ export class HomeApplicantComponent implements OnInit, OnDestroy {
 
   openJobs: Job[] = [];
 
-  constructor(private backendService: BackendService, private router: Router, private route: ActivatedRoute) { }
+  constructor(private applicantDataService: ApplicantDataService, private authService: AuthService, private router: Router, private route: ActivatedRoute) { }
 
   ngOnInit(): void {
     // backend will use the role claim to return all open jobs
-    this._jobSubscription = this.backendService.getAllJobs().subscribe(theJobs => {
-      this.openJobs = theJobs;
+    this._jobSubscription = this.applicantDataService.getOpenAndAppliedJobs(this.authService.currentUser?.applicantId as string).subscribe(jobs => {
+      this.openJobs = jobs;
     });
   }
 

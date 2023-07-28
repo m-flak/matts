@@ -23,5 +23,6 @@ public interface IJobRepository
 {
     public Task<List<Job>> GetAll();
     public Task<List<Job>> GetAllByStatus(string status);
+    public Task<List<Job>> GetAllAppliedByApplicantId(string applicantId);
     public Task<Job> GetJobByUuid(string uuid);
 }

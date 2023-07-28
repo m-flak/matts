@@ -6,5 +6,6 @@
             <span matListItemLine>Status: <span [ngClass]="statuses[i].toLowerCase()">{{ job.status }}</span></span>
             <span *ngIf="!hideApplicantCount" matListItemLine>{{ job.applicantCount }} Applicants</span>
         </div>
+        <img *ngIf="job?.hasAppliedTo === true" class="applied-to-checkmark" src="assets/check.svg" alt="Applied" title="You have applied to this job." />
     </mat-list-item>
 </mat-list>

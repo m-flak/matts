@@ -28,4 +28,6 @@ export interface Job {
 
     // For the summarized versions of this object
     applicantCount?: number;
+
+    hasAppliedTo?: boolean;
 }

@@ -22,6 +22,7 @@ using matts.Interfaces;
 using matts.Models;
 using System.Security.Claims;
 using matts.Constants;
+using System.ComponentModel.DataAnnotations;
 
 namespace matts.Controllers;
 
@@ -63,6 +64,13 @@ public class JobsController : ControllerBase
         }
         
         return Ok(await _service.GetJobs());
+    }
+
+    [HttpGet]
+    [Route("getappliedjobs")]
+    public async Task<IEnumerable<Job>> GetAppliedJobs([Required] string applicantId) 
+    {
+        return await _service.GetAppliedJobs(applicantId);
     }
 
     [HttpGet]

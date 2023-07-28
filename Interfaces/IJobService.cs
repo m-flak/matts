@@ -25,5 +25,7 @@ public interface IJobService
 
     public Task<IEnumerable<Job>> GetOpenJobs();
 
+    public Task<IEnumerable<Job>> GetAppliedJobs(string applicantId);
+
     public Task<Job> GetJobDetails(string uuid);
 }

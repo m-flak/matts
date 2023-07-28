@@ -20,6 +20,7 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { HttpClientModule} from "@angular/common/http";
 import { BackendService } from './backend.service';
 import { JobConstants } from '../constants';
+import { Job } from '../models';
 
 describe('BackendService', () => {
     let httpMock: HttpTestingController;
@@ -62,6 +63,35 @@ describe('BackendService', () => {
 
         const request = httpMock.expectOne('/jobs/getjobs');
         request.flush(jobs);
+
+        httpMock.verify();
+    });
+
+    it('should get applied jobs from backend', (done) => {
+        const appliedJobs: Job[] = [
+            {
+                "id": 1,
+                "uuid": "4b4d7c64-ef5d-4379-add3-a3f6adc42f01",
+                "name": "Full Stack Software Developer",
+                "status": "OPEN",
+                "description": "John Doe Corporation is looking for a talented Full Stack Software Developer professional to work in a fast-paced, exciting environment!",
+            },
+            {
+                "id": 2,
+                "uuid": "eab3e2e8-f5a1-41c1-aa1d-1ad7eb6f3a96",
+                "name": "Junior HR",
+                "status": "OPEN",
+                "description": "John Doe Corporation is looking for a talented Junior HR professional to work in a fast-paced, exciting environment!",
+            }
+        ];
+
+        backendService.getAllAppliedJobs('applicantId').subscribe(jobs=> {
+            expect(jobs.length).toEqual(2);
+            done();
+        });
+
+        const request = httpMock.expectOne('/jobs/getappliedjobs?applicantId=applicantId');
+        request.flush(appliedJobs);
 
         httpMock.verify();
     });

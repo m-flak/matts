@@ -64,6 +64,16 @@ public partial class JobService : IJobService
         return await _repository.GetAllByStatus(JobConstants.STATUS_OPEN);
     }
 
+    public async Task<IEnumerable<Job>> GetAppliedJobs(string applicantId)
+    {
+        if (_useDummyData)
+        {
+            return _jobsDummyData.Where(j => j.Status == JobConstants.STATUS_OPEN).Take(1);
+        }
+
+        return await _repository.GetAllAppliedByApplicantId(applicantId);
+    }
+
     public async Task<Job> GetJobDetails(string uuid)
     {
         if (_useDummyData)

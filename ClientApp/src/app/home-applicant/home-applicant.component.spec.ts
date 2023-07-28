@@ -26,18 +26,39 @@ import { ComponentsModule } from '../components/components.module';
 import { of } from 'rxjs';
 import { JobConstants } from '../constants';
 import { BackendService } from '../services/backend.service';
+import { JWT_OPTIONS, JwtHelperService } from '@auth0/angular-jwt';
+import { jwtOptionsFactory } from '../app.module';
+import { Job } from '../models';
 
-const jobs = [
+const allJobs: Job[] = [
   {
-      id: 1,
-      name: 'Tester',
-      status: JobConstants.STATUS_OPEN,
-      applicants: []
+      "id": 1,
+      "uuid": "4b4d7c64-ef5d-4379-add3-a3f6adc42f01",
+      "name": "Full Stack Software Developer",
+      "status": "OPEN",
+      "description": "John Doe Corporation is looking for a talented Full Stack Software Developer professional to work in a fast-paced, exciting environment!",
+  },
+  {
+      "id": 2,
+      "uuid": "eab3e2e8-f5a1-41c1-aa1d-1ad7eb6f3a96",
+      "name": "Junior HR",
+      "status": "OPEN",
+      "description": "John Doe Corporation is looking for a talented Junior HR professional to work in a fast-paced, exciting environment!",
+  }
+];
+const appliedJobs: Job[] = [
+  {
+      "id": 1,
+      "uuid": "4b4d7c64-ef5d-4379-add3-a3f6adc42f01",
+      "name": "Full Stack Software Developer",
+      "status": "OPEN",
+      "description": "John Doe Corporation is looking for a talented Full Stack Software Developer professional to work in a fast-paced, exciting environment!",
   }
 ];
 
 const FakeBackendService = {
-  getAllJobs: () => of(jobs)
+  getAllAppliedJobs: (applicantId: string) => of(appliedJobs),
+  getAllJobs: () => of(allJobs)
 };
 
 describe('HomeApplicantComponent', () => {
@@ -50,7 +71,16 @@ describe('HomeApplicantComponent', () => {
       imports: [ HttpClientModule, HttpClientTestingModule, ComponentsModule, MatCardModule, RouterTestingModule.withRoutes([]) ],
       declarations: [ HomeApplicantComponent ],
       providers: [
-        { provide: BackendService, useValue: FakeBackendService }
+        { 
+          provide: 'BASE_URL', 
+          useValue: 'https://localhost/' 
+        },
+        { provide: BackendService, useValue: FakeBackendService },
+        {
+          provide: JWT_OPTIONS,
+          useValue: jwtOptionsFactory('https://localhost/')
+        },
+        JwtHelperService
       ]
     })
     .compileComponents();

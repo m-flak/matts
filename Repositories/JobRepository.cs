@@ -43,6 +43,11 @@ public class JobRepository : IJobRepository
         return jobs.Select(j => _mapper.Map<Job>(j)).ToList();
     }
 
+    public async Task<List<Job>> GetAllAppliedByApplicantId(string applicantId)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<List<Job>> GetAllByStatus(string status)
     {
         var statusPropertyFilter = new Dictionary<string, object>();

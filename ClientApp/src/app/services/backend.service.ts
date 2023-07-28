@@ -17,7 +17,7 @@
 **/
 
 import { Location } from "@angular/common";
-import { HttpClient, HttpHeaders, HttpResponse } from "@angular/common/http";
+import { HttpClient, HttpHeaders, HttpParams, HttpResponse } from "@angular/common/http";
 import { Inject, Injectable } from "@angular/core";
 import { Observable, catchError, throwError, map } from "rxjs";
 import { Job } from "../models";
@@ -31,6 +31,15 @@ export class BackendService {
     getAllJobs() : Observable<Job[]> {
         const endpoint = '/jobs/getjobs';
         return this.http.get(Location.joinWithSlash(this.baseUrl, endpoint))
+            .pipe(
+                catchError(e => throwError(() => new Error(e))),
+                map((r: any) => r || [])
+            );
+    }
+
+    getAllAppliedJobs(applicantId: string) : Observable<Job[]> {
+        const endpoint = '/jobs/getappliedjobs';
+        return this.http.get(Location.joinWithSlash(this.baseUrl, endpoint), { params: new HttpParams().set('applicantId', applicantId) })
             .pipe(
                 catchError(e => throwError(() => new Error(e))),
                 map((r: any) => r || [])
