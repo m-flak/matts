@@ -33,4 +33,26 @@ public class ApplicantDaoTests
         Assert.NotNull(Applicants);
         Assert.Equal(4, Applicants.Count);
     }
+
+    [Fact]
+    public async void CreateNew_CreatesAnApplicant()
+    {
+        var applicant = new ApplicantDb()
+        {
+            Name = "Testy Tester",
+            Uuid = System.Guid.NewGuid().ToString()
+        };
+
+        _session.Setup(s => s.ExecuteReadAsync(It.IsAny<Func<IAsyncQueryRunner, Task<ApplicantDb>>>(), It.IsAny<Action<TransactionConfigBuilder>>()))
+            .Returns(Task.FromResult(applicant));
+        _session.Setup(s => s.ExecuteWriteAsync(It.IsAny<Func<IAsyncQueryRunner, Task<bool>>>(), It.IsAny<Action<TransactionConfigBuilder>>()))
+            .Returns(Task.FromResult(true));
+        _driver.Setup(d => d.AsyncSession())
+            .Returns(_session.Object);
+        var sut = new ApplicantDao(_driver.Object);
+
+        var createdApplicant = await sut.CreateNew(applicant);
+        Assert.Equal(applicant.Uuid, createdApplicant.Uuid);
+        Assert.Equal(applicant.Name, createdApplicant.Name);
+    }
 }

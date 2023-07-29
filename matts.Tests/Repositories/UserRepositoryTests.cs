@@ -58,4 +58,42 @@ public class UserRepositoryTests
         Assert.Equal(user.Password, gottenUser.Password);
         Assert.Equal(user.Role, gottenUser.Role);
     }
+
+    [Fact]
+    public async void CreateNewApplicantUser_DoesCreate()
+    {
+        var newUser = new UserRegistration()
+        {
+            FullName = "Some User",
+            UserName = "some_user",
+            Password = "password",
+            Role = "tester"
+        };
+
+        User? createdUser = null;
+        ApplicantDb? createdApplicant = null;
+
+        _daoUser.Setup(d => d.MakeUserForApplicant(It.IsAny<User>(), It.IsAny<ApplicantDb>()))
+            .Returns(Task.FromResult(true));
+        _daoUser.Setup(d => d.CreateNew(It.IsAny<User>()))
+            .Returns((User createWhat) =>
+            {
+                Assert.NotEqual(newUser.Password, createWhat.Password);
+                createdUser = createWhat;
+                return Task.FromResult(createWhat);
+            });
+        _daoApp.Setup(d => d.CreateNew(It.IsAny<ApplicantDb>()))
+            .Returns((ApplicantDb createWhat) =>
+            {
+                Assert.Equal(newUser.FullName, createWhat.Name);
+                createWhat.Uuid = System.Guid.NewGuid().ToString();
+                createdApplicant = createWhat;
+                return Task.FromResult(createWhat);
+            });
+
+        var sut = new UserRepository(_daoUser.Object, _daoApp.Object, new MapsterMapper.Mapper());
+        Assert.True(await sut.CreateNewApplicantUser(newUser));
+        Assert.NotNull(createdUser);
+        Assert.NotNull(createdApplicant);
+    }
 }
