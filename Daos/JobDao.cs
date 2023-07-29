@@ -22,6 +22,7 @@ using Mapster;
 using System.Text;
 using matts.Models;
 using matts.Utils;
+using matts.Constants;
 
 namespace matts.Daos;
 
@@ -64,52 +65,33 @@ public class JobDao : DaoAbstractBase<JobDb>
 
     public override async Task<List<JobDb>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid)
     {
+        // This relationship is applicant --> job, so use different node settings
+        if (relationship == RelationshipConstants.HAS_APPLIED_TO)
+        {
+            return await GetAllByRelationshipImpl(
+                typeof(ApplicantDb), 
+                typeof(JobDb),
+                new GetAllByRelationshipConfig(
+                    GetAllByRelationshipConfig.WhereNodeSelctor.LEFT,
+                    GetAllByRelationshipConfig.ReturnNodeSelector.RIGHT
+                ), 
+                relationship, 
+                optionalRelationship, 
+                whomUuid
+            );
+        }
+
         throw new NotImplementedException();
     }
 
     public override async Task<List<JobDb>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties)
     {
-        // using (var session = _driver.AsyncSession())
-        // {
-        //     return await session.ExecuteReadAsync(
-        //         async tx =>
-        //         {
-        //             var cursor = await tx.RunAsync(
-        //                 "MATCH (j:Job) " +
-        //                 $"WHERE {DaoUtils.CreateWhereClauseFromDict(filterProperties, "j")} " +
-        //                 "RETURN j"
-        //             );
-        //             var rows = await cursor.ToListAsync(record => record.Values["j"].As<INode>());
-        //             return rows.Select(row => DaoUtils.MapSimpleRow<JobDb>(row))
-        //                 .ToList();
-        //         });
-        // }
         return await this.GetAllAndFilterByPropertiesImpl(typeof(JobDb), filterProperties);
     }
 
 
     public override async Task<JobDb> GetByUuid(string uuid)
     {
-        // using (var session = _driver.AsyncSession())
-        // {
-        //     return await session.ExecuteReadAsync(
-        //         async tx =>
-        //         {
-        //             var cursor = await tx.RunAsync(
-        //                 "MATCH (j:Job) " +
-        //                 "WHERE j.uuid = $juuid " +
-        //                 "RETURN j",
-        //                 new
-        //                 {
-        //                     juuid = uuid
-        //                 }
-        //             );
-
-        //             var row = await cursor.SingleAsync(record => record.Values["j"].As<INode>());
-
-        //             return DaoUtils.MapSimpleRow<JobDb>(row);
-        //         });
-        // }
         return await this.GetByUuidImpl(typeof(JobDb), uuid);
     }
 

@@ -40,29 +40,6 @@ public class ApplicantDao : DaoAbstractBase<ApplicantDb>
 
     public override async Task<List<ApplicantDb>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid)
     {
-        // using (var session = _driver.AsyncSession())
-        // {
-        //     return await session.ExecuteReadAsync(
-        //         async tx =>
-        //         {
-        //             var addOptionalParams = (string? optRel) => (optRel != null) ? DaoUtils.AddReturnsForRelationshipParams(optRel, "r2") : "";
-
-        //             var cursor = await tx.RunAsync(
-        //                 "MATCH(a: Applicant) -[r: " + $"{relationship}" +"]->(j: Job) " +
-        //                 $"{DaoUtils.CreateOptionalMatchClause(optionalRelationship, "a", "j")}" +
-        //                 "WHERE j.uuid = $uuid " +
-        //                 $"RETURN a {DaoUtils.AddReturnsForRelationshipParams(relationship, "r")} {addOptionalParams(optionalRelationship)}",
-        //                 new
-        //                 {
-        //                     uuid = whomUuid
-        //                 }
-        //             );
-
-        //             var rows = await cursor.ToListAsync(record => record.Values);
-        //             return rows.Select(row => DaoUtils.MapRowWithRelationships<ApplicantDb>(row, "a", relationship, optionalRelationship, "r", "r2"))
-        //                 .ToList();
-        //         });
-        // }
         return await this.GetAllByRelationshipImpl(
             typeof(ApplicantDb), 
             typeof(JobDb), 

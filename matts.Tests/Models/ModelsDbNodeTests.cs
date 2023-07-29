@@ -5,6 +5,8 @@ using matts.Models;
 using matts.Models.Db;
 using matts.Utils;
 
+namespace matts.Tests.Models;
+
 public class ModelsDbNodeTests
 {
     public ModelsDbNodeTests()

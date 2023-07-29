@@ -45,7 +45,8 @@ public class JobRepository : IJobRepository
 
     public async Task<List<Job>> GetAllAppliedByApplicantId(string applicantId)
     {
-        throw new NotImplementedException();
+        var jobs = await _daoJob.GetAllByRelationship(RelationshipConstants.HAS_APPLIED_TO, null, applicantId);
+        return jobs.Select(j => _mapper.Map<Job>(j)).ToList();
     }
 
     public async Task<List<Job>> GetAllByStatus(string status)

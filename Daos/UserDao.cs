@@ -56,26 +56,6 @@ public class UserDao : DaoAbstractBase<User>
 
     public override async Task<User> GetByUuid(string uuid)
     {
-        // using (var session = _driver.AsyncSession())
-        // {
-        //     return await session.ExecuteReadAsync(
-        //         async tx =>
-        //         {
-        //             var cursor = await tx.RunAsync(
-        //                 "MATCH (u:User) " +
-        //                 "WHERE u.userName = $username " +
-        //                 "RETURN u",
-        //                 new
-        //                 {
-        //                     username = uuid
-        //                 }
-        //             );
-
-        //             var row = await cursor.SingleAsync(record => record.Values["u"].As<INode>());
-
-        //             return DaoUtils.MapSimpleRow<User>(row);
-        //         });
-        // }
         return await this.GetByUuidImpl(typeof(User), uuid);
     }
 

@@ -36,6 +36,21 @@ public class JobDaoTests
     }
 
     [Fact]
+    public async void GetAllByRelationship_GetsTheJobs_ByApplicant()
+    {
+        _session.Setup(s => s.ExecuteReadAsync(It.IsAny<Func<IAsyncQueryRunner, Task<List<JobDb>>>>(), It.IsAny<Action<TransactionConfigBuilder>>()))
+            .Returns(Task.FromResult(JobFixture.CreateJobList()));
+        _driver.Setup(d => d.AsyncSession())
+            .Returns(_session.Object);
+        var sut = new JobDao(_driver.Object);
+
+        var jobs = await sut.GetAllByRelationship(RelationshipConstants.HAS_APPLIED_TO, null, "7df53d53-7c25-4b37-a004-6d9e30d44abe");
+
+        Assert.NotNull(jobs);
+        Assert.Equal(6, jobs.Count);
+    }
+
+    [Fact]
     public async void GetByUuid_GetsTheJob()
     {
         var job = JobFixture.CreateJob("Testing Job", JobConstants.STATUS_OPEN);

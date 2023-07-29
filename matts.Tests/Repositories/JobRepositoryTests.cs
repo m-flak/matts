@@ -89,4 +89,18 @@ public class JobRepositoryTests
         Assert.Equal(applicantDb.Rejected, job.Applicants.First().Rejected);
         Assert.Equal(applicantDb.InterviewDate, job.Applicants.First().InterviewDate);
     }
+
+    [Fact]
+    public async void GetAllAppliedByApplicantId_GetsTheJobs()
+    {
+        var jobList = JobFixture.CreateJobList().Where(j => j.Status == JobConstants.STATUS_OPEN).ToList();
+
+        _daoJob.Setup(d => d.GetAllByRelationship(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .Returns(Task.FromResult(jobList));
+
+        var sut = new JobRepository(_daoJob.Object, _daoApp.Object, new MapsterMapper.Mapper());
+
+        var jobs = await sut.GetAllAppliedByApplicantId("7df53d53-7c25-4b37-a004-6d9e30d44abe");
+        Assert.Equal(jobList.Count, jobs.Count);
+    }
 }
