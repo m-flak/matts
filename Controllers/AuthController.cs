@@ -37,15 +37,17 @@ namespace matts.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IValidator<User> _validator;
+    private readonly IValidator<UserRegistration> _validatorRegister;
     private readonly ILogger<AuthController> _logger;
     private readonly IOptions<JwtConfiguration> _options;
     private readonly IUserService _userService;
 
-    public AuthController(ILogger<AuthController> logger, IOptions<JwtConfiguration> options, IValidator<User> validator, IUserService userService) 
+    public AuthController(ILogger<AuthController> logger, IOptions<JwtConfiguration> options, IValidator<User> validator, IValidator<UserRegistration> validatorRegister, IUserService userService) 
     {
         _logger = logger;
         _options = options;
         _validator = validator;
+        _validatorRegister = validatorRegister;
         _userService = userService;
     }
 
@@ -61,7 +63,7 @@ public class AuthController : ControllerBase
         var validationResult = _validator.Validate(user);
         if (!validationResult.IsValid) 
         {
-           return new BadRequestObjectResult(validationResult.Errors);
+            return new BadRequestObjectResult(validationResult.Errors);
         }
 
         bool authenticated = await _userService.AuthenticateUser(user);
@@ -98,5 +100,28 @@ public class AuthController : ControllerBase
         var tokenHandler = new JwtSecurityTokenHandler();
         var token = tokenHandler.CreateToken(tokenDescriptor);
         return Ok(tokenHandler.WriteToken(token));
+    }
+
+    [AllowAnonymous]
+    [HttpPost]
+    [Consumes(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [Route("register")]
+    public async Task<IActionResult> Register([FromBody] UserRegistration user)
+    {
+        var validationResult = _validatorRegister.Validate(user);
+        if (!validationResult.IsValid)
+        {
+            return new BadRequestObjectResult(validationResult.Errors);
+        }
+
+        bool userCreated = await _userService.RegisterNewUser(user);
+        if (!userCreated)
+        {
+            return BadRequest();
+        }
+
+        return Ok();
     }
 }

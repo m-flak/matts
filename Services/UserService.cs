@@ -69,6 +69,16 @@ public class UserService : IUserService
         return await _repository.GetApplicantIdForUserByUserName(user.UserName);
     }
 
+    public async Task<bool> RegisterNewUser(UserRegistration user)
+    {
+        if (_useDummyData)
+        {
+            return true;
+        }
+
+        return await _repository.CreateNewApplicantUser(user);
+    }
+
     private void ConfigureService()
     {
         var useDummyData = _configuration.GetValue<bool>("DummyData:UserService", false);

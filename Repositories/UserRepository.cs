@@ -25,16 +25,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BCrypt.Net;
 
 namespace matts.Repositories;
 
 public class UserRepository : IUserRepository
 { 
     private readonly IDataAccessObject<User> _daoUser;
+    private readonly IDataAccessObject<ApplicantDb> _daoApp;
+    private readonly IMapper _mapper;
 
-    public UserRepository(IDataAccessObject<User> daoUser)
+    public UserRepository(IDataAccessObject<User> daoUser, IDataAccessObject<ApplicantDb> daoApp, IMapper mapper)
     {
         _daoUser = daoUser;
+        _daoApp = daoApp;
+        _mapper = mapper;
     }
 
     public async Task<string> GetApplicantIdForUserByUserName(string userName)
@@ -46,5 +51,26 @@ public class UserRepository : IUserRepository
     public async Task<User> GetUserByName(string userName)
     {
         return await _daoUser.GetByUuid(userName);
+    }
+
+    public async Task<bool> CreateNewApplicantUser(UserRegistration user)
+    {
+        User userDb = _mapper.Map<User>(user);
+        userDb.Password = BCrypt.Net.BCrypt.HashPassword(userDb.Password);
+        ApplicantDb applicant = new ApplicantDb()
+        {
+            Name = user.FullName
+        };
+
+        var createdUser = await _daoUser.CreateNew(userDb);
+        var createdApplicant = await _daoApp.CreateNew(applicant);
+
+        if (createdUser == null || createdApplicant == null)
+        {
+            return false;
+        }
+
+        UserDao dao = (UserDao) _daoUser;
+        return await dao.MakeUserForApplicant(createdUser, createdApplicant);
     }
 }

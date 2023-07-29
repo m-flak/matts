@@ -29,10 +29,30 @@ public class User
     public string? Role { get; set; }
 }
 
+public class UserRegistration : User
+{
+    public string? FullName { get; set; }
+}
+
 public class UserValidator : AbstractValidator<User>
 {
     public UserValidator()
     {
+        RuleFor(x => x.UserName).NotNull();
+        RuleFor(x => x.UserName.Length).GreaterThan(0).When(x => x.UserName != null);
+        RuleFor(x => x.Password).NotNull();
+        RuleFor(x => x.Password.Length).GreaterThan(0).When(x => x.Password != null);
+        RuleFor(x => x.Role).NotNull();
+        RuleFor(x => x.Role.Length).GreaterThan(0).When(x => x.Role != null);
+    }
+}
+
+public class UserRegistrationValidator : AbstractValidator<UserRegistration>
+{
+    public UserRegistrationValidator()
+    {
+        RuleFor(x => x.FullName).NotNull();
+        RuleFor(x => x.FullName.Length).GreaterThan(0).When(x => x.FullName != null);
         RuleFor(x => x.UserName).NotNull();
         RuleFor(x => x.UserName.Length).GreaterThan(0).When(x => x.UserName != null);
         RuleFor(x => x.Password).NotNull();

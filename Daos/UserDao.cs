@@ -36,7 +36,33 @@ public class UserDao : DaoAbstractBase<User>
 
     public override async Task<User> CreateNew(User createWhat)
     {
-        throw new NotImplementedException();
+        bool created = false;
+        using (var session = _driver.AsyncSession())
+        {
+            created = await session.ExecuteWriteAsync(
+               async tx =>
+               {
+                   var cursor = await tx.RunAsync(
+                       "CREATE (u: User { userName: $userid, password: $pass, role: $userrole })",
+                       new
+                       {
+                           userid = createWhat.UserName,
+                           pass = createWhat.Password,
+                           userrole = createWhat.Role
+                       }
+                   );
+
+                   var result = await cursor.ConsumeAsync();
+                   return result.Counters.NodesCreated == 1;
+               });
+        }
+
+        if (!created)
+        {
+            throw new InvalidOperationException("Unable to create the user in the database!");
+        }
+
+        return await GetByUuid(createWhat.UserName);
     }
 
     public override async Task<List<User>> GetAll()
@@ -59,7 +85,7 @@ public class UserDao : DaoAbstractBase<User>
         return await this.GetByUuidImpl(typeof(User), uuid);
     }
 
-    public async Task<string> GetApplicantIdForUserName(string userName)
+    public virtual async Task<string> GetApplicantIdForUserName(string userName)
     {
         using (var session = _driver.AsyncSession())
         {
@@ -80,6 +106,30 @@ public class UserDao : DaoAbstractBase<User>
 
                     return row;
                 });
+        }
+    }
+
+    public virtual async Task<bool> MakeUserForApplicant(User user, ApplicantDb applicant)
+    {
+        using (var session = _driver.AsyncSession())
+        {
+            return await session.ExecuteWriteAsync(
+               async tx =>
+               {
+                   var cursor = await tx.RunAsync(
+                       "MATCH (u:User { userName: $userid }) " +
+                       "MATCH (a:Applicant { uuid: $applicantid }) " +
+                       "CREATE (u)-[:IS_USER_FOR]->(a)",
+                       new
+                       {
+                           userid = user.UserName,
+                           applicantid = applicant.Uuid
+                       }
+                   );
+
+                   var result = await cursor.ConsumeAsync();
+                   return result.Counters.RelationshipsCreated == 1;
+               });
         }
     }
 }

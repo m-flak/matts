@@ -112,6 +112,7 @@ builder.Services.AddSingleton<IDriver>(implementationFactory: provider => {
 
 // SCOPED
 builder.Services.AddScoped<IValidator<User>, UserValidator>();
+builder.Services.AddScoped<IValidator<UserRegistration>, UserRegistrationValidator>();
 builder.Services.AddScoped<IValidator<ApplyToJob>, ApplyToJobValidator>();
 builder.Services.AddScoped(typeof(IDataAccessObject<JobDb>), typeof(JobDao));
 builder.Services.AddScoped(typeof(IDataAccessObject<ApplicantDb>), typeof(ApplicantDao));

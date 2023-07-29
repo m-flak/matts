@@ -65,6 +65,32 @@ public class ApplicantDao : DaoAbstractBase<ApplicantDb>
 
     public override async Task<ApplicantDb> CreateNew(ApplicantDb createWhat)
     {
-        throw new NotImplementedException();
+        bool created = false;
+        string newUuid = System.Guid.NewGuid().ToString();
+        using (var session = _driver.AsyncSession())
+        {
+            created = await session.ExecuteWriteAsync(
+               async tx =>
+               {
+                   var cursor = await tx.RunAsync(
+                       "CREATE (a: Applicant { uuid: $appid, name: $appname })",
+                       new
+                       {
+                           appid = newUuid,
+                           appname = createWhat.Name
+                       }
+                   );
+
+                   var result = await cursor.ConsumeAsync();
+                   return result.Counters.NodesCreated == 1;
+               });
+        }
+
+        if (!created)
+        {
+            throw new InvalidOperationException("Unable to create the applicant in the database!");
+        }
+
+        return await GetByUuid(newUuid);
     }
 }
