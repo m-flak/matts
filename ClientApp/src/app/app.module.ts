@@ -27,6 +27,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { LoginPageComponent } from './login-page/login-page.component';
 import { JWT_OPTIONS, JwtModule } from '@auth0/angular-jwt';
 import { ApplyJobPageComponent } from './apply-job-page/apply-job-page.component';
+import { NewJobPageComponent } from './new-job-page/new-job-page.component';
 
 export const BASE_URL = new InjectionToken<string>('BASE_URL');
 
@@ -39,7 +40,8 @@ export const BASE_URL = new InjectionToken<string>('BASE_URL');
     HomeApplicantComponent,
     JobPageComponent,
     LoginPageComponent,
-    ApplyJobPageComponent
+    ApplyJobPageComponent,
+    NewJobPageComponent
   ],
   imports: [
     NgbModule,

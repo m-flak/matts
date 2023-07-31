@@ -1,5 +1,5 @@
 <cmp-employer-toolbar [(currentSelected)]="this.currentSelectedToolbarItem" (onClickButton)="toolbarButtonClicked($event)"></cmp-employer-toolbar>
-<div class="container home-container under-toolbar">
+<div *ngIf="this.currentSelectedToolbarItem === this.ITEM_JOBLIST" class="container home-container under-toolbar">
     <mat-card [ngClass]="'positions-card'" appearance="outlined">
         <mat-card-header><h1>All Positions:</h1></mat-card-header>
         <mat-card-content>
@@ -12,3 +12,4 @@
         </mat-card-content>
     </mat-card>
 </div>
+<app-new-job-page *ngIf="this.currentSelectedToolbarItem === this.ITEM_POSTNEW"></app-new-job-page>

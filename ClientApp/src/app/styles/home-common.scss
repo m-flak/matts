@@ -21,3 +21,9 @@
         height: 100%;
     }
 }
+
+@mixin under-toolbar {
+    .under-toolbar {
+        margin-top: 0.5rem;
+    }
+}
