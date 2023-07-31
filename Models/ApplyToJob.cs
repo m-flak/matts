@@ -26,6 +26,7 @@ public class ApplyToJob
     public string? ApplicantUuid { get; set; }
 }
 
+#pragma warning disable CS8602
 public class ApplyToJobValidator : AbstractValidator<ApplyToJob>
 {
     public ApplyToJobValidator()
@@ -36,3 +37,4 @@ public class ApplyToJobValidator : AbstractValidator<ApplyToJob>
         RuleFor(x => x.ApplicantUuid.Length).GreaterThan(0).When(x => x.ApplicantUuid != null);
     }
 }
+#pragma warning restore CS8602

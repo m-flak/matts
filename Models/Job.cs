@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 using System.Text.Json;
+using FluentValidation;
 
 namespace matts.Models;
 
@@ -41,3 +42,16 @@ public class Job
         return JsonSerializer.Serialize(this, options);
     }
 }
+
+#pragma warning disable CS8602
+public class JobValidator : AbstractValidator<Job>
+{
+    public JobValidator()
+    {
+        RuleFor(x => x.Name).NotNull();
+        RuleFor(x => x.Name.Length).GreaterThan(0).When(x => x.Name != null);
+        RuleFor(x => x.Description).NotNull();
+        RuleFor(x => x.Description.Length).GreaterThan(0).When(x => x.Description != null);
+    }
+}
+#pragma warning restore CS8602

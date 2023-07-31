@@ -38,7 +38,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.router.navigate(['viewJob', `${job.uuid}`], { relativeTo: this.route });
   }
 
-  toolbarButtonClicked(buttonId: string) {
-    console.log(`${buttonId} clicked!`);
+  onJobCreated(): void {
+    this.currentSelectedToolbarItem = this.ITEM_JOBLIST;
   }
 }

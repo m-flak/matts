@@ -33,13 +33,15 @@ namespace matts.Controllers;
 public class JobsController : ControllerBase
 {
     private readonly IValidator<ApplyToJob> _applyValidator;
+    private readonly IValidator<Job> _jobValidator;
     private readonly ILogger<JobsController> _logger;
     private readonly IJobService             _service;
 
-    public JobsController(ILogger<JobsController> logger, IValidator<ApplyToJob> applyValidator, IJobService service)
+    public JobsController(ILogger<JobsController> logger, IValidator<ApplyToJob> applyValidator, IValidator<Job> jobValidator, IJobService service)
     {
         _logger = logger;
         _applyValidator = applyValidator;
+        _jobValidator = jobValidator;
         _service = service;
     }
 
@@ -102,6 +104,7 @@ public class JobsController : ControllerBase
     [Authorize(Policy = "Employers")]
     [HttpPatch]
     [Consumes(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [Route("updatejob")]
     public async Task<IActionResult> UpdateJob(Job job)
     {
@@ -111,10 +114,29 @@ public class JobsController : ControllerBase
 
     [Authorize(Policy = "Employers")]
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [RequestSizeLimit(0)]
     [Route("reject/{juuid}/{auuid}")]
     public async Task<IActionResult> RejectForJob(string juuid, string auuid)
     {
+        return Ok();
+    }
+
+    [Authorize(Policy = "Employers")]
+    [HttpPost]
+    [Consumes(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [Route("postnewjob")]
+    public async Task<IActionResult> PostNewJob(Job job)
+    {
+        var validationResult = _jobValidator.Validate(job);
+        if (!validationResult.IsValid) 
+        {
+           return new BadRequestObjectResult(validationResult.Errors);
+        }
+
+        _logger.LogInformation("{Job}", job);
         return Ok();
     }
 }

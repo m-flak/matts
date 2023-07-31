@@ -12,4 +12,4 @@
         </mat-card-content>
     </mat-card>
 </div>
-<app-new-job-page *ngIf="this.currentSelectedToolbarItem === this.ITEM_POSTNEW"></app-new-job-page>
+<app-new-job-page *ngIf="this.currentSelectedToolbarItem === this.ITEM_POSTNEW" (jobCreated)="onJobCreated()"></app-new-job-page>

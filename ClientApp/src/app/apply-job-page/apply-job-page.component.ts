@@ -38,8 +38,6 @@ export class ApplyJobPageComponent implements OnInit, OnDestroy {
   constructor(private activatedRoute: ActivatedRoute, private applicantDataService: ApplicantDataService, private backendService: BackendService, private authService: AuthService) {}
 
   ngOnInit(): void {
-    console.log(this.authService.currentUser?.applicantId);
-    
     this._subscription = 
       this.activatedRoute.paramMap.pipe(
         switchMap((params: ParamMap) => this.backendService.getJobDetails(params.get('id') ?? '')),

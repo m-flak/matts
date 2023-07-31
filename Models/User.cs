@@ -34,6 +34,7 @@ public class UserRegistration : User
     public string? FullName { get; set; }
 }
 
+#pragma warning disable CS8602
 public class UserValidator : AbstractValidator<User>
 {
     public UserValidator()
@@ -61,3 +62,4 @@ public class UserRegistrationValidator : AbstractValidator<UserRegistration>
         RuleFor(x => x.Role.Length).GreaterThan(0).When(x => x.Role != null);
     }
 }
+#pragma warning restore CS8602

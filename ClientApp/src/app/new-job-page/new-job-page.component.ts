@@ -16,18 +16,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Job } from '../models';
+import { Subscription, first } from 'rxjs';
+import { BackendService } from '../services/backend.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-new-job-page',
   templateUrl: './new-job-page.component.html',
   styleUrls: ['./new-job-page.component.scss']
 })
-export class NewJobPageComponent implements OnInit {
+export class NewJobPageComponent implements OnInit, OnDestroy {
   newJobForm: FormGroup;
+
+  @Output()
+  jobCreated = new EventEmitter<void>();
+
+  private _subscription: Subscription | null = null;
   
-  constructor(private formBuilder: FormBuilder) { 
+  constructor(private formBuilder: FormBuilder, private backendService: BackendService) { 
     this.newJobForm = new FormGroup([]);
   }
 
@@ -38,8 +47,29 @@ export class NewJobPageComponent implements OnInit {
     });
   }
 
+  ngOnDestroy(): void {
+    if (this._subscription !== null) {
+      this._subscription.unsubscribe();
+    }
+  }
+
   submitNewJob(): void {
+    if (this.newJobForm.invalid) {
+      return;
+    }
+
     const formData = this.newJobForm.value;
-    console.log(formData);
+    this._subscription = this.backendService.postNewJob(this._mapFormToJob(formData)).pipe(first()).subscribe({
+      complete: () => {
+        this.jobCreated.emit();
+      }
+    });
+  }
+
+  private _mapFormToJob(formData: any): Job {
+    return {
+      name: formData.jobTitle,
+      description: formData.jobDescription
+    };
   }
 }

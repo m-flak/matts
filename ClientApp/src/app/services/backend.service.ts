@@ -68,6 +68,19 @@ export class BackendService {
             );
     }
 
+    postNewJob(job: Job): Observable<HttpResponse<any>> {
+        const endpoint = `/jobs/postnewjob`;
+
+        const httpHeaders = new HttpHeaders({
+            'Content-Type' : 'application/json'
+        });
+
+        return this.http.post(Location.joinWithSlash(this.baseUrl, endpoint), job, { headers: httpHeaders, observe: "response" })
+            .pipe(
+                catchError(e => throwError(() => new Error(e)))
+            );
+    }
+
     updateJob(job: Job) : Observable<HttpResponse<any>> {
         const endpoint = `/jobs/updatejob`;
 
