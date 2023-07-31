@@ -10,9 +10,14 @@ import { ActivatedRoute, Router } from '@angular/router';
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit, OnDestroy {
+  readonly ITEM_JOBLIST = 'joblist';
+  readonly ITEM_POSTNEW = 'postnew';
+
   private _jobSubscription: Subscription | null = null;
 
   jobs: Job[] = [];
+
+  currentSelectedToolbarItem = this.ITEM_JOBLIST;
 
   constructor(private backendService: BackendService, private router: Router, private route: ActivatedRoute) {
   }
@@ -31,5 +36,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   onSelectJob(job: Job) {
     this.router.navigate(['viewJob', `${job.uuid}`], { relativeTo: this.route });
+  }
+
+  toolbarButtonClicked(buttonId: string) {
+    console.log(`${buttonId} clicked!`);
   }
 }

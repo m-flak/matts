@@ -1,10 +1,10 @@
 <div class="d-flex flex-column align-items-center">
     <ngb-toast [autohide]="false" [hidden]="false">
         <div class="d-flex flex-row align-items-center justify-content-around">
-            <button mat-icon-button [disableRipple]="false" aria-label="Job List" title="Job List">
+            <button mat-icon-button [disableRipple]="false" [disabled]="currentSelected === this.ITEM_JOBLIST" (click)="clickButton(ITEM_JOBLIST)" aria-label="Job List" title="Job List">
                 <mat-icon svgIcon="briefcase_list"></mat-icon>
             </button>
-            <button mat-icon-button [disableRipple]="false" aria-label="Post New Job" title="Post New Job">
+            <button mat-icon-button [disableRipple]="false" [disabled]="currentSelected === this.ITEM_POSTNEW" (click)="clickButton(ITEM_POSTNEW)" aria-label="Post New Job" title="Post New Job">
                 <mat-icon svgIcon="briefcase_new"></mat-icon>
             </button>
         </div>

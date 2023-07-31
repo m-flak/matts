@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 @Component({
   selector: 'cmp-employer-toolbar',
@@ -24,10 +24,25 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./employer-toolbar.component.scss']
 })
 export class EmployerToolbarComponent implements OnInit {
+  readonly ITEM_JOBLIST = 'joblist';
+  readonly ITEM_POSTNEW = 'postnew';
+
+  @Input()
+  currentSelected!: string;
+
+  @Output()
+  currentSelectedChange = new EventEmitter<string>();
+
+  @Output()
+  onClickButton = new EventEmitter<string>();
 
   constructor() { }
 
   ngOnInit(): void {
   }
 
+  clickButton(id: string) {
+    this.currentSelectedChange.emit(id);
+    this.onClickButton.emit(id);
+  }
 }

@@ -22,7 +22,12 @@ $is-dark: map.get($config, is-dark);
 $on-surface: if(_variable-safe-contrast-tone($surface, $is-dark) == 'dark', #000, #fff);
 
 button {
-    &:hover {
+    &:not(.mat-button-disabled):hover {
+        @include _ripple-color($on-surface);
+        background-color: var(--mat-mdc-button-ripple-color);
+    }
+
+    &.mat-button-disabled {
         @include _ripple-color($on-surface);
         background-color: var(--mat-mdc-button-ripple-color);
     }
