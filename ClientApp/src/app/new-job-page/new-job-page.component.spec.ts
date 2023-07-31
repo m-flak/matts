@@ -19,6 +19,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { NewJobPageComponent } from './new-job-page.component';
+import { MatCardModule } from '@angular/material/card';
+import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('NewJobPageComponent', () => {
   let component: NewJobPageComponent;
@@ -26,7 +30,17 @@ describe('NewJobPageComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ NewJobPageComponent ]
+      imports: [
+        BrowserAnimationsModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatInputModule,
+        MatCardModule
+      ],
+      declarations: [ NewJobPageComponent ],
+      providers: [
+        FormBuilder
+      ]
     })
     .compileComponents();
 

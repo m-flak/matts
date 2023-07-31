@@ -4,6 +4,7 @@
 @use '../styles/text.scss';
 
 @include text.emphasis;
+@include text.require-text;
 
 $color-config:    mat.get-color-config(global.$theme);
 $primary-palette: map.get($color-config, 'primary');
@@ -23,10 +24,6 @@ $bottom-gradient: mat.get-color-from-palette($accent-palette, 50);
 .login-bg {
     background-size: cover;
     background-image: linear-gradient(to bottom, $top-gradient, $bottom-gradient);
-}
-
-.require-text {
-    color: red !important;
 }
 
 .registration-section-header {

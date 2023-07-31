@@ -17,6 +17,7 @@
 **/
 
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-new-job-page',
@@ -24,10 +25,21 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./new-job-page.component.scss']
 })
 export class NewJobPageComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit(): void {
+  newJobForm: FormGroup;
+  
+  constructor(private formBuilder: FormBuilder) { 
+    this.newJobForm = new FormGroup([]);
   }
 
+  ngOnInit(): void {
+    this.newJobForm = this.formBuilder.group({
+      jobTitle: ['', Validators.required],
+      jobDescription: ['', Validators.required]
+    });
+  }
+
+  submitNewJob(): void {
+    const formData = this.newJobForm.value;
+    console.log(formData);
+  }
 }
