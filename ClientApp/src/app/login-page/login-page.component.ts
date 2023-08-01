@@ -15,13 +15,14 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { UserRoleConstants } from '../constants';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-import { User } from '../models';
+import { User, UserRegistration } from '../models';
 import { Subscription, first } from 'rxjs';
+import { MatExpansionPanel } from '@angular/material/expansion';
 
 @Component({
   selector: 'app-login-page',
@@ -36,6 +37,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   readonly REGISTRATION_TYPE_APPLICANT = 1;
 
   private _subscription: Subscription | null = null;
+  private _subscription2: Subscription | null = null;
 
   loginFailure = false;
   registrationSuccessful = false;
@@ -44,11 +46,22 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   employerLoginForm: FormGroup;
   applicantLoginForm: FormGroup;
   applicantRegistrationForm: FormGroup;
+  employerRegistrationForm: FormGroup;
+
+  @ViewChild('employerPanel')
+  employerPanel?: MatExpansionPanel;
+
+  @ViewChild('applicantPanel')
+  applicantPanel?: MatExpansionPanel;
+
+  @ViewChild('registrationPanel')
+  registrationPanel?: MatExpansionPanel;
 
   constructor(private formBuilder: FormBuilder, private router: Router, private authService: AuthService) { 
     this.employerLoginForm = new FormGroup([]);
     this.applicantLoginForm = new FormGroup([]);
     this.applicantRegistrationForm = new FormGroup([]);
+    this.employerRegistrationForm = new FormGroup([]);
   }
 
   ngOnInit(): void {
@@ -67,11 +80,21 @@ export class LoginPageComponent implements OnInit, OnDestroy {
       userName: ['', Validators.required],
       password: ['', Validators.required]
     });
+
+    this.employerRegistrationForm = this.formBuilder.group({
+      companyName: ['John Doe Corporation', Validators.required], // TODO: Pull from app config
+      fullName: ['', Validators.required], 
+      userName: ['', Validators.required],
+      password: ['', Validators.required]
+    });
   }
 
   ngOnDestroy(): void {
     if (this._subscription !== null) {
       this._subscription.unsubscribe();
+    }
+    if (this._subscription2 !== null) {
+      this._subscription2.unsubscribe();
     }
   }
 
@@ -124,17 +147,42 @@ export class LoginPageComponent implements OnInit, OnDestroy {
 
   performRegistration(registrationType: number): void {
     if (registrationType === this.REGISTRATION_TYPE_EMPLOYER) {
-      return;
+      if (this.employerRegistrationForm.invalid) {
+        return;
+      }
+
+      const formData = this.employerRegistrationForm.value;
+      this._subscription2 = this.authService.registerUser({ ...formData as UserRegistration, role: UserRoleConstants.USER_ROLE_EMPLOYER }).pipe(first()).subscribe({
+        complete: () => {
+          this.registrationSuccessful = true;
+          this.registrationTypeMessage = 'Employer';
+          window.scroll({
+            top: 0, 
+            left: 0, 
+            behavior: 'smooth' 
+          });
+          (this.employerPanel as MatExpansionPanel).expanded = true;
+          (this.registrationPanel as MatExpansionPanel).disabled = true;
+      }});
     }
     else if (registrationType === this.REGISTRATION_TYPE_APPLICANT) {
       if (this.applicantRegistrationForm.invalid) {
         return;
       }
 
-      const formData = this.applicantRegistrationForm.value;
-      console.log(formData);
-      this.registrationSuccessful = true;
-      this.registrationTypeMessage = 'Applicant';
+      const formData = this.employerRegistrationForm.value;
+      this._subscription2 = this.authService.registerUser({ ...formData as UserRegistration, role: UserRoleConstants.USER_ROLE_APPLICANT }).pipe(first()).subscribe({
+        complete: () => {
+          this.registrationSuccessful = true;
+          this.registrationTypeMessage = 'Applicant';
+          window.scroll({
+            top: 0, 
+            left: 0, 
+            behavior: 'smooth' 
+          });
+          (this.applicantPanel as MatExpansionPanel).expanded = true;
+          (this.registrationPanel as MatExpansionPanel).disabled = true;
+      }});
     }
   }
 }

@@ -22,7 +22,7 @@ import { JWT_OPTIONS, JwtHelperService, JwtModule } from "@auth0/angular-jwt";
 import { jwtOptionsFactory } from "../app.module";
 import { AuthService } from "./auth.service";
 import { UserRoleConstants } from "../constants";
-import { User } from "../models";
+import { User, UserRegistration } from "../models";
 import { map, toArray } from "rxjs";
 
 // Contains the 'role' claim set to 'employer'
@@ -155,4 +155,24 @@ describe('AuthService', () => {
         done();
       });
     });
+
+    it('should register a new user', (done) => {
+      const newUser: UserRegistration = {
+        companyName: 'Test Co.',
+        fullName: "Test Testington",
+        userName: "ttest123",
+        password: "testingrocks",
+        role: UserRoleConstants.USER_ROLE_EMPLOYER
+      };
+
+      authService.registerUser(newUser).subscribe(response => {
+          expect(response.status).toEqual(200);
+          done();
+      });
+
+      const request = httpMock.expectOne('/auth/register');
+      request.flush(null, { status: 200, statusText: 'OK' });
+
+      httpMock.verify();
+  });
 });

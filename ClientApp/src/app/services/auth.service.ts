@@ -17,10 +17,10 @@
 **/
 
 import { Location } from "@angular/common";
-import { HttpClient, HttpParams } from "@angular/common/http";
+import { HttpClient, HttpHeaders, HttpParams, HttpResponse } from "@angular/common/http";
 import { Injectable, Inject } from "@angular/core";
 import { JwtHelperService } from "@auth0/angular-jwt";
-import { User } from "../models";
+import { User, UserRegistration } from "../models";
 import { Observable, catchError, of, tap, throwError } from "rxjs";
 
 export interface CurrentUser extends User {
@@ -94,6 +94,19 @@ export class AuthService {
                 catchError(e => throwError(() => new Error(e))),
                 tap(token => localStorage.setItem('access_token', token)),
                 tap(token => this._populateCurrentUser())
+            );
+    }
+
+    registerUser(newUser: UserRegistration): Observable<HttpResponse<any>> {
+        const endpoint = `/auth/register`;
+
+        const httpHeaders = new HttpHeaders({
+            'Content-Type' : 'application/json'
+        });
+
+        return this.http.post(Location.joinWithSlash(this.baseUrl, endpoint), newUser, { headers: httpHeaders, observe: "response" })
+            .pipe(
+                catchError(e => throwError(() => new Error(e)))
             );
     }
 

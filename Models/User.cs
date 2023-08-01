@@ -19,6 +19,7 @@ namespace matts.Models;
 
 using FluentValidation;
 using matts.Utils;
+using matts.Constants;
 
 [DbNode("User", "u")]
 public class User
@@ -32,6 +33,7 @@ public class User
 public class UserRegistration : User
 {
     public string? FullName { get; set; }
+    public string? CompanyName { get; set; }
 }
 
 #pragma warning disable CS8602
@@ -52,14 +54,16 @@ public class UserRegistrationValidator : AbstractValidator<UserRegistration>
 {
     public UserRegistrationValidator()
     {
+        RuleFor(x => x.Role).NotNull();
+        RuleFor(x => x.Role.Length).GreaterThan(0).When(x => x.Role != null);
+        RuleFor(x => x.CompanyName).NotNull().When(x => x?.Role == UserRoleConstants.USER_ROLE_EMPLOYER);
+        RuleFor(x => x.CompanyName.Length).GreaterThan(0).When(x => x.CompanyName != null && x?.Role == UserRoleConstants.USER_ROLE_EMPLOYER);
         RuleFor(x => x.FullName).NotNull();
         RuleFor(x => x.FullName.Length).GreaterThan(0).When(x => x.FullName != null);
         RuleFor(x => x.UserName).NotNull();
         RuleFor(x => x.UserName.Length).GreaterThan(0).When(x => x.UserName != null);
         RuleFor(x => x.Password).NotNull();
         RuleFor(x => x.Password.Length).GreaterThan(0).When(x => x.Password != null);
-        RuleFor(x => x.Role).NotNull();
-        RuleFor(x => x.Role.Length).GreaterThan(0).When(x => x.Role != null);
     }
 }
 #pragma warning restore CS8602
