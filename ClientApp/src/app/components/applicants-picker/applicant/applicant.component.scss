@@ -1,4 +1,12 @@
+@use 'SASS:map';
+@use '@angular/material' as mat;
 @use '../../../styles/layouts.scss';
+@use '../../../../theming.scss' as theme;
+
+$color-config:    mat.get-color-config(theme.$theme);
+$primary-palette: map.get($color-config, 'primary');
+$applicant-name-color: mat.get-color-from-palette($primary-palette, main);
+$applicant-hover-color: mat.get-color-from-palette($primary-palette, lighter);
 
 .applicant {
     @include layouts.flex(true);
@@ -6,6 +14,12 @@
     .applicant-name, .applicant-photo {
         align-self: center;
     }
+
+    &:hover {
+        background-color: $applicant-hover-color;
+    }
+
+    height: 100%;
 }
 
 .applicant-photo, .rejected-applicant {
@@ -14,13 +28,30 @@
     border-radius: 50%;
 }
 
+.applicant-wrapper {
+    position: relative;
+    flex-grow: 0.8;
+    height: 4.0em;
+    width: 4.0em;
+}
+
+.applicant-photo {
+    border: 3px $applicant-name-color double;
+    z-index: 50;
+}
+
 .rejected-applicant {
-    position: fixed;
-    float: left;
-    margin-left: 8px;
     z-index: 100;
+
+    &, & ~ .applicant-photo {
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
 }
 
 span.applicant-name {
     font-family: GTAmericaRegular !important;
+    color: $applicant-name-color;
+    text-align: center;
 }

@@ -1,6 +1,13 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
 @use '../styles/text.scss';
+@use '../../theming.scss';
 
 @include text.emphasis;
+
+$config: mat.get-color-config(theming.$theme);
+$primary-palette: map.get($config, 'primary');
+$hover-color: mat.get-color-from-palette($primary-palette, lighter);
 
 a.navbar-brand {
   white-space: normal;
@@ -27,7 +34,7 @@ header {
 
 li.nav-item {
   &:hover {
-    background-color: rgba(128,128,128,0.1);
+    background-color: $hover-color;
   }
   a {
     cursor: pointer;

@@ -1,6 +1,13 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
 @use '../../styles/text.scss';
+@use '../../../theming.scss';
 
 @include text.job-status-text;
+
+$config: mat.get-color-config(theming.$theme);
+$primary-palette: map.get($config, 'primary');
+$hover-color: mat.get-color-from-palette($primary-palette, lighter);
 
 matListItemTitle {
     font-weight: bold;
@@ -37,7 +44,7 @@ matListItemTitle {
 
 mat-list-item {
     &:hover {
-        background-color: rgba(172, 172, 172, 0.1);
+        background-color: $hover-color;
     }
     &:hover, span:hover {
         cursor: pointer;

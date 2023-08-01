@@ -9,10 +9,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 $color-config:    mat.get-color-config(theming.$theme);
 $primary-palette: map.get($color-config, 'primary');
-$accent-palette:  map.get($color-config, 'accent');
-
-$top-gradient: mat.get-color-from-palette($primary-palette, 100);
-$bottom-gradient: mat.get-color-from-palette($accent-palette, 100);
+$body-bg-color: mat.get-color-from-palette($primary-palette, main);
 
 @include mat.all-component-themes(theming.$theme);
 
@@ -39,8 +36,8 @@ code {
 }
 
 body {
-  background-size: cover;
-  background-image: linear-gradient(to left, $top-gradient, white  10%, white 90%, $bottom-gradient);
+  @include theming.body-theme-values;
+  background-color: $body-bg-color;
 }
 
 h1, h2, h3, h4, .mat-expansion-panel-header-title {
