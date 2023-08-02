@@ -1,4 +1,4 @@
-﻿/* matts
+/* matts
  * "Matthew's ATS" - Portfolio Project
  * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
  * 
@@ -15,15 +15,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-using static matts.Models.Applicant;
-using matts.Utils;
+using System.Text.Json;
 
-namespace matts.Models.Db;
+namespace matts.Models;
 
-[DbNode("Applicant", "a")]
-public class ApplicantDb
+public class Employer
 {
-    [DbNodeUuid]
     public string? Uuid { get; set; }
 
     public string? Name { get; set; }
@@ -32,9 +29,11 @@ public class ApplicantDb
 
     public string? PhoneNumber { get; set;}
 
-    public ProfileImage? ApplicantPhoto { get; set; }
+    public string? CompanyName { get; set; }
 
-    public DateTime? InterviewDate { get; set; }
-
-    public bool? Rejected { get; set; }
+    public override string ToString()
+    {
+        var options = new JsonSerializerOptions { WriteIndented = true };
+        return JsonSerializer.Serialize(this, options);
+    }
 }

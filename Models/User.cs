@@ -34,6 +34,8 @@ public class UserRegistration : User
 {
     public string? FullName { get; set; }
     public string? CompanyName { get; set; }
+    public string? Email { get; set; }
+    public string? PhoneNumber { get; set;}
 }
 
 #pragma warning disable CS8602
@@ -60,6 +62,11 @@ public class UserRegistrationValidator : AbstractValidator<UserRegistration>
         RuleFor(x => x.CompanyName.Length).GreaterThan(0).When(x => x.CompanyName != null && x?.Role == UserRoleConstants.USER_ROLE_EMPLOYER);
         RuleFor(x => x.FullName).NotNull();
         RuleFor(x => x.FullName.Length).GreaterThan(0).When(x => x.FullName != null);
+        RuleFor(x => x.Email).NotNull();
+        RuleFor(x => x.Email.Length).GreaterThan(0).When(x => x.Email != null);
+        RuleFor(x => x.Email).EmailAddress().When(x => x.Email != null);
+        RuleFor(x => x.PhoneNumber).NotNull();
+        RuleFor(x => x.PhoneNumber.Length).GreaterThan(0).When(x => x.PhoneNumber != null);
         RuleFor(x => x.UserName).NotNull();
         RuleFor(x => x.UserName.Length).GreaterThan(0).When(x => x.UserName != null);
         RuleFor(x => x.Password).NotNull();

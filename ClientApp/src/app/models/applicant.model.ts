@@ -22,6 +22,8 @@ export interface Applicant {
     id?: number;
     uuid?: string;
     name?: string;
+    email?: string;
+    phoneNumber?: string;
     applicantPhoto?: ProfileImage | null;
     interviewDate?: string;
     rejected?: boolean;

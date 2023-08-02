@@ -37,7 +37,16 @@
                     </div>
                     <div *ngIf="this.currentApplicant !== null && _hasInterview(this.currentApplicant) === false" class="selected-job-applicant-details">
                         <h2>{{ this.currentApplicant.name }}</h2>
-                        <p>Information and such here....</p>
+                        <div class="applicant-info-container">
+                            <mat-form-field>
+                                <mat-label>Email</mat-label>
+                                <input type="email" matInput [readonly]="true" [value]="this.currentApplicant.email" />
+                            </mat-form-field>
+                            <mat-form-field>
+                                <mat-label>Phone Number</mat-label>
+                                <input type="tel" matInput [readonly]="true" [value]="this.currentApplicant.phoneNumber" />
+                            </mat-form-field>
+                        </div>
                         <div class="btn-group action-buttons">
                             <button mat-flat-button color="accent" (click)="setMode(MODE_INTERVIEW)">Schedule Interview</button>
                             <button *ngIf="this.currentApplicant?.rejected !== true" mat-flat-button color="warn" (click)="rejectApplicant(this.currentApplicant)">Reject</button>

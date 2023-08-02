@@ -12,6 +12,8 @@ public class JobFixture
         {
             Uuid = System.Guid.NewGuid().ToString(),
             Name = name,
+            Email = $"{name.ToLower().Replace(' ', '.')}@gmail.com",
+            PhoneNumber = "615-555-0123",
             ApplicantPhoto = profilePic,
             InterviewDate = (hasInterview) ? DateTime.UtcNow : null,
             Rejected = !hasInterview

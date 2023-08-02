@@ -49,6 +49,8 @@ public partial class JobService : IJobService
             Uuid = System.Guid.NewGuid().ToString(),
             Name = name,
             ApplicantPhoto = profilePic,
+            Email = $"{name.ToLower().Replace(' ', '.')}@gmail.com",
+            PhoneNumber = "615-555-0123",
             InterviewDate = (hasInterview) ? DateTime.UtcNow : null
         };
     }

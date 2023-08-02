@@ -160,6 +160,8 @@ describe('AuthService', () => {
       const newUser: UserRegistration = {
         companyName: 'Test Co.',
         fullName: "Test Testington",
+        email: 'test@test.com',
+        phoneNumber: '555-555-5555',
         userName: "ttest123",
         password: "testingrocks",
         role: UserRoleConstants.USER_ROLE_EMPLOYER
@@ -170,7 +172,7 @@ describe('AuthService', () => {
           done();
       });
 
-      const request = httpMock.expectOne('/auth/register');
+      const request = httpMock.expectOne('https://localhost/auth/register');
       request.flush(null, { status: 200, statusText: 'OK' });
 
       httpMock.verify();
