@@ -76,14 +76,18 @@ export class LoginPageComponent implements OnInit, OnDestroy {
     });
 
     this.applicantRegistrationForm = this.formBuilder.group({
-      fullName: ['', Validators.required], 
+      fullName: ['', Validators.required],
+      email: ['', [ Validators.email, Validators.required] ],
+      phoneNumber: ['', [ Validators.pattern('^[ \s\+\s\/0-9-]*$'), Validators.minLength(10), Validators.maxLength(12), Validators.required] ],
       userName: ['', Validators.required],
       password: ['', Validators.required]
     });
 
     this.employerRegistrationForm = this.formBuilder.group({
       companyName: ['John Doe Corporation', Validators.required], // TODO: Pull from app config
-      fullName: ['', Validators.required], 
+      fullName: ['', Validators.required],
+      email: ['', [ Validators.email, Validators.required] ],
+      phoneNumber: ['', [ Validators.pattern('^[ \s\+\s\/0-9-]*$'), Validators.minLength(10), Validators.maxLength(12), Validators.required] ], 
       userName: ['', Validators.required],
       password: ['', Validators.required]
     });

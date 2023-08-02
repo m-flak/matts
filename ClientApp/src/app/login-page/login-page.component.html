@@ -62,6 +62,16 @@
                         <mat-hint *ngIf="!this.employerRegistrationForm.controls.fullName.valid"><span class="require-text">*Required</span></mat-hint>
                     </mat-form-field>
                     <mat-form-field>
+                        <mat-label>Email</mat-label>
+                        <input type="email" matInput formControlName="email" />
+                        <mat-hint *ngIf="!this.employerRegistrationForm.controls.email.valid"><span class="require-text">*Required</span></mat-hint>
+                    </mat-form-field>
+                    <mat-form-field>
+                        <mat-label>Phone Number</mat-label>
+                        <input type="tel" matInput formControlName="phoneNumber" />
+                        <mat-hint *ngIf="!this.employerRegistrationForm.controls.phoneNumber.valid"><span class="require-text">*Required</span></mat-hint>
+                    </mat-form-field>
+                    <mat-form-field>
                         <mat-label>User Name</mat-label>
                         <input type="text" matInput formControlName="userName" />
                         <mat-hint *ngIf="!this.employerRegistrationForm.controls.userName.valid"><span class="require-text">*Required</span></mat-hint>
@@ -81,6 +91,16 @@
                         <mat-label>Full Name</mat-label>
                         <input type="text" matInput formControlName="fullName" />
                         <mat-hint *ngIf="!this.applicantRegistrationForm.controls.fullName.valid"><span class="require-text">*Required</span></mat-hint>
+                    </mat-form-field>
+                    <mat-form-field>
+                        <mat-label>Email</mat-label>
+                        <input type="email" matInput formControlName="email" />
+                        <mat-hint *ngIf="!this.applicantRegistrationForm.controls.email.valid"><span class="require-text">*Required</span></mat-hint>
+                    </mat-form-field>
+                    <mat-form-field>
+                        <mat-label>Phone Number</mat-label>
+                        <input type="tel" matInput formControlName="phoneNumber" />
+                        <mat-hint *ngIf="!this.applicantRegistrationForm.controls.phoneNumber.valid"><span class="require-text">*Required</span></mat-hint>
                     </mat-form-field>
                     <mat-form-field>
                         <mat-label>User Name</mat-label>
