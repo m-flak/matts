@@ -116,4 +116,40 @@ public class DaoUtilsTests
         string whereClause = DaoUtils.CreateWhereClauseFromDict(dict, "j");
         Assert.Equal("( j.someBool = true AND j.someInt = 1 AND j.someStr = 'value' )", whereClause);
     }
+
+    [Fact]
+    public void CreateRunAsyncParameters_CreatesParametersDictionary()
+    {
+        User user = new User()
+        {
+            UserName = "some_user",
+            Password = "topsecret",
+            Role = "tester"
+        };
+
+        var expectedObject = new Dictionary<string, object>();
+        expectedObject["userName"] = user.UserName;
+        expectedObject["password"] = user.Password;
+        expectedObject["role"] = user.Role;
+
+        IDictionary<string, object> parameters = DaoUtils.CreateRunAsyncParameters<User>(user);
+        Assert.Equal(expectedObject["userName"], parameters["userName"]);
+        Assert.Equal(expectedObject["password"], parameters["password"]);
+        Assert.Equal(expectedObject["role"], parameters["role"]);
+    }
+
+    [Fact]
+    public void CreateCreationParameterString_ProducesString()
+    {
+        User user = new User()
+        {
+            UserName = "some_user",
+            Password = "topsecret",
+            Role = "tester"
+        };
+
+
+        string actual = DaoUtils.CreateCreationParameterString(DaoUtils.CreateRunAsyncParameters<User>(user));
+        Assert.Equal("{ userName: $userName, password: $password, role: $role }", actual);
+    }
 }

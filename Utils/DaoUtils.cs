@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection;
 
 
 internal sealed class DaoUtils
@@ -182,6 +183,43 @@ internal sealed class DaoUtils
         }
 
         return clause;
+    }
+
+    internal static IDictionary<string, object> CreateRunAsyncParameters<T>(T fromNode)
+    {
+        Type typeNode = typeof(T);
+        var parameters = new Dictionary<string, object>();
+
+        var properties = typeNode.GetProperties();
+        foreach (PropertyInfo prop in properties)
+        {
+            parameters.Add(
+                System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(prop.Name),
+                prop.GetValue(fromNode) ?? new object()
+            );
+        }
+
+        return parameters;
+    }
+
+    internal static string CreateCreationParameterString(IDictionary<string, object> parameters)
+    {
+        var keys = parameters.Keys.ToList();
+        var builder = new StringBuilder();
+
+        builder.Append("{ ");
+        for (int i = 0; i < keys.Count; ++i)
+        {
+            builder.Append($"{keys[i]}: ${keys[i]}");
+
+            if (i + 1 != keys.Count)
+            {
+                builder.Append(", ");
+            }
+        }
+        builder.Append(" }");
+
+        return builder.ToString();
     }
 
     // class only holds static methods
