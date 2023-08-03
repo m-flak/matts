@@ -132,4 +132,9 @@ public class UserDao : DaoAbstractBase<User>
                });
         }
     }
+
+    public virtual async Task<bool> MakeUserForEmployer(User user, EmployerDb employer)
+    {
+        throw new NotImplementedException();
+    }
 }

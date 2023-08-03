@@ -76,7 +76,12 @@ public class UserService : IUserService
             return true;
         }
 
-        return await _repository.CreateNewApplicantUser(user);
+        return user.Role switch 
+        {
+            UserRoleConstants.USER_ROLE_APPLICANT => await _repository.CreateNewApplicantUser(user),
+            UserRoleConstants.USER_ROLE_EMPLOYER => await _repository.CreateNewEmployerUser(user),
+            _ => false
+        };
     }
 
     private void ConfigureService()

@@ -73,11 +73,13 @@ public class ApplicantDao : DaoAbstractBase<ApplicantDb>
                async tx =>
                {
                    var cursor = await tx.RunAsync(
-                       "CREATE (a: Applicant { uuid: $appid, name: $appname })",
+                       "CREATE (a: Applicant { uuid: $appid, name: $appname, email: $email, phoneNumber: $phoneNumber })",
                        new
                        {
                            appid = newUuid,
-                           appname = createWhat.Name
+                           appname = createWhat.Name,
+                           email = createWhat.Email,
+                           phoneNumber = createWhat.PhoneNumber
                        }
                    );
 

@@ -118,6 +118,7 @@ builder.Services.AddScoped<IValidator<Job>, JobValidator>();
 builder.Services.AddScoped(typeof(IDataAccessObject<JobDb>), typeof(JobDao));
 builder.Services.AddScoped(typeof(IDataAccessObject<ApplicantDb>), typeof(ApplicantDao));
 builder.Services.AddScoped(typeof(IDataAccessObject<User>), typeof(UserDao));
+builder.Services.AddScoped(typeof(IDataAccessObject<EmployerDb>), typeof(EmployerDao));
 builder.Services.AddScoped<IJobRepository, JobRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IJobService, JobService>();

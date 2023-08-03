@@ -33,12 +33,14 @@ public class UserRepository : IUserRepository
 { 
     private readonly IDataAccessObject<User> _daoUser;
     private readonly IDataAccessObject<ApplicantDb> _daoApp;
+    private readonly IDataAccessObject<EmployerDb> _daoEmp;
     private readonly IMapper _mapper;
 
-    public UserRepository(IDataAccessObject<User> daoUser, IDataAccessObject<ApplicantDb> daoApp, IMapper mapper)
+    public UserRepository(IDataAccessObject<User> daoUser, IDataAccessObject<ApplicantDb> daoApp, IDataAccessObject<EmployerDb> daoEmp, IMapper mapper)
     {
         _daoUser = daoUser;
         _daoApp = daoApp;
+        _daoEmp = daoEmp;
         _mapper = mapper;
     }
 
@@ -59,7 +61,9 @@ public class UserRepository : IUserRepository
         userDb.Password = BCrypt.Net.BCrypt.HashPassword(userDb.Password);
         ApplicantDb applicant = new ApplicantDb()
         {
-            Name = user.FullName
+            Name = user.FullName,
+            Email = user.Email,
+            PhoneNumber = user.PhoneNumber
         };
 
         var createdUser = await _daoUser.CreateNew(userDb);
@@ -72,5 +76,29 @@ public class UserRepository : IUserRepository
 
         UserDao dao = (UserDao) _daoUser;
         return await dao.MakeUserForApplicant(createdUser, createdApplicant);
+    }
+
+    public async Task<bool> CreateNewEmployerUser(UserRegistration user)
+    {
+        User userDb = _mapper.Map<User>(user);
+        userDb.Password = BCrypt.Net.BCrypt.HashPassword(userDb.Password);
+        EmployerDb employer = new EmployerDb()
+        {
+            Name = user.FullName,
+            CompanyName = user.CompanyName,
+            Email = user.Email,
+            PhoneNumber = user.PhoneNumber
+        };
+
+        var createdUser = await _daoUser.CreateNew(userDb);
+        var createdEmployer = await _daoEmp.CreateNew(employer);
+
+        if (createdUser == null || createdEmployer == null)
+        {
+            return false;
+        }
+
+        UserDao dao = (UserDao) _daoUser;
+        return await dao.MakeUserForEmployer(createdUser, createdEmployer);
     }
 }

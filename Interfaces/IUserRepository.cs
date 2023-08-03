@@ -29,4 +29,5 @@ public interface IUserRepository
     public Task<User> GetUserByName(string userName);
     public Task<string> GetApplicantIdForUserByUserName(string userName);
     public Task<bool> CreateNewApplicantUser(UserRegistration user);
+    public Task<bool> CreateNewEmployerUser(UserRegistration user);
 }
