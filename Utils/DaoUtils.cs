@@ -190,7 +190,7 @@ internal sealed class DaoUtils
         Type typeNode = typeof(T);
         var parameters = new Dictionary<string, object>();
 
-        var properties = typeNode.GetProperties();
+        var properties = typeNode.GetProperties().Where(p => p.GetCustomAttribute(typeof(DbNodeCreationFieldAttribute)) != null).ToArray();
         foreach (PropertyInfo prop in properties)
         {
             parameters.Add(

@@ -24,14 +24,19 @@ namespace matts.Models.Db;
 public class ApplicantDb
 {
     [DbNodeUuid]
+    [DbNodeCreationField]
     public string? Uuid { get; set; }
 
+    [DbNodeCreationField]
     public string? Name { get; set; }
 
+    [DbNodeCreationField]
     public string? Email { get; set; }
 
+    [DbNodeCreationField]
     public string? PhoneNumber { get; set;}
 
+    [DbNodeCreationField]
     public ProfileImage? ApplicantPhoto { get; set; }
 
     public DateTime? InterviewDate { get; set; }

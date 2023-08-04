@@ -1,4 +1,4 @@
-﻿/* matts
+/* matts
  * "Matthew's ATS" - Portfolio Project
  * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
  * 
@@ -15,25 +15,14 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-namespace matts.Models.Db;
+namespace matts.Utils;
 
-using matts.Utils;
+using System;
 
-[DbNode("Job", "j")]
-public class JobDb
+[AttributeUsage(AttributeTargets.Property)]
+public sealed class DbNodeCreationFieldAttribute : Attribute
 {
-    [DbNodeUuid]
-    [DbNodeCreationField]
-    public string? Uuid { get; set; }
-
-    [DbNodeCreationField]
-    public string? Name { get; set; }
-
-    [DbNodeCreationField]
-    public string? Status { get; set; }
-
-    [DbNodeCreationField]
-    public string? Description { get; set; }
-    
-    public long ApplicantCount { get; set; }
+    public DbNodeCreationFieldAttribute()
+    {
+    }
 }

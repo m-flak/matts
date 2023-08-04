@@ -139,6 +139,30 @@ public class DaoUtilsTests
     }
 
     [Fact]
+    public void CreateRunAsyncParameters_CreatesParametersDictionary_WithOnlyCreationFields()
+    {
+        ApplicantDb applicant = new ApplicantDb()
+        {
+            Uuid = "123",
+            Name = "Test Testington",
+            Email = "test@test.com",
+            PhoneNumber = "615-555-0123",
+            ApplicantPhoto = null,
+            InterviewDate = System.DateTime.UtcNow,
+            Rejected = false
+        };
+
+        IDictionary<string, object> parameters = DaoUtils.CreateRunAsyncParameters<ApplicantDb>(applicant);
+        Assert.True(parameters.ContainsKey("uuid"));
+        Assert.True(parameters.ContainsKey("name"));
+        Assert.True(parameters.ContainsKey("email"));
+        Assert.True(parameters.ContainsKey("phoneNumber"));
+        Assert.True(parameters.ContainsKey("applicantPhoto"));
+        Assert.False(parameters.ContainsKey("interviewDate"));
+        Assert.False(parameters.ContainsKey("rejected"));
+    }
+
+    [Fact]
     public void CreateCreationParameterString_ProducesString()
     {
         User user = new User()
@@ -151,5 +175,23 @@ public class DaoUtilsTests
 
         string actual = DaoUtils.CreateCreationParameterString(DaoUtils.CreateRunAsyncParameters<User>(user));
         Assert.Equal("{ userName: $userName, password: $password, role: $role }", actual);
+    }
+
+    [Fact]
+    public void CreateCreationParameterString_ProducesString_WithOnlyCreationFields()
+    {
+        ApplicantDb applicant = new ApplicantDb()
+        {
+            Uuid = "123",
+            Name = "Test Testington",
+            Email = "test@test.com",
+            PhoneNumber = "615-555-0123",
+            ApplicantPhoto = null,
+            InterviewDate = System.DateTime.UtcNow,
+            Rejected = false
+        };
+
+        string actual = DaoUtils.CreateCreationParameterString(DaoUtils.CreateRunAsyncParameters<ApplicantDb>(applicant));
+        Assert.Equal("{ uuid: $uuid, name: $name, email: $email, phoneNumber: $phoneNumber, applicantPhoto: $applicantPhoto }", actual);
     }
 }

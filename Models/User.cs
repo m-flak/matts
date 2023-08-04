@@ -25,8 +25,13 @@ using matts.Constants;
 public class User
 {
     [DbNodeUuid]
+    [DbNodeCreationField]
     public string? UserName { get; set; }
+
+    [DbNodeCreationField]
     public string? Password { get; set; }
+
+    [DbNodeCreationField]
     public string? Role { get; set; }
 }
 

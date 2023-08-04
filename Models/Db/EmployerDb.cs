@@ -23,13 +23,18 @@ using matts.Utils;
 public class EmployerDb
 {
     [DbNodeUuid]
+    [DbNodeCreationField]
     public string? Uuid { get; set; }
 
+    [DbNodeCreationField]
     public string? Name { get; set; }
 
+    [DbNodeCreationField]
     public string? Email { get; set; }
 
+    [DbNodeCreationField]
     public string? PhoneNumber { get; set;}
 
+    [DbNodeCreationField]
     public string? CompanyName { get; set; }
 }
