@@ -50,6 +50,12 @@ public class UserRepository : IUserRepository
         return await dao.GetApplicantIdForUserName(userName);
     }
 
+    public async Task<string> GetEmployerIdForUserByUserName(string userName)
+    {
+        UserDao dao = (UserDao) _daoUser;
+        return await dao.GetEmployerIdForUserName(userName);
+    }
+
     public async Task<User> GetUserByName(string userName)
     {
         return await _daoUser.GetByUuid(userName);

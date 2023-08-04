@@ -83,6 +83,30 @@ public class UserDao : DaoAbstractBase<User>
         }
     }
 
+    public virtual async Task<string> GetEmployerIdForUserName(string userName)
+    {
+        using (var session = _driver.AsyncSession())
+        {
+            return await session.ExecuteReadAsync(
+                async tx =>
+                {
+                    var cursor = await tx.RunAsync(
+                        "MATCH (u:User)-[:IS_USER_FOR]->(e:Employer) " +
+                        "WHERE u.userName = $username " +
+                        "RETURN e.uuid",
+                        new
+                        {
+                            username = userName
+                        }
+                    );
+
+                    var row = await cursor.SingleAsync(record => record.Values["e.uuid"].As<string>());
+
+                    return row;
+                });
+        } 
+    }
+
     public virtual async Task<bool> MakeUserForApplicant(User user, ApplicantDb applicant)
     {
         using (var session = _driver.AsyncSession())
@@ -109,6 +133,25 @@ public class UserDao : DaoAbstractBase<User>
 
     public virtual async Task<bool> MakeUserForEmployer(User user, EmployerDb employer)
     {
-        throw new NotImplementedException();
+        using (var session = _driver.AsyncSession())
+        {
+            return await session.ExecuteWriteAsync(
+               async tx =>
+               {
+                   var cursor = await tx.RunAsync(
+                       "MATCH (u:User { userName: $userid }) " +
+                       "MATCH (e:Employer { uuid: $employerid }) " +
+                       "CREATE (u)-[:IS_USER_FOR]->(e)",
+                       new
+                       {
+                           userid = user.UserName,
+                           applicantid = employer.Uuid
+                       }
+                   );
+
+                   var result = await cursor.ConsumeAsync();
+                   return result.Counters.RelationshipsCreated == 1;
+               });
+        }
     }
 }

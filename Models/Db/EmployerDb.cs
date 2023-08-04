@@ -22,6 +22,16 @@ using matts.Utils;
 [DbNode("Employer", "e")]
 public class EmployerDb
 {
+    public EmployerDb() {}
+    public EmployerDb(EmployerDb other)
+    {
+        Uuid = other.Uuid;
+        Name = other.Name;
+        Email = other.Email;
+        PhoneNumber = other.PhoneNumber;
+        CompanyName = other.CompanyName;
+    }
+
     [DbNodeUuid]
     [DbNodeCreationField]
     public string? Uuid { get; set; }

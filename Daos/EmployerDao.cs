@@ -34,7 +34,9 @@ public class EmployerDao : DaoAbstractBase<EmployerDb>
 
     public override async Task<EmployerDb> CreateNew(EmployerDb createWhat)
     {
-        throw new NotImplementedException();
+        EmployerDb createWhatCopy = new EmployerDb(createWhat);
+        createWhatCopy.Uuid = System.Guid.NewGuid().ToString();
+        return await this.CreateNewImpl(createWhatCopy);
     }
 
     public override async Task<List<EmployerDb>> GetAll()

@@ -88,6 +88,10 @@ public class AuthController : ControllerBase
         {
             claims.Add(new Claim("applicantId", await _userService.GetUserApplicantId(user)));
         }
+        else if (user.Role == UserRoleConstants.USER_ROLE_EMPLOYER)
+        {
+            claims.Add(new Claim("employerId", await _userService.GetUserEmployerId(user)));
+        }
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {

@@ -47,16 +47,10 @@ public class UserService : IUserService
         {
             return true;
         }
-
-        // TODO: Employer auth
-        if (user.Role == UserRoleConstants.USER_ROLE_EMPLOYER)
-        {
-            return true;
-        }
         
         var userDb = await _repository.GetUserByName(user.UserName);
 
-        return BCrypt.Verify(user.Password, userDb.Password);
+        return ( BCrypt.Verify(user.Password, userDb.Password) && userDb.Role == user.Role );
     }
 
     public async Task<string> GetUserApplicantId(User user)
@@ -67,6 +61,16 @@ public class UserService : IUserService
         }
 
         return await _repository.GetApplicantIdForUserByUserName(user.UserName);
+    }
+
+    public async Task<string> GetUserEmployerId(User user)
+    {
+        if (_useDummyData)
+        {
+            return System.Guid.NewGuid().ToString();
+        }
+
+        return await _repository.GetEmployerIdForUserByUserName(user.UserName);
     }
 
     public async Task<bool> RegisterNewUser(UserRegistration user)

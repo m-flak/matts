@@ -25,5 +25,7 @@ public interface IUserService
 
     public Task<string> GetUserApplicantId(User user);
 
+    public Task<string> GetUserEmployerId(User user);
+
     public Task<bool> RegisterNewUser(UserRegistration user);
 }

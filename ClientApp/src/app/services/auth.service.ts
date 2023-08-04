@@ -25,6 +25,7 @@ import { Observable, catchError, of, tap, throwError } from "rxjs";
 
 export interface CurrentUser extends User {
     applicantId: string | null;
+    employerId: string | null;
 };
 
 @Injectable({
@@ -51,6 +52,7 @@ export class AuthService {
         let name: string | null = null;
         let role: string | null = null;
         let applicantId: string | null = null;
+        let employerId: string | null = null;
 
         if (decodedToken !== null && decodedToken.hasOwnProperty('role')) {
             role = (decodedToken.role as string);
@@ -61,13 +63,17 @@ export class AuthService {
         if (decodedToken !== null && decodedToken.hasOwnProperty('applicantId')) {
             applicantId = (decodedToken.applicantId as string);
         }
+        if (decodedToken !== null && decodedToken.hasOwnProperty('employerId')) {
+            employerId = (decodedToken.employerId as string);
+        }
 
         if (name !== null && role !== null) {
             this.currentUser = {
                 userName: name,
                 password: '',
                 role: role,
-                applicantId: applicantId
+                applicantId: applicantId,
+                employerId: employerId
             };
         }
     }
