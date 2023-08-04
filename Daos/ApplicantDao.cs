@@ -65,34 +65,8 @@ public class ApplicantDao : DaoAbstractBase<ApplicantDb>
 
     public override async Task<ApplicantDb> CreateNew(ApplicantDb createWhat)
     {
-        bool created = false;
-        string newUuid = System.Guid.NewGuid().ToString();
-        using (var session = _driver.AsyncSession())
-        {
-            created = await session.ExecuteWriteAsync(
-               async tx =>
-               {
-                   var cursor = await tx.RunAsync(
-                       "CREATE (a: Applicant { uuid: $appid, name: $appname, email: $email, phoneNumber: $phoneNumber })",
-                       new
-                       {
-                           appid = newUuid,
-                           appname = createWhat.Name,
-                           email = createWhat.Email,
-                           phoneNumber = createWhat.PhoneNumber
-                       }
-                   );
-
-                   var result = await cursor.ConsumeAsync();
-                   return result.Counters.NodesCreated == 1;
-               });
-        }
-
-        if (!created)
-        {
-            throw new InvalidOperationException("Unable to create the applicant in the database!");
-        }
-
-        return await GetByUuid(newUuid);
+        ApplicantDb createWhatCopy = new ApplicantDb(createWhat);
+        createWhatCopy.Uuid = System.Guid.NewGuid().ToString();
+        return await this.CreateNewImpl(createWhatCopy);
     }
 }

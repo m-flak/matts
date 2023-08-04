@@ -23,6 +23,18 @@ namespace matts.Models.Db;
 [DbNode("Applicant", "a")]
 public class ApplicantDb
 {
+    public ApplicantDb() {}
+    public ApplicantDb(ApplicantDb other)
+    {
+        Uuid = other.Uuid;
+        Name = other.Name;
+        Email = other.Email;
+        PhoneNumber = other.PhoneNumber;
+        ApplicantPhoto = other.ApplicantPhoto;
+        InterviewDate = other.InterviewDate;
+        Rejected = other.Rejected;
+    }
+
     [DbNodeUuid]
     [DbNodeCreationField]
     public string? Uuid { get; set; }

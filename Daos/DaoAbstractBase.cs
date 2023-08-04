@@ -61,7 +61,7 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
 
         if (lhAttr == null || rhAttr == null)
         {
-            throw new ArgumentException("Unable to find the DbNodeAttribute that should be attached to `lhNode` or `rhNode`!");
+            throw new MissingMemberException("Unable to find the DbNodeAttribute that should be attached to `lhNode` or `rhNode`!");
         }
 
         using (var session = _driver.AsyncSession())
@@ -98,7 +98,7 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
 
         if (nodeAttr == null)
         {
-            throw new ArgumentException("Unable to find the DbNodeAttribute that should be attached to `node`!");
+            throw new MissingMemberException("Unable to find the DbNodeAttribute that should be attached to `node`!");
         }
 
         using (var session = _driver.AsyncSession())
@@ -124,7 +124,7 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
 
         if (nodeAttr == null)
         {
-            throw new ArgumentException("Unable to find the DbNodeAttribute that should be attached to `node`!");
+            throw new MissingMemberException("Unable to find the DbNodeAttribute that should be attached to `node`!");
         }
 
         using (var session = _driver.AsyncSession())
@@ -149,7 +149,7 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
 
         if (nodeAttr == null)
         {
-            throw new ArgumentException("Unable to find the DbNodeAttribute that should be attached to `node`!");
+            throw new MissingMemberException("Unable to find the DbNodeAttribute that should be attached to `node`!");
         }
 
         PropertyInfo? uuidInfo = null;
@@ -161,7 +161,7 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
         }
         catch (InvalidOperationException ioe)
         {
-            throw new ArgumentException("Unable to find the property with DbNodeUuidAttribute within `node`!", ioe);
+            throw new MissingMemberException("Unable to find the property with DbNodeUuidAttribute within `node`!", ioe);
         }
 
         using (var session = _driver.AsyncSession())
@@ -184,6 +184,57 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
                     return DaoUtils.MapSimpleRow<T>(row);
                 });
         }
+    }
+
+    protected async Task<T> CreateNewImpl(T createWhat)
+    {
+        Type createWhatType = typeof(T);
+        var nodeAttr = Attribute.GetCustomAttribute(createWhatType, typeof(DbNodeAttribute)) as DbNodeAttribute;
+
+        if (nodeAttr == null)
+        {
+            throw new MissingMemberException("Unable to find the DbNodeAttribute that should be attached to `createWhat`!");
+        }
+
+        string? uuid = null;
+        try 
+        {
+            var uuidInfo = createWhatType.GetProperties().Where(p => p.GetCustomAttribute(typeof(DbNodeUuidAttribute)) != null).Single();
+            uuid = (string?) uuidInfo.GetValue(createWhat);
+
+            if (uuid == null)
+            {
+                throw new MissingMemberException("Unable to get the value of the property with DbNodeUuidAttribute within `createWhat`!");
+            }
+        }
+        catch (InvalidOperationException ioe)
+        {
+            throw new MissingMemberException("Unable to find the property with DbNodeUuidAttribute within `createWhat`!", ioe);
+        }
+
+        bool created = false;
+        using (var session = _driver.AsyncSession())
+        {
+            created = await session.ExecuteWriteAsync(
+               async tx =>
+               {
+                   var parameters = DaoUtils.CreateRunAsyncParameters<T>(createWhat);
+                   var cursor = await tx.RunAsync(
+                       $"CREATE ({nodeAttr.Selector}: {nodeAttr.Node} {DaoUtils.CreateCreationParameterString(parameters)} )",
+                       parameters
+                   );
+
+                   var result = await cursor.ConsumeAsync();
+                   return result.Counters.NodesCreated == 1;
+               });
+        }
+
+        if (!created)
+        {
+            throw new InvalidOperationException($"Unable to create the {nodeAttr.Node} in the database!");
+        }
+
+        return await GetByUuid(uuid);
     }
 
     public abstract Task<T> CreateNew(T createWhat);

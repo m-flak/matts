@@ -36,33 +36,7 @@ public class UserDao : DaoAbstractBase<User>
 
     public override async Task<User> CreateNew(User createWhat)
     {
-        bool created = false;
-        using (var session = _driver.AsyncSession())
-        {
-            created = await session.ExecuteWriteAsync(
-               async tx =>
-               {
-                   var cursor = await tx.RunAsync(
-                       "CREATE (u: User { userName: $userid, password: $pass, role: $userrole })",
-                       new
-                       {
-                           userid = createWhat.UserName,
-                           pass = createWhat.Password,
-                           userrole = createWhat.Role
-                       }
-                   );
-
-                   var result = await cursor.ConsumeAsync();
-                   return result.Counters.NodesCreated == 1;
-               });
-        }
-
-        if (!created)
-        {
-            throw new InvalidOperationException("Unable to create the user in the database!");
-        }
-
-        return await GetByUuid(createWhat.UserName);
+        return await this.CreateNewImpl(createWhat);
     }
 
     public override async Task<List<User>> GetAll()
