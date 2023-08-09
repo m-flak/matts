@@ -36,8 +36,8 @@ public class DaoUtilsTests
         applicantNode.SetupGet(an => an.Properties).Returns(applicantDict);
 
         rowDict.Add("a", applicantNode.Object);
-        rowDict.Add("r.rejected", applicant.Rejected);
-        rowDict.Add("r2.interviewDate", applicant.InterviewDate);
+        rowDict.Add("r.rejected", applicant.Rejected ?? false);
+        rowDict.Add("r2.interviewDate", applicant.InterviewDate ?? DateTime.UtcNow);
 
         var producedApplicant = DaoUtils.MapRowWithRelationships<ApplicantDb>(rowDict, "a", RelationshipConstants.HAS_APPLIED_TO, RelationshipConstants.IS_INTERVIEWING_FOR, "r", "r2");
         Assert.Equal(applicant.Uuid, producedApplicant.Uuid);
@@ -115,6 +115,17 @@ public class DaoUtilsTests
 
         string whereClause = DaoUtils.CreateWhereClauseFromDict(dict, "j");
         Assert.Equal("( j.someBool = true AND j.someInt = 1 AND j.someStr = 'value' )", whereClause);
+    }
+
+    [Fact]
+    public void CreateWhereClauseFromDict_CreatesTheClause_AndSanitizes()
+    {
+        var dict = new Dictionary<string, object>();
+        dict.Add("someStr1", "Robby' WITH true as ignored MATCH (s:Student) DETACH DELETE s;//////////");
+        dict.Add("someStr2", "') RETURN j;  DETACH DELETE s;/////////////");
+
+        string whereClause = DaoUtils.CreateWhereClauseFromDict(dict, "j");
+        Assert.Equal("( j.someStr1 = 'Robby\\' WITH true as ignored MATCH (s:Student) DETACH DELETE s;' AND j.someStr2 = '\\') RETURN j;  DETACH DELETE s;' )", whereClause);
     }
 
     [Fact]

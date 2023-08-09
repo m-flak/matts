@@ -58,4 +58,18 @@ public class DbRelationshipTests
         string expected = "[:IS_USER_FOR ]";
         Assert.Equal(expected, sut.ToString());
     }
+
+    [Fact]
+    public void ToString_Sanitized()
+    {
+        var sut = new DbRelationship("TEST");
+        
+        sut.Parameters["test"] = "Robby' }] WITH true as ignored MATCH (s:Student) DETACH DELETE s;//////////";
+        string expected = "[:TEST { test: 'Robby\\' }] WITH true as ignored MATCH (s:Student) DETACH DELETE s;' }]";
+        Assert.Equal(expected, sut.ToString());
+
+        sut.Parameters["test"] = "'}];  DETACH DELETE s;/////////////";
+        expected = "[:TEST { test: '\\'}];  DETACH DELETE s;' }]";
+        Assert.Equal(expected, sut.ToString());
+    }
 }

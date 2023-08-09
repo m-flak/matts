@@ -42,7 +42,7 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
 
     protected readonly struct GetAllByRelationshipConfig
     {
-        public enum WhereNodeSelctor
+        public enum WhereNodeSelector
         {
             LEFT,
             RIGHT
@@ -53,13 +53,13 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
             RIGHT
         }
 
-        public GetAllByRelationshipConfig(WhereNodeSelctor whereSelector, ReturnNodeSelector returnSelector)
+        public GetAllByRelationshipConfig(WhereNodeSelector whereSelector, ReturnNodeSelector returnSelector)
         {
-            WhereSelctor = whereSelector;
+            WhereSelector = whereSelector;
             ReturnSelector = returnSelector;
         }
 
-        public WhereNodeSelctor WhereSelctor { get; init; }
+        public WhereNodeSelector WhereSelector { get; init; }
         public ReturnNodeSelector ReturnSelector  { get; init; }
     }
 
@@ -80,7 +80,7 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
                 {
                     var addOptionalParams = (string? optRel) => (optRel != null) ? DaoUtils.AddReturnsForRelationshipParams(optRel, "r2") : "";
 
-                    string whereSelector = (config.WhereSelctor == GetAllByRelationshipConfig.WhereNodeSelctor.LEFT) ? lhAttr.Selector : rhAttr.Selector;
+                    string whereSelector = (config.WhereSelector == GetAllByRelationshipConfig.WhereNodeSelector.LEFT) ? lhAttr.Selector : rhAttr.Selector;
                     string returnSelector = (config.ReturnSelector == GetAllByRelationshipConfig.ReturnNodeSelector.LEFT) ? lhAttr.Selector : rhAttr.Selector;
 
                     var cursor = await tx.RunAsync(

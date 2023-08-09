@@ -72,7 +72,7 @@ public class JobDao : DaoAbstractBase<JobDb>
                 typeof(ApplicantDb), 
                 typeof(JobDb),
                 new GetAllByRelationshipConfig(
-                    GetAllByRelationshipConfig.WhereNodeSelctor.LEFT,
+                    GetAllByRelationshipConfig.WhereNodeSelector.LEFT,
                     GetAllByRelationshipConfig.ReturnNodeSelector.RIGHT
                 ), 
                 relationship, 

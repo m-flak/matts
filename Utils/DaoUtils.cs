@@ -25,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Reflection;
 
@@ -97,7 +98,12 @@ internal sealed class DaoUtils
 
             if (typeof(string).IsEquivalentTo(type))
             {
-                builder.Append($"{prefix}.{keys[i]} = '{value}'");
+                Regex trailingSlashes = new(@"(?<=.+)/+");
+                Regex quotes = new(@"'");
+                string cleanValue = trailingSlashes.Replace( ((string?) value ?? ""), "");
+                cleanValue = quotes.Replace(cleanValue, quote => quote.Value.Insert(0, "\\"));
+
+                builder.Append($"{prefix}.{keys[i]} = '{cleanValue}'");
             }
             else if (typeof(bool).IsEquivalentTo(type))
             {

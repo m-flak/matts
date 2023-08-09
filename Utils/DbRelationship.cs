@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace matts.Utils;
 
@@ -56,7 +57,12 @@ public class DbRelationship
 
             if (typeof(string).IsEquivalentTo(type))
             {
-                builder.Append($"{keys[i]}: '{value}'");
+                Regex trailingSlashes = new(@"(?<=.+)/+");
+                Regex quotes = new(@"'");
+                string cleanValue = trailingSlashes.Replace( ((string?) value ?? ""), "");
+                cleanValue = quotes.Replace(cleanValue, quote => quote.Value.Insert(0, "\\"));
+
+                builder.Append($"{keys[i]}: '{cleanValue}'");
             }
             else if (typeof(bool).IsEquivalentTo(type))
             {

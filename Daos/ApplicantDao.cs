@@ -44,7 +44,7 @@ public class ApplicantDao : DaoAbstractBase<ApplicantDb>
             typeof(ApplicantDb), 
             typeof(JobDb), 
             new GetAllByRelationshipConfig(
-                GetAllByRelationshipConfig.WhereNodeSelctor.RIGHT, 
+                GetAllByRelationshipConfig.WhereNodeSelector.RIGHT, 
                 GetAllByRelationshipConfig.ReturnNodeSelector.LEFT
             ), 
             relationship, 
