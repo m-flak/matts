@@ -24,6 +24,15 @@ namespace matts.Daos;
 
 public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
 {
+    public abstract Task<T> CreateNew(T createWhat);
+    public abstract Task<List<T>> GetAll();
+    public abstract Task<List<T>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties);
+    public abstract Task<List<T>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid);
+    public abstract Task<T> GetByUuid(string uuid);
+    public abstract Task<bool> CreateRelationshipBetween(string relationship, T source, object other, Type typeOther);
+
+    // ////////////////////////////////////////////////////////////////////////
+
     protected readonly IDriver _driver;
 
     protected DaoAbstractBase(IDriver driver)
@@ -237,7 +246,7 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
         return await GetByUuid(uuid);
     }
 
-    protected async Task<bool> CreateRelationshipBetweenImpl(string relationship, object src, object dest, Type typeSrc, Type typeDest)
+    protected async Task<bool> CreateRelationshipBetweenImpl(DbRelationship relationship, object src, object dest, Type typeSrc, Type typeDest)
     {
         var nodeAttrSrc = Attribute.GetCustomAttribute(typeSrc, typeof(DbNodeAttribute)) as DbNodeAttribute;
         var nodeAttrDest = Attribute.GetCustomAttribute(typeDest, typeof(DbNodeAttribute)) as DbNodeAttribute;
@@ -283,7 +292,7 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
                    var cursor = await tx.RunAsync(
                        $"MATCH ({nodeAttrSrc.Selector}:{nodeAttrSrc.Node}" + " { " + $"{uuidSrcName}: $uuid1" + " }) " +
                        $"MATCH ({nodeAttrDest.Selector}:{nodeAttrDest.Node}" + " { " + $"{uuidDestName}: $uuid2" + " }) "  +
-                       $"CREATE ({nodeAttrSrc.Selector})-[:{relationship}]->({nodeAttrDest.Selector})",
+                       $"CREATE ({nodeAttrSrc.Selector})-{relationship}->({nodeAttrDest.Selector})",
                        new
                        {
                            uuid1 = uuidSrc,
@@ -296,11 +305,4 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
                });
         }
     }
-
-    public abstract Task<T> CreateNew(T createWhat);
-    public abstract Task<List<T>> GetAll();
-    public abstract Task<List<T>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties);
-    public abstract Task<List<T>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid);
-    public abstract Task<T> GetByUuid(string uuid);
-    public abstract Task<bool> CreateRelationshipBetween(string relationship, T source, object other, Type typeOther);
 }

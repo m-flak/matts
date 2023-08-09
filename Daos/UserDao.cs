@@ -41,7 +41,7 @@ public class UserDao : DaoAbstractBase<User>
 
     public override async Task<bool> CreateRelationshipBetween(string relationship, User source, object other, Type typeOther)
     {
-        return await this.CreateRelationshipBetweenImpl(relationship, source, other, typeof(User), typeOther);
+        return await this.CreateRelationshipBetweenImpl(new DbRelationship(relationship), source, other, typeof(User), typeOther);
     }
 
     public override async Task<List<User>> GetAll()

@@ -72,6 +72,6 @@ public class ApplicantDao : DaoAbstractBase<ApplicantDb>
 
     public override async Task<bool> CreateRelationshipBetween(string relationship, ApplicantDb source, object other, Type typeOther)
     {
-        return await this.CreateRelationshipBetweenImpl(relationship, source, other, typeof(ApplicantDb), typeOther);
+        return await this.CreateRelationshipBetweenImpl(new DbRelationship(relationship), source, other, typeof(ApplicantDb), typeOther);
     }
 }

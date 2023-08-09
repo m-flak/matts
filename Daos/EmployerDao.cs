@@ -41,7 +41,7 @@ public class EmployerDao : DaoAbstractBase<EmployerDb>
 
     public override async Task<bool> CreateRelationshipBetween(string relationship, EmployerDb source, object other, Type typeOther)
     {
-        return await this.CreateRelationshipBetweenImpl(relationship, source, other, typeof(EmployerDb), typeOther);
+        return await this.CreateRelationshipBetweenImpl(new DbRelationship(relationship), source, other, typeof(EmployerDb), typeOther);
     }
 
     public override async Task<List<EmployerDb>> GetAll()

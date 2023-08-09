@@ -1,0 +1,84 @@
+/* matts
+ * "Matthew's ATS" - Portfolio Project
+ * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**/
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace matts.Utils;
+
+public class DbRelationship
+{
+    public string Name { get; private set; }
+    public IDictionary<string, object> Parameters { get; private set; }
+
+    public DbRelationship(string name)
+    {
+        Name = name;
+        Parameters = new Dictionary<string, object>();
+    }
+
+    public override string ToString()
+    {
+        return $"[:{Name} {CreateParametersString()}]";
+    }
+
+    private string CreateParametersString()
+    {
+        if (Parameters.Count < 1)
+        {
+            return "";
+        }
+
+        var keys = Parameters.Keys.ToList();
+        var builder = new StringBuilder();
+
+        builder.Append("{ ");
+        for (int i = 0; i < keys.Count; ++i)
+        {
+            var value = Parameters[ keys[i] ];
+            var type = value?.GetType();
+
+            if (typeof(string).IsEquivalentTo(type))
+            {
+                builder.Append($"{keys[i]}: '{value}'");
+            }
+            else if (typeof(bool).IsEquivalentTo(type))
+            {
+                builder.Append($"{keys[i]}: {value?.ToString()?.ToLower()}");
+            }
+            else if (typeof(DateTime).IsEquivalentTo(type))
+            {
+                var date = (DateTime?) value ?? DateTime.UtcNow;
+                builder.Append($"{keys[i]}: '{date.ToUniversalTime().ToString("O")}'");
+            }
+            else
+            {
+                builder.Append($"{keys[i]}: {value}");
+            }
+
+            if (i + 1 != keys.Count)
+            {
+                builder.Append(", ");
+            }
+        }
+        builder.Append(" }");
+
+        return builder.ToString();
+    }
+}
