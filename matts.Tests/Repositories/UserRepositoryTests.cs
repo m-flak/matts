@@ -77,7 +77,9 @@ public class UserRepositoryTests
         User? createdUser = null;
         ApplicantDb? createdApplicant = null;
 
-        _daoUser.Setup(d => d.MakeUserForApplicant(It.IsAny<User>(), It.IsAny<ApplicantDb>()))
+        // _daoUser.Setup(d => d.MakeUserForApplicant(It.IsAny<User>(), It.IsAny<ApplicantDb>()))
+        //     .Returns(Task.FromResult(true));
+        _daoUser.Setup(d => d.CreateRelationshipBetween(It.IsAny<string>(), It.IsAny<User>(), It.IsAny<object>(), It.IsAny<Type>()))
             .Returns(Task.FromResult(true));
         _daoUser.Setup(d => d.CreateNew(It.IsAny<User>()))
             .Returns((User createWhat) =>
@@ -119,7 +121,9 @@ public class UserRepositoryTests
         User? createdUser = null;
         EmployerDb? createdEmployer = null;
 
-        _daoUser.Setup(d => d.MakeUserForEmployer(It.IsAny<User>(), It.IsAny<EmployerDb>()))
+        // _daoUser.Setup(d => d.MakeUserForEmployer(It.IsAny<User>(), It.IsAny<EmployerDb>()))
+        //     .Returns(Task.FromResult(true));
+        _daoUser.Setup(d => d.CreateRelationshipBetween(It.IsAny<string>(), It.IsAny<User>(), It.IsAny<object>(), It.IsAny<Type>()))
             .Returns(Task.FromResult(true));
         _daoUser.Setup(d => d.CreateNew(It.IsAny<User>()))
             .Returns((User createWhat) =>

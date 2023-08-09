@@ -28,4 +28,6 @@ public interface IDataAccessObject<T> where T : class
     public Task<T> GetByUuid(string uuid);
 
     public Task<T> CreateNew(T createWhat);
+
+    public Task<bool> CreateRelationshipBetween(string relationship, T source, object other, Type typeOther);
 }

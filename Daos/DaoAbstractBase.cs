@@ -237,9 +237,70 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
         return await GetByUuid(uuid);
     }
 
+    protected async Task<bool> CreateRelationshipBetweenImpl(string relationship, object src, object dest, Type typeSrc, Type typeDest)
+    {
+        var nodeAttrSrc = Attribute.GetCustomAttribute(typeSrc, typeof(DbNodeAttribute)) as DbNodeAttribute;
+        var nodeAttrDest = Attribute.GetCustomAttribute(typeDest, typeof(DbNodeAttribute)) as DbNodeAttribute;
+
+        if (nodeAttrSrc == null || nodeAttrDest == null)
+        {
+            throw new MissingMemberException("Unable to find the DbNodeAttribute that should be attached to `src` and/or `dest`!");
+        }
+
+        string? uuidSrc = null;
+        string? uuidSrcName = null;
+        string? uuidDest = null;
+        string? uuidDestName = null;
+        try 
+        {
+            var uuidSrcInfo = typeSrc.GetProperties().Where(p => p.GetCustomAttribute(typeof(DbNodeUuidAttribute)) != null).Single();
+            uuidSrc = (string?) uuidSrcInfo.GetValue(src);
+            uuidSrcName = System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(uuidSrcInfo.Name);
+
+            var uuidDestInfo = typeDest.GetProperties().Where(p => p.GetCustomAttribute(typeof(DbNodeUuidAttribute)) != null).Single();
+            uuidDest = (string?) uuidDestInfo.GetValue(dest);
+            uuidDestName = System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(uuidDestInfo.Name);
+
+            if (uuidSrc == null || uuidSrcName == null)
+            {
+                throw new MissingMemberException("Unable to get the value of the property with DbNodeUuidAttribute within `src`!");
+            }
+            if (uuidDest == null || uuidDestName == null)
+            {
+                throw new MissingMemberException("Unable to get the value of the property with DbNodeUuidAttribute within `dest`!");
+            }
+        }
+        catch (InvalidOperationException ioe)
+        {
+            throw new MissingMemberException("Unable to find the property with DbNodeUuidAttribute within `src` and/or `dest`!", ioe);
+        }
+
+        using (var session = _driver.AsyncSession())
+        {
+            return await session.ExecuteWriteAsync(
+               async tx =>
+               {
+                   var cursor = await tx.RunAsync(
+                       $"MATCH ({nodeAttrSrc.Selector}:{nodeAttrSrc.Node}" + " { " + $"{uuidSrcName}: $uuid1" + " }) " +
+                       $"MATCH ({nodeAttrDest.Selector}:{nodeAttrDest.Node}" + " { " + $"{uuidDestName}: $uuid2" + " }) "  +
+                       $"CREATE ({nodeAttrSrc.Selector})-[:{relationship}]->({nodeAttrDest.Selector})",
+                       new
+                       {
+                           uuid1 = uuidSrc,
+                           uuid2 = uuidDest
+                       }
+                   );
+
+                   var result = await cursor.ConsumeAsync();
+                   return result.Counters.RelationshipsCreated == 1;
+               });
+        }
+    }
+
     public abstract Task<T> CreateNew(T createWhat);
     public abstract Task<List<T>> GetAll();
     public abstract Task<List<T>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties);
     public abstract Task<List<T>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid);
     public abstract Task<T> GetByUuid(string uuid);
+    public abstract Task<bool> CreateRelationshipBetween(string relationship, T source, object other, Type typeOther);
 }

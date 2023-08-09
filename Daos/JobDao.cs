@@ -99,4 +99,9 @@ public class JobDao : DaoAbstractBase<JobDb>
     {
         throw new NotImplementedException();
     }
+
+    public override async Task<bool> CreateRelationshipBetween(string relationship, JobDb source, object other, Type typeOther)
+    {
+        return await this.CreateRelationshipBetweenImpl(relationship, source, other, typeof(JobDb), typeOther);
+    }
 }

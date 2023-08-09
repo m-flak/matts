@@ -39,6 +39,11 @@ public class UserDao : DaoAbstractBase<User>
         return await this.CreateNewImpl(createWhat);
     }
 
+    public override async Task<bool> CreateRelationshipBetween(string relationship, User source, object other, Type typeOther)
+    {
+        return await this.CreateRelationshipBetweenImpl(relationship, source, other, typeof(User), typeOther);
+    }
+
     public override async Task<List<User>> GetAll()
     {
         throw new NotImplementedException();
@@ -107,51 +112,51 @@ public class UserDao : DaoAbstractBase<User>
         } 
     }
 
-    public virtual async Task<bool> MakeUserForApplicant(User user, ApplicantDb applicant)
-    {
-        using (var session = _driver.AsyncSession())
-        {
-            return await session.ExecuteWriteAsync(
-               async tx =>
-               {
-                   var cursor = await tx.RunAsync(
-                       "MATCH (u:User { userName: $userid }) " +
-                       "MATCH (a:Applicant { uuid: $applicantid }) " +
-                       "CREATE (u)-[:IS_USER_FOR]->(a)",
-                       new
-                       {
-                           userid = user.UserName,
-                           applicantid = applicant.Uuid
-                       }
-                   );
+    // public virtual async Task<bool> MakeUserForApplicant(User user, ApplicantDb applicant)
+    // {
+    //     using (var session = _driver.AsyncSession())
+    //     {
+    //         return await session.ExecuteWriteAsync(
+    //            async tx =>
+    //            {
+    //                var cursor = await tx.RunAsync(
+    //                    "MATCH (u:User { userName: $userid }) " +
+    //                    "MATCH (a:Applicant { uuid: $applicantid }) " +
+    //                    "CREATE (u)-[:IS_USER_FOR]->(a)",
+    //                    new
+    //                    {
+    //                        userid = user.UserName,
+    //                        applicantid = applicant.Uuid
+    //                    }
+    //                );
 
-                   var result = await cursor.ConsumeAsync();
-                   return result.Counters.RelationshipsCreated == 1;
-               });
-        }
-    }
+    //                var result = await cursor.ConsumeAsync();
+    //                return result.Counters.RelationshipsCreated == 1;
+    //            });
+    //     }
+    // }
 
-    public virtual async Task<bool> MakeUserForEmployer(User user, EmployerDb employer)
-    {
-        using (var session = _driver.AsyncSession())
-        {
-            return await session.ExecuteWriteAsync(
-               async tx =>
-               {
-                   var cursor = await tx.RunAsync(
-                       "MATCH (u:User { userName: $userid }) " +
-                       "MATCH (e:Employer { uuid: $employerid }) " +
-                       "CREATE (u)-[:IS_USER_FOR]->(e)",
-                       new
-                       {
-                           userid = user.UserName,
-                           applicantid = employer.Uuid
-                       }
-                   );
+    // public virtual async Task<bool> MakeUserForEmployer(User user, EmployerDb employer)
+    // {
+    //     using (var session = _driver.AsyncSession())
+    //     {
+    //         return await session.ExecuteWriteAsync(
+    //            async tx =>
+    //            {
+    //                var cursor = await tx.RunAsync(
+    //                    "MATCH (u:User { userName: $userid }) " +
+    //                    "MATCH (e:Employer { uuid: $employerid }) " +
+    //                    "CREATE (u)-[:IS_USER_FOR]->(e)",
+    //                    new
+    //                    {
+    //                        userid = user.UserName,
+    //                        applicantid = employer.Uuid
+    //                    }
+    //                );
 
-                   var result = await cursor.ConsumeAsync();
-                   return result.Counters.RelationshipsCreated == 1;
-               });
-        }
-    }
+    //                var result = await cursor.ConsumeAsync();
+    //                return result.Counters.RelationshipsCreated == 1;
+    //            });
+    //     }
+    // }
 }

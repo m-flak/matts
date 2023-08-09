@@ -69,4 +69,9 @@ public class ApplicantDao : DaoAbstractBase<ApplicantDb>
         createWhatCopy.Uuid = System.Guid.NewGuid().ToString();
         return await this.CreateNewImpl(createWhatCopy);
     }
+
+    public override async Task<bool> CreateRelationshipBetween(string relationship, ApplicantDb source, object other, Type typeOther)
+    {
+        return await this.CreateRelationshipBetweenImpl(relationship, source, other, typeof(ApplicantDb), typeOther);
+    }
 }

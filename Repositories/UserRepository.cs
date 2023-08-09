@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 using MapsterMapper;
+using matts.Constants;
 using matts.Daos;
 using matts.Interfaces;
 using matts.Models;
@@ -80,8 +81,9 @@ public class UserRepository : IUserRepository
             return false;
         }
 
-        UserDao dao = (UserDao) _daoUser;
-        return await dao.MakeUserForApplicant(createdUser, createdApplicant);
+        //UserDao dao = (UserDao) _daoUser;
+        //return await dao.MakeUserForApplicant(createdUser, createdApplicant);
+        return await _daoUser.CreateRelationshipBetween(RelationshipConstants.IS_USER_FOR, createdUser, createdApplicant, typeof(ApplicantDb));
     }
 
     public async Task<bool> CreateNewEmployerUser(UserRegistration user)
@@ -104,7 +106,8 @@ public class UserRepository : IUserRepository
             return false;
         }
 
-        UserDao dao = (UserDao) _daoUser;
-        return await dao.MakeUserForEmployer(createdUser, createdEmployer);
+        //UserDao dao = (UserDao) _daoUser;
+        //return await dao.MakeUserForEmployer(createdUser, createdEmployer);
+        return await _daoUser.CreateRelationshipBetween(RelationshipConstants.IS_USER_FOR, createdUser, createdEmployer, typeof(EmployerDb));
     }
 }
