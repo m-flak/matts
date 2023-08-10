@@ -47,10 +47,17 @@ public class UserService : IUserService
         {
             return true;
         }
-        
-        var userDb = await _repository.GetUserByName(user.UserName);
 
-        return ( BCrypt.Verify(user.Password, userDb.Password) && userDb.Role == user.Role );
+        // If user doesn't exist the Neo4j driver will throw
+        try
+        {
+            var userDb = await _repository.GetUserByName(user.UserName);
+            return (BCrypt.Verify(user.Password, userDb.Password) && userDb.Role == user.Role);
+        }
+        catch (InvalidOperationException)
+        {
+            return false;
+        }
     }
 
     public async Task<string> GetUserApplicantId(User user)

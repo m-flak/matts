@@ -19,6 +19,8 @@ using System.Text.Json;
 
 namespace matts.Models;
 
+using EmployerUuid = System.String;
+
 public class Applicant 
 {
     public readonly struct ProfileImage 
@@ -47,6 +49,8 @@ public class Applicant
     public ProfileImage? ApplicantPhoto { get; set; }
 
     public DateTime? InterviewDate { get; set; }
+
+    public EmployerUuid? InterviewingWith  { get; set; }
 
     public bool? Rejected { get; set; }
 

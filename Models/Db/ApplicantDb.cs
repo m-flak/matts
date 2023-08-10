@@ -20,6 +20,8 @@ using matts.Utils;
 
 namespace matts.Models.Db;
 
+using EmployerUuid = System.String;
+
 [DbNode("Applicant", "a")]
 public class ApplicantDb
 {
@@ -32,6 +34,7 @@ public class ApplicantDb
         PhoneNumber = other.PhoneNumber;
         ApplicantPhoto = other.ApplicantPhoto;
         InterviewDate = other.InterviewDate;
+        InterviewingWith = other.InterviewingWith;
         Rejected = other.Rejected;
     }
 
@@ -52,6 +55,8 @@ public class ApplicantDb
     public ProfileImage? ApplicantPhoto { get; set; }
 
     public DateTime? InterviewDate { get; set; }
+
+    public EmployerUuid? InterviewingWith  { get; set; }
 
     public bool? Rejected { get; set; }
 }

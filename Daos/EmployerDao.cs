@@ -61,6 +61,6 @@ public class EmployerDao : DaoAbstractBase<EmployerDb>
 
     public override async Task<EmployerDb> GetByUuid(string uuid)
     {
-        throw new NotImplementedException();
+        return await this.GetByUuidImpl(typeof(EmployerDb), uuid);
     }
 }

@@ -51,7 +51,8 @@ public partial class JobService : IJobService
             ApplicantPhoto = profilePic,
             Email = $"{name.ToLower().Replace(' ', '.')}@gmail.com",
             PhoneNumber = "615-555-0123",
-            InterviewDate = (hasInterview) ? DateTime.UtcNow : null
+            InterviewDate = (hasInterview) ? DateTime.UtcNow : null,
+            InterviewingWith = (hasInterview) ? System.Guid.NewGuid().ToString() : null
         };
     }
 

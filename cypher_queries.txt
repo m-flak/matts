@@ -20,6 +20,18 @@ CREATE (u:User { userName: 'alexis', password: '$2a$11$cD.oCT/QzAgQvza7pDWhI.mjU
 	(a:Applicant { uuid: '41cdfb73-0a28-4ccf-85d5-d0c424f6fa08', name: 'Alexis Powers'}),
 	(u)-[:IS_USER_FOR]->(a)
 
+MATCH (e:Employer {uuid: '0b043999-d2c2-4645-a56d-ddaeb72ee577' }),
+	(a:Applicant {uuid: '6b3e2869-0166-44a6-9371-eab5c09a8ff7' })
+CREATE (e)-[r:INTERVIEWING_WITH]->(a);
+MATCH (e:Employer {uuid: '0b043999-d2c2-4645-a56d-ddaeb72ee577' }),
+	(a:Applicant {uuid: '6b3e2869-0166-44a6-9371-eab5c09a8ff7' })
+CREATE (a)-[r:INTERVIEWING_WITH]->(e)
+
+MATCH (a:Applicant)-[:INTERVIEWING_WITH]-(e:Employer)
+RETURN a,e
+
+MATCH ()-[r]-() WHERE id(r)=49 DELETE r
+
 # FULL JOB DETAILS BY UUID QUERY #############################################################################################
 
 WITH '7df53d53-7c25-4b37-a004-6d9e30d44abe' AS uuid
