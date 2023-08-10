@@ -10,13 +10,15 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
 import { MatButtonModule } from '@angular/material/button';
 import { EmployerToolbarComponent } from '../components/employer-toolbar/employer-toolbar.component';
+import { ToastsContainerComponent } from './toasts-container/toasts-container.component';
 
 @NgModule({
   declarations: [
     ApplicantsPickerComponent,
     ApplicantComponent,
     JobListComponent,
-    EmployerToolbarComponent
+    EmployerToolbarComponent,
+    ToastsContainerComponent
   ],
   imports: [
     CommonModule,
@@ -29,7 +31,8 @@ import { EmployerToolbarComponent } from '../components/employer-toolbar/employe
   exports: [
     ApplicantsPickerComponent,
     JobListComponent,
-    EmployerToolbarComponent
+    EmployerToolbarComponent,
+    ToastsContainerComponent
   ]
 })
 export class ComponentsModule { 

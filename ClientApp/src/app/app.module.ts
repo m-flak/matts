@@ -12,7 +12,7 @@ import {MatInputModule} from '@angular/material/input';
 
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
-import { HomeComponent } from './home/home.component';
+import { HomeComponent, HomeComponentResolver } from './home/home.component';
 import { ComponentsModule } from './components/components.module';
 import { JobPageComponent } from './job-page/job-page.component';
 import { CalendarModule, DateAdapter } from 'angular-calendar';
@@ -70,6 +70,7 @@ export const BASE_URL = new InjectionToken<string>('BASE_URL');
           { 
             path: 'employer', 
             component: HomeComponent,
+            resolve: { jobList: HomeComponentResolver },
             data: { role: UserRoleConstants.USER_ROLE_EMPLOYER },
             canActivate: [ AuthGuard, HomeGuard ],
             children: [

@@ -30,7 +30,11 @@
         <div class="d-flex flex-column job-page-body">
             <div class="job-page-body-contents">
                 <ng-container *ngIf="this.mode === MODE_JOB_DETAILS">
-                    <cmp-applicants-picker [applicants]="this.currentJob.applicants ?? []" (applicantPicked)="onPickApplicant($event)"></cmp-applicants-picker>
+                    <cmp-applicants-picker
+                        [activeEmployerUuid]="this.activeEmployerUuid"
+                        [applicants]="this.currentJob.applicants ?? []" 
+                        (applicantPicked)="onPickApplicant($event)">
+                    </cmp-applicants-picker>
                     <div *ngIf="this.currentApplicant === null" class="job-description-body">
                         <h3>Job Description:</h3>
                         <p>{{ this.currentJob.description }}</p>
@@ -56,6 +60,16 @@
                     <div *ngIf="this.currentApplicant !== null && _hasInterview(this.currentApplicant) === true" class="selected-job-applicant-details-with-interview">
                         <h2>{{ this.currentApplicant.name }}</h2>
                         <p><span class="emphasis">{{ this.currentApplicant.name }}</span> has an interview on <span class="emphasis">{{ this.currentApplicant.interviewDate | date:'longDate' }}</span>.</p>
+                        <div class="applicant-info-container">
+                            <mat-form-field>
+                                <mat-label>Email</mat-label>
+                                <input type="email" matInput [readonly]="true" [value]="this.currentApplicant.email" />
+                            </mat-form-field>
+                            <mat-form-field>
+                                <mat-label>Phone Number</mat-label>
+                                <input type="tel" matInput [readonly]="true" [value]="this.currentApplicant.phoneNumber" />
+                            </mat-form-field>
+                        </div>
                         <div class="btn-group action-buttons">
                             <button mat-flat-button color="accent">Download ICS</button>
                             <button mat-flat-button color="warn" (click)="cancelInterview(this.currentApplicant)">Cancel Interview</button>

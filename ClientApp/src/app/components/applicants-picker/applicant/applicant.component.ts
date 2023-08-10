@@ -37,6 +37,9 @@ export class ApplicantComponent implements OnInit {
   @Input()
   isRejected: boolean = false;
 
+  @Input()
+  activeEmployerUuid = '';
+
   constructor() { }
 
   ngOnInit(): void {

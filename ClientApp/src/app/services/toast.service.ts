@@ -1,6 +1,9 @@
 /* matts
  * "Matthew's ATS" - Portfolio Project
- * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
+ * Copyright (C) 2023 Matthew E. Kehrer <matthew@kehrer.dev>
+ * 
+ * THIS FILE ORIGINALLY: Toast Demo Code from https://github.com/ng-bootstrap/ng-bootstrap/tree/master/demo/src/app/components/toast/demos/howto-global
+ * Copyright (c) 2019-2022 Angular ng-bootstrap team
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,16 +19,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 
-import { ProfileImage } from "./profile-image.model";
+import { Injectable, TemplateRef } from '@angular/core';
 
-export interface Applicant {
-    id?: number;
-    uuid?: string;
-    name?: string;
-    email?: string;
-    phoneNumber?: string;
-    applicantPhoto?: ProfileImage | null;
-    interviewDate?: string;
-    interviewingWith?: string;
-    rejected?: boolean;
+@Injectable({ providedIn: 'root' })
+export class ToastService {
+	toasts: any[] = [];
+
+	show(textOrTpl: string | TemplateRef<any>, options: any = {}) {
+		this.toasts.push({ textOrTpl, ...options });
+	}
+
+	remove(toast: any) {
+		this.toasts = this.toasts.filter((t) => t !== toast);
+	}
+
+	clear() {
+		this.toasts.splice(0, this.toasts.length);
+	}
 }

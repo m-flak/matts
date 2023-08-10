@@ -26,6 +26,7 @@ import {RouterTestingModule} from '@angular/router/testing';
 import { HttpClientModule } from '@angular/common/http';
 import {MatCardModule} from '@angular/material/card';
 import { JobConstants } from '../constants';
+import { ActivatedRoute } from '@angular/router';
 
 const jobs = [
   {
@@ -51,7 +52,11 @@ describe('HomeComponent', () => {
       declarations: [ HomeComponent ],
       providers: [
         //{ provide: 'BASE_URL', useValue: '' },
-        { provide: BackendService, useValue: FakeBackendService }
+        { provide: BackendService, useValue: FakeBackendService },
+        {
+          provide: ActivatedRoute,
+          useValue: {snapshot: {data: { jobList: jobs }}}
+        }
       ]
     })
     .compileComponents();

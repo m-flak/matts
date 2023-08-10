@@ -17,7 +17,7 @@
 **/
 
 import { Location } from "@angular/common";
-import { HttpClient, HttpHeaders, HttpParams, HttpResponse } from "@angular/common/http";
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams, HttpResponse } from "@angular/common/http";
 import { Inject, Injectable } from "@angular/core";
 import { Observable, catchError, throwError, map } from "rxjs";
 import { ApplyToJob, Job } from "../models";
@@ -32,7 +32,7 @@ export class BackendService {
         const endpoint = '/jobs/getjobs';
         return this.http.get(Location.joinWithSlash(this.baseUrl, endpoint))
             .pipe(
-                catchError(e => throwError(() => new Error(e))),
+                catchError((e: HttpErrorResponse) => throwError(() => new Error(e?.error))),
                 map((r: any) => r || [])
             );
     }
@@ -41,7 +41,7 @@ export class BackendService {
         const endpoint = '/jobs/getappliedjobs';
         return this.http.get(Location.joinWithSlash(this.baseUrl, endpoint), { params: new HttpParams().set('applicantId', applicantId) })
             .pipe(
-                catchError(e => throwError(() => new Error(e))),
+                catchError((e: HttpErrorResponse) => throwError(() => new Error(e?.error))),
                 map((r: any) => r || [])
             );
     }
@@ -50,7 +50,7 @@ export class BackendService {
         const endpoint = `/jobs/jobdetails/${jobUuid}`;
         return this.http.get(Location.joinWithSlash(this.baseUrl, endpoint))
             .pipe(
-                catchError(e => throwError(() => new Error(e))),
+                catchError((e: HttpErrorResponse) => throwError(() => new Error(e?.error))),
                 map((j: any) => j || {})
             );
     }
@@ -64,7 +64,7 @@ export class BackendService {
 
         return this.http.post(Location.joinWithSlash(this.baseUrl, endpoint), applyToJob, { headers: httpHeaders, observe: "response" })
             .pipe(
-                catchError(e => throwError(() => new Error(e)))
+                catchError((e: HttpErrorResponse) => throwError(() => new Error(e?.error)))
             );
     }
 
@@ -77,7 +77,7 @@ export class BackendService {
 
         return this.http.post(Location.joinWithSlash(this.baseUrl, endpoint), job, { headers: httpHeaders, observe: "response" })
             .pipe(
-                catchError(e => throwError(() => new Error(e)))
+                catchError((e: HttpErrorResponse) => throwError(() => new Error(e?.error)))
             );
     }
 
@@ -90,7 +90,7 @@ export class BackendService {
 
         return this.http.patch(Location.joinWithSlash(this.baseUrl, endpoint), job, { headers: httpHeaders, observe: "response" })
             .pipe(
-                catchError(e => throwError(() => new Error(e)))
+                catchError((e: HttpErrorResponse) => throwError(() => new Error(e?.error)))
             );
     }
 
@@ -99,7 +99,7 @@ export class BackendService {
 
         return this.http.post(Location.joinWithSlash(this.baseUrl, endpoint), null, { observe: "response" })
             .pipe(
-                catchError(e => throwError(() => new Error(e)))
+                catchError((e: HttpErrorResponse) => throwError(() => new Error(e?.error)))
             );
     }
 }

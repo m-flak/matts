@@ -25,6 +25,8 @@ import { Applicant } from 'src/app/models';
   styleUrls: ['./applicants-picker.component.scss']
 })
 export class ApplicantsPickerComponent implements OnInit {
+  @Input()
+  activeEmployerUuid = '';
 
   @Input()
   applicants: Applicant[] = [];

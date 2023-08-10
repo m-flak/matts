@@ -18,7 +18,7 @@
 import { Injectable } from "@angular/core";
 import { BackendService } from "./backend.service";
 import { Applicant, Job } from "../models";
-import { Observable, Subject, filter, map, of, tap } from "rxjs";
+import { Observable, Subject, filter, map, of, tap, BehaviorSubject } from "rxjs";
 import { parseISO } from "date-fns";
 
 export type JobMapValue = {data: Job, isDirty: boolean};
@@ -39,6 +39,8 @@ export class JobPageDataService {
     private _currentApplicant: Applicant | null = null;
     currentJobSubject: Subject<Job> = new Subject<Job>();
     currentApplicantSubject: Subject<Applicant> = new Subject<Applicant>();
+    
+    jobUpdatedSubject: Subject<void> = new Subject<void>();
 
     // Applicants <--> Job association map
     public jobApplicants: Map<string, Set<string>> = new Map();

@@ -120,8 +120,8 @@ export class LoginPageComponent implements OnInit, OnDestroy {
           this.loginFailure = false;
           this.router.navigate(['/employer']);
         },
-        error: err => {
-          console.error(err);
+        error: (err: Error) => {
+          console.error(err?.message);
           this.loginFailure = true;
         }});
     }
@@ -142,8 +142,8 @@ export class LoginPageComponent implements OnInit, OnDestroy {
           this.loginFailure = false;
           this.router.navigate(['/applicant']);
         },
-        error: err => {
-          console.error(err);
+        error: (err: Error) => {
+          console.error(err?.message);
           this.loginFailure = true;
         }});
     }

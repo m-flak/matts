@@ -50,6 +50,21 @@ $applicant-hover-color: mat.get-color-from-palette($primary-palette, lighter);
     }
 }
 
+.interviewing-applicant {
+    position: absolute;
+    z-index: 100;
+    top: 1px;
+    right: 0;
+
+    width: 1.5em;
+    height: 1.5em;
+
+    &__other {
+        @extend .interviewing-applicant;
+        filter: hue-rotate(-222deg) invert(99%);
+    }
+}
+
 span.applicant-name {
     font-family: GTAmericaRegular !important;
     color: $applicant-name-color;

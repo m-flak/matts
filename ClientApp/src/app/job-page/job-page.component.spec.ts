@@ -33,6 +33,9 @@ import { HarnessLoader } from '@angular/cdk/testing';
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { ApplicantsPickerHarness } from '../components/applicants-picker/applicants-picker.harness';
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
+import { JWT_OPTIONS, JwtHelperService } from '@auth0/angular-jwt';
+import { jwtOptionsFactory } from '../app.module';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 const jobData: Job = {
   "id": 1,
@@ -84,12 +87,21 @@ describe('JobPageComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ ComponentsModule, MatButtonModule, MatInputModule, MatIconModule, NgbAlertModule ],
+      imports: [ BrowserAnimationsModule, ComponentsModule, MatButtonModule, MatInputModule, MatIconModule, NgbAlertModule ],
       declarations: [ JobPageComponent ],
       providers: [
+        { 
+          provide: 'BASE_URL', 
+          useValue: 'https://localhost/' 
+        },
         { provide: BackendService, useValue: FakeBackendService },
         JobPageDataService,
-        { provide: ActivatedRoute, useValue: { 'paramMap': of((() => { let m = new Map(); m.set('id', '54991ebe-ba9e-440b-a202-247f0c33574f'); return m as unknown as ParamMap;})()) } }
+        { provide: ActivatedRoute, useValue: { 'paramMap': of((() => { let m = new Map(); m.set('id', '54991ebe-ba9e-440b-a202-247f0c33574f'); return m as unknown as ParamMap;})()) } },
+        {
+          provide: JWT_OPTIONS,
+          useValue: jwtOptionsFactory('https://localhost/')
+        },
+        JwtHelperService
       ]
     })
     .compileComponents();

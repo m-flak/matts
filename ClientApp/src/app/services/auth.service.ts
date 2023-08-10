@@ -17,7 +17,7 @@
 **/
 
 import { Location } from "@angular/common";
-import { HttpClient, HttpHeaders, HttpParams, HttpResponse } from "@angular/common/http";
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams, HttpResponse } from "@angular/common/http";
 import { Injectable, Inject } from "@angular/core";
 import { JwtHelperService } from "@auth0/angular-jwt";
 import { User, UserRegistration } from "../models";
@@ -97,7 +97,7 @@ export class AuthService {
         const endpoint = '/auth/login';
         return this.http.post(Location.joinWithSlash(this.baseUrl, endpoint), user, { responseType: 'text' })
             .pipe(
-                catchError(e => throwError(() => new Error(e))),
+                catchError((e: HttpErrorResponse) => throwError(() => new Error(e?.error))),
                 tap(token => localStorage.setItem('access_token', token)),
                 tap(token => this._populateCurrentUser())
             );
@@ -112,7 +112,7 @@ export class AuthService {
 
         return this.http.post(Location.joinWithSlash(this.baseUrl, endpoint), newUser, { headers: httpHeaders, observe: "response" })
             .pipe(
-                catchError(e => throwError(() => new Error(e)))
+                catchError((e: HttpErrorResponse) => throwError(() => new Error(e?.error)))
             );
     }
 

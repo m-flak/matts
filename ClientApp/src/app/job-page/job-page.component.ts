@@ -15,10 +15,10 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { Applicant, Job } from '../models';
-import { lastValueFrom, Subscription, switchMap } from 'rxjs';
+import { catchError, filter, first, lastValueFrom, mergeMap, of, Subscription, switchMap, takeWhile, tap } from 'rxjs';
 import { MonthViewDay, EventColor } from 'calendar-utils';
 import { CalendarEvent } from 'angular-calendar';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -26,6 +26,8 @@ import { InterviewDate, JobPageDataService } from '../services/job-page-data.ser
 import { formatISO } from 'date-fns';
 import { ChangeCommandData, JobPageChanges } from './job-page-changes';
 import { JobConstants } from '../constants';
+import { ToastService } from '../services/toast.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-job-page',
@@ -42,6 +44,7 @@ export class JobPageComponent implements OnInit, OnDestroy {
   private _subscription2: Subscription | null = null;
   private _subscription3: Subscription | null = null;
 
+  activeEmployerUuid = '';
   changeQueue: JobPageChanges[] = [];
   changesMadeToJob = false;
   events: CalendarEvent[] = [];
@@ -57,9 +60,11 @@ export class JobPageComponent implements OnInit, OnDestroy {
   @Input()
   currentApplicant: Applicant | null = null;
 
-  constructor(private activatedRoute: ActivatedRoute, private jobPageDataService: JobPageDataService, private modalService: NgbModal) { }
+  constructor(private activatedRoute: ActivatedRoute, private jobPageDataService: JobPageDataService, private modalService: NgbModal, private toastService: ToastService, private authService: AuthService) { }
 
   ngOnInit(): void {
+    this.activeEmployerUuid = this.authService.currentUser?.employerId as string;
+
     this._subscription3 =
       this.jobPageDataService.currentApplicantSubject.subscribe(applicant => {
         this.currentApplicant = applicant;
@@ -150,11 +155,33 @@ export class JobPageComponent implements OnInit, OnDestroy {
     
     const responses = await Promise.all(changes.map(c => c.invokeCommand(this.jobPageDataService)));
     if (responses[0] === true) {
+      const updatedJob: Job | null = await lastValueFrom(
+        this.jobPageDataService.getJobByUuid(this.currentJob?.uuid as string).pipe(
+          catchError(e => of(null)),
+          mergeMap((j_n: Job | null) => of(j_n).pipe(
+              takeWhile(j => j !== null),
+              tap(job => {
+                this.toastService.show(`Successfully Updated Job: ${job?.name}`, { classname: 'bg-success text-light', delay: 10000 });
+                this.jobPageDataService.jobUpdatedSubject.next();
+              })
+          )),
+          first()
+        )
+      );
+
+      if (updatedJob === null) {
+        this.toastService.show('An error ocurred, or the system might be unavailable. Please try again.', { classname: 'bg-danger text-light', delay: 15000, ariaLive: 'assertive' });
+        return;
+      }
+
       this.changesMadeToJob = false;
+      this.jobPageDataService.setCurrentJob(updatedJob);
+
+      const interviewDates = this.jobPageDataService.getAllInterviewDatesForJob(updatedJob.uuid as string);
+      this.events = interviewDates.map(idate => this._mapInterviewDateToCalendarEvent(idate));
     }
     else {
-      //TODO: Handle an error
-      console.error('YIKES! An error occurred!!');
+      this.toastService.show('An error ocurred, or the system might be unavailable. Please try again.', { classname: 'bg-danger text-light', delay: 15000, ariaLive: 'assertive' });
     }
   }
 
@@ -164,6 +191,7 @@ export class JobPageComponent implements OnInit, OnDestroy {
         const applicant = this.currentApplicant as Applicant;
         //viewDate is the new interview date
         applicant.interviewDate = formatISO(this.viewDate);
+        applicant.interviewingWith = this.authService.currentUser?.employerId as string;
         this.jobPageDataService.updateApplicantDetails(applicant);
         this.changesMadeToJob = true;
 
@@ -181,6 +209,7 @@ export class JobPageComponent implements OnInit, OnDestroy {
 
   cancelInterview(applicant: Applicant) {
     applicant.interviewDate = undefined;
+    applicant.interviewingWith = undefined;
     this.jobPageDataService.updateApplicantDetails(applicant);
     this.changesMadeToJob = true;
     this.events = this.events.filter(e => e.id !== applicant.uuid);
