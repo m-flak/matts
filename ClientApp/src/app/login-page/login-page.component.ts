@@ -42,6 +42,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   loginFailure = false;
   registrationSuccessful = false;
   registrationTypeMessage = '';
+  registrationMode = -1;
 
   employerLoginForm: FormGroup;
   applicantLoginForm: FormGroup;
@@ -100,6 +101,10 @@ export class LoginPageComponent implements OnInit, OnDestroy {
     if (this._subscription2 !== null) {
       this._subscription2.unsubscribe();
     }
+  }
+
+  setRegistrationMode(mode: number): void {
+    this.registrationMode = mode;
   }
 
   performLogin(loginType: number): void {

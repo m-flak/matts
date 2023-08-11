@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
 
@@ -11,6 +11,9 @@ export class NavMenuComponent implements OnInit {
   homeTitle: string = '';
   homeUser: string = '';
   isExpanded = false;
+
+  @Input()
+  hideNavItems = false;
 
   constructor(private authService: AuthService, private router: Router) {}
 

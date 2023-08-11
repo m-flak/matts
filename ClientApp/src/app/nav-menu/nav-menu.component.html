@@ -12,12 +12,13 @@
         aria-label="Toggle navigation"
         [attr.aria-expanded]="isExpanded"
         (click)="toggle()"
+        [ngClass]="{ 'nav-items__hide': hideNavItems }"
       >
         <span class="navbar-toggler-icon"></span>
       </button>
       <div
         class="navbar-collapse collapse d-sm-inline-flex justify-content-end"
-        [ngClass]="{ show: isExpanded }"
+        [ngClass]="{ show: isExpanded, 'nav-items__hide': hideNavItems }"
       >
         <ul class="navbar-nav flex-grow">
           <li

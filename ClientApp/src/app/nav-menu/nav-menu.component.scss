@@ -44,3 +44,9 @@ li.nav-item {
 a.navbar-brand, a.nav-link {
   font-family: GTAmericaMedium !important;
 }
+
+div.nav-items, button.nav-items {
+  &__hide {
+    display: none !important;
+  }
+}

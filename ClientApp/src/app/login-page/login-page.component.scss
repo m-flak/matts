@@ -12,6 +12,8 @@ $accent-palette:  map.get($color-config, 'accent');
 
 $top-gradient: mat.get-color-from-palette($primary-palette, 50);
 $bottom-gradient: mat.get-color-from-palette($accent-palette, 50);
+$registration-buttons-color: mat.get-color-from-palette($primary-palette, main);
+$registration-buttons-color2: mat.get-color-from-palette($accent-palette, darker);
 
 .login-container {
     margin: 0;
@@ -31,7 +33,39 @@ $bottom-gradient: mat.get-color-from-palette($accent-palette, 50);
 }
 
 section {
-    border-bottom: black 2px dotted;
     margin-bottom: 3em;
     padding-bottom: 1em;
+}
+
+.registration-mode {
+    cursor: pointer;
+    border: $registration-buttons-color 2px solid;
+    border-radius: 2%;
+    min-width: fit-content;
+    width: calc(50% - 256px);
+    height: calc(100% - 256px);
+    padding: 2em;
+
+    &, & a {
+        color: $registration-buttons-color2;
+        background-color: global.$light-bg-darker-5;
+        text-decoration: none;
+    }
+
+    & img {
+        width: 256px;
+        height: 256px;
+    }
+
+    &__applicant {
+        @extend .registration-mode;
+        
+        img {
+            margin-left: 1rem;
+        }
+    }
+
+    &__employer {
+        @extend .registration-mode;
+    }
 }
