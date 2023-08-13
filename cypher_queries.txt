@@ -2,6 +2,7 @@
 
 CREATE CONSTRAINT FOR(a:Applicant) REQUIRE a.uuid IS UNIQUE
 CREATE CONSTRAINT FOR(j:Job) REQUIRE j.uuid IS UNIQUE
+CREATE CONSTRAINT FOR(e:Employer) REQUIRE e.uuid IS UNIQUE
 CREATE CONSTRAINT FOR(u:User) REQUIRE u.userName IS UNIQUE
 
 # DATA #######################################################################################################################

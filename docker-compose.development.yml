@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  neo4j:
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    expose:
+      - 7687
+    environment:
+      - NEO4J_AUTH=neo4j/changeme
+    volumes:
+      - type: bind
+        source: ./localdb/data
+        target: /data
+      - type: bind
+        source: ./localdb/logs
+        target: /logs
+  
+  matts:
+    ports:
+      - "5111:80"
+      - "7017:443"
+    expose:
+      - 80
+      - 443
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+;http://+
+      - ASPNETCORE_HTTPS_PORT=7017
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/matts-localhost.pfx
+      - USER_SECRETS_ID=c13e403c-9bf7-4f22-91f7-c7ee13c4397f
+      - Neo4J__ConnectionURL=bolt://neo4j:7687
+    env_file:
+      - docker.development.secret.env
+    build:
+      args:
+        - AspNetCoreEnvironment=Development
+        - DotNetBuildConfiguration=Debug
+    volumes:
+      - $MATTS_DEVCERT_FOLDER:/https/
+      - $APPDATA/Microsoft/UserSecrets/$USER_SECRETS_ID:/root/.microsoft/usersecrets/$USER_SECRETS_ID
+      - $HOME/.microsoft/usersecrets/$USER_SECRETS_ID:/root/.microsoft/usersecrets/$USER_SECRETS_ID
