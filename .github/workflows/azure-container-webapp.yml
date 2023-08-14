@@ -68,7 +68,7 @@ jobs:
       - name: Tag Image
         run: docker tag ghcr.io/matts ghcr.io/${{ env.REPO }}:${{ github.sha }}
       - name: Push image to GitHub container Registry
-        run: docker compose -f docker-compose.yml -f docker-compose.staging.yml push matts
+        run: docker compose -f docker-compose.yml -f docker-compose.staging.yml push ghcr.io/matts
 
   deploy:
     permissions:
