@@ -7,7 +7,7 @@ services:
   
   matts:
     container_name: matts
-    image: ghcr.io/matts
+    image: ghcr.io/m-flak/matts
     build:
       context: .
       dockerfile: ./Dockerfile
