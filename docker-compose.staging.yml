@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  neo4j:
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    expose:
+      - 7687
+  
+  matts:
+    ports:
+      - "80:80"
+    expose:
+      - 80
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Staging
+      - ASPNETCORE_URLS=http://+
+    build:
+      args:
+        - AspNetCoreEnvironment=Staging
+        - DotNetBuildConfiguration=Release
