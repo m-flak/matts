@@ -15,9 +15,11 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
+using Azure.Identity;
 using FluentValidation;
 using MapsterMapper;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Neo4j.Driver;
 using matts.Configuration;
@@ -29,7 +31,43 @@ using matts.Daos;
 using matts.Repositories;
 using matts.Constants;
 
+
 var builder = WebApplication.CreateBuilder(args);
+
+var credential = new DefaultAzureCredential();
+
+bool useAzureAppConfig = builder.Configuration.GetSection("AzurePlatform").GetValue<bool?>("UseAzureAppConfiguration") ?? false;
+if (useAzureAppConfig)
+{
+    builder.Configuration.AddAzureAppConfiguration(
+        options =>
+        {
+            string? connectionString = builder.Configuration.GetConnectionString("AzureAppConfiguration");
+            string? primaryServiceUrl = builder.Configuration.GetSection("AzurePlatform")
+                .GetSection("AzureAppConfiguration")
+                .GetValue<string?>("PrimaryServiceUrl");
+
+            if (connectionString != null)
+            {
+                options = options.Connect(connectionString);
+            }
+            else if (Uri.IsWellFormedUriString(primaryServiceUrl, UriKind.Absolute))
+            {
+                options = options.Connect(new Uri(primaryServiceUrl, UriKind.Absolute), credential);
+            }
+            else
+            {
+                throw new ApplicationException("MISSING REQUIRED CONFIG VALUES: Azure App Coonfiguration ConnString OR Azure App Configuration URL");
+            }
+
+            options.Select("MattsSPA:*", builder.Environment.EnvironmentName)
+                .TrimKeyPrefix("MattsSPA:")
+                .ConfigureKeyVault(kv => kv.SetCredential(credential));
+        }
+    );
+
+    builder.Services.AddAzureAppConfiguration();
+}
 
 // Add services to the container.
 
@@ -62,16 +100,19 @@ builder.Services.AddAuthentication("Bearer").AddJwtBearer(o =>
             var logger = builder.Logging.Services.BuildServiceProvider().GetRequiredService<ILogger<Program>>();
             
             List<SecurityKey> keys = new List<SecurityKey>();
-            
-            // Add key for dotnet-user-jwts
-            var userJwtKey = builder.Configuration["Authentication:Schemes:Bearer:SigningKeys:0:Value"];
-            if (userJwtKey != null)
+
+            if (builder.Environment.IsDevelopment())
             {
-                keys.Add(new SymmetricSecurityKey(Convert.FromBase64String(userJwtKey)));
-            }
-            else
-            {
-                logger.LogError("The dotnet-user-jwts Jwt Signing Key is missing from Config!");
+                // Add key for dotnet-user-jwts
+                var userJwtKey = builder.Configuration["Authentication:Schemes:Bearer:SigningKeys:0:Value"];
+                if (userJwtKey != null)
+                {
+                    keys.Add(new SymmetricSecurityKey(Convert.FromBase64String(userJwtKey)));
+                }
+                else
+                {
+                    logger.LogError("The dotnet-user-jwts Jwt Signing Key is missing from Config!");
+                }
             }
 
             // Add key for the app
@@ -90,23 +131,27 @@ builder.Services.AddAuthentication("Bearer").AddJwtBearer(o =>
         ValidAudiences = builder.Configuration.GetSection("Authentication:Schemes:Bearer:ValidAudiences").Get<string[]>(),
         ValidateIssuer = true,
         ValidateAudience = true,
-        ValidateLifetime = false,
+        ValidateLifetime = true,
         ValidateIssuerSigningKey = true
     };
 });
 
 // CONFIGURATION FOR IOPTIONS
+builder.Services.Configure<AzurePlatformConfiguration>(builder.Configuration.GetSection("AzurePlatform"));
+builder.Services.Configure<Neo4JConfiguration>(builder.Configuration.GetSection("Neo4J"));
 builder.Services.Configure<JwtConfiguration>(builder.Configuration.GetSection("Jwt"));
 
 builder.Services.AddControllersWithViews();
 
 // SINGLETONS
-builder.Services.AddSingleton<IDriver>(implementationFactory: provider => {
-    var connectionUrl = builder.Configuration["Neo4J:ConnectionURL"];
-    var username = builder.Configuration["Neo4J:User"];
-    var password = builder.Configuration["Neo4J:Password"];
-
-    return GraphDatabase.Driver(connectionUrl, AuthTokens.Basic(username, password));
+builder.Services.AddSingleton<IDriver>(implementationFactory: provider => 
+{
+    var settings = provider.GetRequiredService<IOptions<Neo4JConfiguration>>()?.Value;
+    if (settings == null)
+    {
+        throw new ApplicationException("MISSING REQUIRED CONFIG VALUES: Neo4J Driver");
+    }
+    return GraphDatabase.Driver(settings.ConnectionURL, AuthTokens.Basic(settings.User, settings.Password));
 });
 
 
@@ -128,6 +173,10 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddTransient<IMapper, Mapper>();
 
 var app = builder.Build();
+if (useAzureAppConfig)
+{
+    app.UseAzureAppConfiguration();
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

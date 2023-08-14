@@ -7,7 +7,7 @@ services:
   
   matts:
     container_name: matts
-    #image: TODO LATER
+    image: ghcr.io/matts
     build:
       context: .
       dockerfile: ./Dockerfile
