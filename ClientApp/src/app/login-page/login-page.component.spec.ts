@@ -13,6 +13,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { User } from '../models';
 import { of } from 'rxjs';
 import { AuthService } from '../services/auth.service';
+import { AppModule } from '../app.module';
 
 const FakeAuthService = {
   loginUser: (user?: User) => of('yay!')
@@ -25,6 +26,7 @@ describe('LoginPageComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
+        AppModule,
         HttpClientModule, 
         HttpClientTestingModule,
         BrowserAnimationsModule,
