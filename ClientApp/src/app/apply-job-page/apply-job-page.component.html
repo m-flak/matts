@@ -10,11 +10,30 @@
             </div>
             <div class="apply-to-job-section">
                 <h3>Apply to this job:</h3>
-                <p *ngIf="this.currentJob?.hasAppliedTo !== true" class="have-not-applied">Click <span class="emphasis">Apply Now</span> to apply for this position. Your account information will be used to generate your application to the employer.</p>
-                <p *ngIf="this.currentJob?.hasAppliedTo === true" class="have-applied">You have already applied to this job.</p>
-                <div class="d-flex flex-column justify-content-center">
-                    <button mat-flat-button color="accent" [disabled]="this.currentJob.hasAppliedTo === true" (click)="applyToJob()">Apply Now</button>
-                </div>
+                <ng-container *ngIf="this.currentJob?.hasAppliedTo !== true">
+                    <p class="have-not-applied">Click <span class="emphasis">Apply Now</span> to apply for this position. Your account information will be used to generate your application to the employer.</p>
+                    <form [formGroup]="applyToJobForm" class="d-flex flex-column justify-content-center" (ngSubmit)="applyToJob()">
+                        <mat-form-field>
+                            <ngx-mat-file-input 
+                                formControlName="resumeFile" 
+                                placeholder="Upload a copy of your resume..." 
+                                valuePlaceholder="No file selected" 
+                                required>
+                            </ngx-mat-file-input>
+                            <mat-icon matSuffix>folder</mat-icon>
+                            <mat-error *ngIf="applyToJobForm.get('resumeFile')?.hasError('required')">
+                                Please upload a copy of your resume...
+                            </mat-error>
+                        </mat-form-field>
+                        <button mat-flat-button color="accent" type="submit">Apply Now</button>
+                    </form>
+                </ng-container>
+                <ng-container *ngIf="this.currentJob?.hasAppliedTo === true">
+                    <p class="have-applied">You have already applied to this job.</p>
+                    <div class="d-flex flex-column justify-content-center">
+                        <button mat-flat-button color="accent" [disabled]="true">Apply Now</button>
+                    </div>
+                </ng-container>
             </div>
         </div>
     </ng-container>
