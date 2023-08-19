@@ -22,6 +22,7 @@ public sealed class RelationshipConstants
     public const string HAS_APPLIED_TO = "HAS_APPLIED_TO";
     public const string IS_INTERVIEWING_FOR = "IS_INTERVIEWING_FOR";
     public const string IS_USER_FOR = "IS_USER_FOR";
+    public const string INTERVIEWING_WITH = "INTERVIEWING_WITH";
 
     // Constants class
     private RelationshipConstants() {}

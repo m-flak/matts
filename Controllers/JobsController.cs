@@ -89,6 +89,7 @@ public class JobsController : ControllerBase
     [Consumes(MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
     [Route("applytojob")]
     public async Task<IActionResult> ApplyToJob(ApplyToJob applyToJob)
     {
@@ -96,6 +97,12 @@ public class JobsController : ControllerBase
         if (!validationResult.IsValid) 
         {
            return new BadRequestObjectResult(validationResult.Errors);
+        }
+
+        bool wasCreated = await _service.ApplyToJob(applyToJob);
+        if (!wasCreated)
+        {
+            return Problem("Database is unavailable.", null, StatusCodes.Status503ServiceUnavailable);
         }
 
         return Ok();
@@ -125,7 +132,7 @@ public class JobsController : ControllerBase
     [Authorize(Policy = "Employers")]
     [HttpPost]
     [Consumes(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Job), StatusCodes.Status200OK, MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [Route("postnewjob")]
     public async Task<IActionResult> PostNewJob(Job job)
@@ -136,7 +143,7 @@ public class JobsController : ControllerBase
            return new BadRequestObjectResult(validationResult.Errors);
         }
 
-        _logger.LogInformation("{Job}", job);
-        return Ok();
+        Job postedJob = await _service.CreateNewJob(job);
+        return Ok(postedJob);
     }
 }

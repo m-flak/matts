@@ -88,6 +88,31 @@ public partial class JobService : IJobService
         return await _repository.GetJobByUuid(uuid);
     }
 
+    public async Task<Job> CreateNewJob(Job newJob)
+    {
+        if (_useDummyData)
+        {
+            return newJob;
+        }
+
+        return await _repository.CreateNewJob(newJob);
+    }
+
+    public async Task<bool> ApplyToJob(ApplyToJob application)
+    {
+        if (_useDummyData)
+        {
+            return true;
+        }
+
+        if (application.JobUuid == null || application.ApplicantUuid == null)
+        {
+            return false;
+        }
+
+        return await _repository.ApplyToJob(application.JobUuid, application.ApplicantUuid);
+    }
+
     private void ConfigureService()
     {
         var useDummyData = _configuration.GetValue<bool>("DummyData:JobService", false);

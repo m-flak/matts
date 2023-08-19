@@ -21,6 +21,7 @@ using matts.Constants;
 using matts.Interfaces;
 using matts.Models;
 using matts.Models.Db;
+using matts.Utils;
 
 namespace matts.Repositories;
 
@@ -66,5 +67,28 @@ public class JobRepository : IJobRepository
         var returnJob = _mapper.Map<Job>(job);
         returnJob.Applicants = applicants.Select(a => _mapper.Map<Applicant>(a)).ToList();
         return returnJob;
+    }
+
+    public async Task<Job> CreateNewJob(Job job)
+    {
+        JobDb toCreate = _mapper.Map<JobDb>(job);
+        toCreate.Status = JobConstants.STATUS_OPEN;
+        return _mapper.Map<Job>( await _daoJob.CreateNew(toCreate) );
+    }
+
+    public async Task<bool> ApplyToJob(string jobUuid, string applicantUud)
+    {
+        JobDb job = new JobDb()
+        {
+            Uuid = jobUuid
+        };
+        ApplicantDb applicant = new ApplicantDb()
+        {
+            Uuid = applicantUud
+        };
+
+        var applyForRelationship = new DbRelationship(RelationshipConstants.HAS_APPLIED_TO);
+        applyForRelationship.Parameters["rejected"] = false;
+        return await _daoApp.CreateRelationshipBetween(applyForRelationship, applicant, job, typeof(JobDb));
     }
 }

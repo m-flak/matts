@@ -10,7 +10,7 @@
                 </mat-form-field>
                 <mat-form-field>
                     <mat-label>Job Description:</mat-label>
-                    <textarea matInput placeholder="Ex: John Doe Corporation is looking for a talented..." formControlName="jobDescription"></textarea>
+                    <textarea matInput cdkTextareaAutosize #autosize="cdkTextareaAutosize" placeholder="Ex: John Doe Corporation is looking for a talented..." formControlName="jobDescription"></textarea>
                     <mat-hint *ngIf="!this.newJobForm.controls.jobDescription.valid"><span class="require-text">*Required</span></mat-hint>
                 </mat-form-field>
                 <button mat-flat-button [disabled]="this.newJobForm.invalid" color="accent" class="align-self-center" type="submit">Post New Job</button>

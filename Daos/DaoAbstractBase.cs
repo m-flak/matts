@@ -29,15 +29,18 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
     public abstract Task<List<T>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties);
     public abstract Task<List<T>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid);
     public abstract Task<T> GetByUuid(string uuid);
-    public abstract Task<bool> CreateRelationshipBetween(string relationship, T source, object other, Type typeOther);
+    public abstract Task<bool> CreateRelationshipBetween(DbRelationship relationship, T source, object other, Type typeOther);
 
     // ////////////////////////////////////////////////////////////////////////
+
+    internal Neo4JWrappers Wrappers { get; set; }
 
     protected readonly IDriver _driver;
 
     protected DaoAbstractBase(IDriver driver)
     {
         _driver = driver;
+        Wrappers = new Neo4JWrappers();
     }
 
     protected readonly struct GetAllByRelationshipConfig
@@ -63,7 +66,7 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
         public ReturnNodeSelector ReturnSelector  { get; init; }
     }
 
-    protected async Task<List<T>> GetAllByRelationshipImpl(Type lhNode, Type rhNode, GetAllByRelationshipConfig config, string relationship, string? optionalRelationship, string whomUuid)
+    protected async Task<List<T>> GetAllByRelationshipImpl(Type lhNode, Type rhNode, GetAllByRelationshipConfig config, DbRelationship relationship, DbRelationship? optionalRelationship, string whomUuid)
     {
         var lhAttr = Attribute.GetCustomAttribute(lhNode, typeof(DbNodeAttribute)) as DbNodeAttribute;
         var rhAttr = Attribute.GetCustomAttribute(rhNode, typeof(DbNodeAttribute)) as DbNodeAttribute;
@@ -78,24 +81,32 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
             return await session.ExecuteReadAsync(
                 async tx =>
                 {
-                    var addOptionalParams = (string? optRel) => (optRel != null) ? DaoUtils.AddReturnsForRelationshipParams(optRel, "r2") : "";
+                    var addOptionalParams = (DbRelationship? optRel) => (optRel != null) ? DaoUtils.AddReturnsForRelationshipParams(optRel.Name, optRel.Selector) : "";
 
                     string whereSelector = (config.WhereSelector == GetAllByRelationshipConfig.WhereNodeSelector.LEFT) ? lhAttr.Selector : rhAttr.Selector;
                     string returnSelector = (config.ReturnSelector == GetAllByRelationshipConfig.ReturnNodeSelector.LEFT) ? lhAttr.Selector : rhAttr.Selector;
 
                     var cursor = await tx.RunAsync(
-                        $"MATCH({lhAttr.Selector}: {lhAttr.Node}) -[r: " + $"{relationship}" + $"]->({rhAttr.Selector}: {rhAttr.Node}) " +
-                        $"{DaoUtils.CreateOptionalMatchClause(optionalRelationship, lhAttr.Selector, rhAttr.Selector)}" +
+                        $"MATCH({lhAttr.Selector}: {lhAttr.Node}){relationship}({rhAttr.Selector}: {rhAttr.Node}) " +
                         $"WHERE {whereSelector}.uuid = $uuid " +
-                        $"RETURN {returnSelector} {DaoUtils.AddReturnsForRelationshipParams(relationship, "r")} {addOptionalParams(optionalRelationship)}",
+                        $"{DaoUtils.CreateOptionalMatchClause(optionalRelationship?.Name, lhAttr.Selector, rhAttr.Selector)}" +
+                        $"RETURN {returnSelector} {DaoUtils.AddReturnsForRelationshipParams(relationship.Name, relationship.Selector)} {addOptionalParams(optionalRelationship)}",
                         new
                         {
                             uuid = whomUuid
                         }
                     );
 
-                    var rows = await cursor.ToListAsync(record => record.Values);
-                    return rows.Select(row => DaoUtils.MapRowWithRelationships<T>(row, lhAttr.Selector, relationship, optionalRelationship, "r", "r2"))
+                    var rows = await Wrappers.RunToListAsync(cursor, record => record.Values);
+                    return rows.Select(row =>
+                        DaoUtils.MapRowWithRelationships<T>(
+                            row,
+                            returnSelector,
+                            relationship.Name,
+                            optionalRelationship?.Name,
+                            relationship.Selector,
+                            optionalRelationship?.Selector
+                        ))
                         .ToList();
                 });
         }
@@ -292,7 +303,7 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
                    var cursor = await tx.RunAsync(
                        $"MATCH ({nodeAttrSrc.Selector}:{nodeAttrSrc.Node}" + " { " + $"{uuidSrcName}: $uuid1" + " }) " +
                        $"MATCH ({nodeAttrDest.Selector}:{nodeAttrDest.Node}" + " { " + $"{uuidDestName}: $uuid2" + " }) "  +
-                       $"CREATE ({nodeAttrSrc.Selector})-{relationship}->({nodeAttrDest.Selector})",
+                       $"CREATE ({nodeAttrSrc.Selector}){relationship}({nodeAttrDest.Selector})",
                        new
                        {
                            uuid1 = uuidSrc,

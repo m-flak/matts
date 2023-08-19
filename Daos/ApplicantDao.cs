@@ -47,8 +47,8 @@ public class ApplicantDao : DaoAbstractBase<ApplicantDb>
                 GetAllByRelationshipConfig.WhereNodeSelector.RIGHT, 
                 GetAllByRelationshipConfig.ReturnNodeSelector.LEFT
             ), 
-            relationship, 
-            optionalRelationship, 
+            new DbRelationship(relationship, "r"), 
+            (optionalRelationship != null) ? new DbRelationship(optionalRelationship, "r2") : null, 
             whomUuid
         );
     }
@@ -70,8 +70,8 @@ public class ApplicantDao : DaoAbstractBase<ApplicantDb>
         return await this.CreateNewImpl(createWhatCopy);
     }
 
-    public override async Task<bool> CreateRelationshipBetween(string relationship, ApplicantDb source, object other, Type typeOther)
+    public override async Task<bool> CreateRelationshipBetween(DbRelationship relationship, ApplicantDb source, object other, Type typeOther)
     {
-        return await this.CreateRelationshipBetweenImpl(new DbRelationship(relationship), source, other, typeof(ApplicantDb), typeOther);
+        return await this.CreateRelationshipBetweenImpl(relationship, source, other, typeof(ApplicantDb), typeOther);
     }
 }

@@ -27,6 +27,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BackendService } from '../services/backend.service';
+import { TextFieldModule } from '@angular/cdk/text-field';
 
 describe('NewJobPageComponent', () => {
   let component: NewJobPageComponent;
@@ -39,6 +40,7 @@ describe('NewJobPageComponent', () => {
         FormsModule,
         ReactiveFormsModule,
         MatInputModule,
+        TextFieldModule,
         MatCardModule,
         HttpClientModule, 
         HttpClientTestingModule

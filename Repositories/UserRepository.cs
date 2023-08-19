@@ -27,6 +27,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BCrypt.Net;
+using matts.Utils;
 
 namespace matts.Repositories;
 
@@ -81,9 +82,7 @@ public class UserRepository : IUserRepository
             return false;
         }
 
-        //UserDao dao = (UserDao) _daoUser;
-        //return await dao.MakeUserForApplicant(createdUser, createdApplicant);
-        return await _daoUser.CreateRelationshipBetween(RelationshipConstants.IS_USER_FOR, createdUser, createdApplicant, typeof(ApplicantDb));
+        return await _daoUser.CreateRelationshipBetween(new DbRelationship(RelationshipConstants.IS_USER_FOR), createdUser, createdApplicant, typeof(ApplicantDb));
     }
 
     public async Task<bool> CreateNewEmployerUser(UserRegistration user)
@@ -106,8 +105,7 @@ public class UserRepository : IUserRepository
             return false;
         }
 
-        //UserDao dao = (UserDao) _daoUser;
-        //return await dao.MakeUserForEmployer(createdUser, createdEmployer);
-        return await _daoUser.CreateRelationshipBetween(RelationshipConstants.IS_USER_FOR, createdUser, createdEmployer, typeof(EmployerDb));
+
+        return await _daoUser.CreateRelationshipBetween(new DbRelationship(RelationshipConstants.IS_USER_FOR), createdUser, createdEmployer, typeof(EmployerDb));
     }
 }

@@ -28,4 +28,8 @@ public interface IJobService
     public Task<IEnumerable<Job>> GetAppliedJobs(string applicantId);
 
     public Task<Job> GetJobDetails(string uuid);
+
+    public Task<Job> CreateNewJob(Job newJob);
+
+    public Task<bool> ApplyToJob(ApplyToJob application);
 }

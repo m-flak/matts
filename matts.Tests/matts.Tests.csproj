@@ -7,6 +7,10 @@
 
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+	<IsDockerBuild>false</IsDockerBuild>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsDockerBuild)' == 'true'">
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
   </PropertyGroup>

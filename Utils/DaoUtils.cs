@@ -46,8 +46,15 @@ internal sealed class DaoUtils
             {
                 foreach (string param in relationshipParams)
                 {
-                    var paramValue = row[$"{relPrefix}.{param}"];
-                    t.Add(param, paramValue);
+                    try
+                    {
+                        var paramValue = row[$"{relPrefix}.{param}"];
+                        t.Add(param, paramValue);
+                    }
+                    catch (KeyNotFoundException)
+                    {
+                        continue;
+                    }
                 }
             }
 
@@ -55,8 +62,15 @@ internal sealed class DaoUtils
             {
                 foreach (string param in optRelationshipParams)
                 {
-                    var paramValue = row[$"{optRelPrefix}.{param}"];
-                    t.Add(param, paramValue);
+                    try
+                    {
+                        var paramValue = row[$"{optRelPrefix}.{param}"];
+                        t.Add(param, paramValue);
+                    }
+                    catch (KeyNotFoundException)
+                    {
+                        continue;
+                    }
                 }
             }
 

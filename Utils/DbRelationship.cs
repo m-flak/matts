@@ -25,18 +25,59 @@ namespace matts.Utils;
 
 public class DbRelationship
 {
+    public enum Cardinality
+    {
+        UNIDIRECTIONAL,
+        BIDIRECTIONAL
+    }
+
     public string Name { get; private set; }
+    public string Selector { get; private set; }
+    public Cardinality RelationshipCardinality { get; private set; }
     public IDictionary<string, object> Parameters { get; private set; }
 
     public DbRelationship(string name)
     {
         Name = name;
+        Selector = "";
+        RelationshipCardinality = Cardinality.UNIDIRECTIONAL;
+        Parameters = new Dictionary<string, object>();
+    }
+
+    public DbRelationship(string name, string selector)
+    {
+        Name = name;
+        Selector = selector;
+        RelationshipCardinality = Cardinality.UNIDIRECTIONAL;
+        Parameters = new Dictionary<string, object>();
+    }
+
+    public DbRelationship(string name, string selector, Cardinality cardinality)
+    {
+        Name = name;
+        Selector = selector;
+        RelationshipCardinality = cardinality;
         Parameters = new Dictionary<string, object>();
     }
 
     public override string ToString()
     {
-        return $"[:{Name} {CreateParametersString()}]";
+        if (RelationshipCardinality == Cardinality.BIDIRECTIONAL)
+        {
+            return $"-[{Selector}:{Name} {CreateParametersString()}]-";
+        }
+
+        return $"-[{Selector}:{Name} {CreateParametersString()}]->";
+    }
+
+    public string ToString(bool omitCardinality)
+    {
+        if (!omitCardinality)
+        {
+            return ToString();
+        }
+
+        return $"[{Selector}:{Name} {CreateParametersString()}]";
     }
 
     private string CreateParametersString()

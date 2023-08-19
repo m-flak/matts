@@ -41,7 +41,7 @@ public class JobDao : DaoAbstractBase<JobDb>
                 {
                     var cursor = await tx.RunAsync(
                         "MATCH (j:Job) " +
-                        "MATCH (a:Applicant)-[r:HAS_APPLIED_TO]->(jj:Job) " +
+                        "OPTIONAL MATCH (a:Applicant)-[r:HAS_APPLIED_TO]->(jj:Job) " +
                         "WHERE j.uuid = jj.uuid " +
                         "RETURN j, COUNT(a) as cA"
                     );
@@ -74,9 +74,9 @@ public class JobDao : DaoAbstractBase<JobDb>
                 new GetAllByRelationshipConfig(
                     GetAllByRelationshipConfig.WhereNodeSelector.LEFT,
                     GetAllByRelationshipConfig.ReturnNodeSelector.RIGHT
-                ), 
-                relationship, 
-                optionalRelationship, 
+                ),
+                new DbRelationship(relationship, "r"),
+                (optionalRelationship != null) ? new DbRelationship(optionalRelationship, "r2") : null,
                 whomUuid
             );
         }
@@ -97,11 +97,13 @@ public class JobDao : DaoAbstractBase<JobDb>
 
     public override async Task<JobDb> CreateNew(JobDb createWhat)
     {
-        throw new NotImplementedException();
+        JobDb createWhatCopy = new JobDb(createWhat);
+        createWhatCopy.Uuid = System.Guid.NewGuid().ToString();
+        return await this.CreateNewImpl(createWhatCopy);
     }
 
-    public override async Task<bool> CreateRelationshipBetween(string relationship, JobDb source, object other, Type typeOther)
+    public override async Task<bool> CreateRelationshipBetween(DbRelationship relationship, JobDb source, object other, Type typeOther)
     {
-        return await this.CreateRelationshipBetweenImpl(new DbRelationship(relationship), source, other, typeof(JobDb), typeOther);
+        return await this.CreateRelationshipBetweenImpl(relationship, source, other, typeof(JobDb), typeOther);
     }
 }

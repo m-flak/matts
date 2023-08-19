@@ -30,6 +30,7 @@ import { LoginPageComponent } from './login-page/login-page.component';
 import { ApplyJobPageComponent } from './apply-job-page/apply-job-page.component';
 import { NewJobPageComponent } from './new-job-page/new-job-page.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { TextFieldModule } from '@angular/cdk/text-field';
 
 
 export const BASE_URL = new InjectionToken<string>('BASE_URL');
@@ -54,6 +55,7 @@ export const BASE_URL = new InjectionToken<string>('BASE_URL');
     MatIconModule,
     MatExpansionModule,
     MatInputModule,
+    TextFieldModule,
     MatFormFieldModule,
     MaterialFileInputModule,
     ComponentsModule,
