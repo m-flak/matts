@@ -36,6 +36,7 @@ import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { JWT_OPTIONS, JwtHelperService } from '@auth0/angular-jwt';
 import { jwtOptionsFactory } from '../app.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
 
 const jobData: Job = {
   "id": 1,
@@ -87,7 +88,15 @@ describe('JobPageComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ BrowserAnimationsModule, ComponentsModule, MatButtonModule, MatInputModule, MatIconModule, NgbAlertModule ],
+      imports: [ 
+        BrowserAnimationsModule, 
+        ComponentsModule, 
+        MatButtonModule, 
+        MatInputModule, 
+        MatIconModule, 
+        NgbAlertModule,
+        NgxMaterialTimepickerModule 
+      ],
       declarations: [ JobPageComponent ],
       providers: [
         { 

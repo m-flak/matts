@@ -31,6 +31,7 @@ import { ApplyJobPageComponent } from './apply-job-page/apply-job-page.component
 import { NewJobPageComponent } from './new-job-page/new-job-page.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { TextFieldModule } from '@angular/cdk/text-field';
+import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
 
 
 export const BASE_URL = new InjectionToken<string>('BASE_URL');
@@ -48,6 +49,7 @@ export const BASE_URL = new InjectionToken<string>('BASE_URL');
     NewJobPageComponent
   ],
   imports: [
+    NgxMaterialTimepickerModule,
     NgbModule,
     NgbAlertModule,
     MatCardModule,
