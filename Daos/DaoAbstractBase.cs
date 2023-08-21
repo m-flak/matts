@@ -98,6 +98,7 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
                     );
 
                     var rows = await Wrappers.RunToListAsync(cursor, record => record.Values);
+                    
                     return rows.Select(row =>
                         DaoUtils.MapRowWithRelationships<T>(
                             row,
@@ -131,7 +132,7 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
                         $"WHERE {DaoUtils.CreateWhereClauseFromDict(filterProperties, nodeAttr.Selector)} " +
                         $"RETURN {nodeAttr.Selector}"
                     );
-                    var rows = await cursor.ToListAsync(record => record.Values[nodeAttr.Selector].As<INode>());
+                    var rows = await Wrappers.RunToListAsync(cursor, record => record.Values[nodeAttr.Selector].As<INode>());
                     return rows.Select(row => DaoUtils.MapSimpleRow<T>(row))
                         .ToList();
                 });
@@ -156,7 +157,7 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
                         $"MATCH ({nodeAttr.Selector}: {nodeAttr.Node}) " +
                         $"RETURN {nodeAttr.Selector}"
                     );
-                    var rows = await cursor.ToListAsync(record => record.Values[nodeAttr.Selector].As<INode>());
+                    var rows = await Wrappers.RunToListAsync(cursor, record => record.Values[nodeAttr.Selector].As<INode>());
                     return rows.Select(row => DaoUtils.MapSimpleRow<T>(row))
                         .ToList();
                 });
@@ -199,7 +200,7 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
                         }
                     );
 
-                    var row = await cursor.SingleAsync(record => record.Values[nodeAttr.Selector].As<INode>());
+                    var row = await Wrappers.RunSingleAsync(cursor, record => record.Values[nodeAttr.Selector].As<INode>());
 
                     return DaoUtils.MapSimpleRow<T>(row);
                 });

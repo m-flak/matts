@@ -35,4 +35,9 @@ internal class Neo4JWrappers
     {
         return await cursor.ToListAsync(operation);
     }
+
+    internal virtual async Task<T> RunSingleAsync<T>(IResultCursor cursor, Func<IRecord, T> operation)
+    {
+        return await cursor.SingleAsync(operation);
+    }
 }

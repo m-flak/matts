@@ -71,11 +71,19 @@ public class JobDaoTests
     public async void GetByUuid_GetsTheJob()
     {
         var job = JobFixture.CreateJob("Testing Job", JobConstants.STATUS_OPEN);
+        _wrappers.Setup(wrap => wrap.RunSingleAsync(It.IsAny<IResultCursor>(), It.IsAny<Func<IRecord, INode>>()))
+            .Returns(Task.FromResult(DbFixture.CreateRowFromObject(job)));
+        _tx.Setup(tx => tx.RunAsync(It.IsAny<string>(), It.IsAny<object>()))
+            .Returns(Task.FromResult(_cursor.Object));
         _session.Setup(s => s.ExecuteReadAsync(It.IsAny<Func<IAsyncQueryRunner, Task<JobDb>>>(), It.IsAny<Action<TransactionConfigBuilder>>()))
-            .Returns(Task.FromResult(job));
+            .Returns(async (Func<IAsyncQueryRunner, Task<JobDb>> tx, Action<TransactionConfigBuilder> action) =>
+            {
+                return await tx(_tx.Object);
+            });
         _driver.Setup(d => d.AsyncSession())
             .Returns(_session.Object);
         var sut = new JobDao(_driver.Object);
+        sut.Wrappers = _wrappers.Object;
 
         Assert.NotNull(job.Uuid);
 
@@ -94,11 +102,19 @@ public class JobDaoTests
         var allJobs = JobFixture.CreateJobList();
         var expectedOpenJobs = allJobs.Where(j => j.Status == JobConstants.STATUS_OPEN).ToList();
 
+        _wrappers.Setup(wrap => wrap.RunToListAsync(It.IsAny<IResultCursor>(), It.IsAny<Func<IRecord, INode>>()))
+            .Returns(Task.FromResult(DbFixture.CreateNodeRowsFromList(expectedOpenJobs)));
+        _tx.Setup(tx => tx.RunAsync(It.IsAny<string>()))
+            .Returns(Task.FromResult(_cursor.Object));
         _session.Setup(s => s.ExecuteReadAsync(It.IsAny<Func<IAsyncQueryRunner, Task<List<JobDb>>>>(), It.IsAny<Action<TransactionConfigBuilder>>()))
-            .Returns(Task.FromResult(expectedOpenJobs));
+            .Returns(async (Func<IAsyncQueryRunner, Task<List<JobDb>>> tx, Action<TransactionConfigBuilder> action) =>
+            {
+                return await tx(_tx.Object);
+            });
         _driver.Setup(d => d.AsyncSession())
             .Returns(_session.Object);
         var sut = new JobDao(_driver.Object);
+        sut.Wrappers = _wrappers.Object;
 
         var statusPropertyFilter = new Dictionary<string, object>();
         statusPropertyFilter.Add("status", JobConstants.STATUS_OPEN);
