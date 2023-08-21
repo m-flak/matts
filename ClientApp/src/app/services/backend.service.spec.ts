@@ -175,12 +175,12 @@ describe('BackendService', () => {
         const jobUuid = '3ebb58d3-a24c-499b-8c65-75636e7b57de';
         const applicantUuid = '3b785136-cafb-48ed-b58f-1b2150f74bf6';
 
-        backendService.rejectForJob(jobUuid, applicantUuid).subscribe(response => {
+        backendService.rejectForJob(jobUuid, applicantUuid, true).subscribe(response => {
             expect(response.status).toEqual(200);
             done();
         });
 
-        const request = httpMock.expectOne(`/jobs/reject/${jobUuid}/${applicantUuid}`);
+        const request = httpMock.expectOne(`/jobs/reject/${jobUuid}/${applicantUuid}?rejected=true`);
         request.flush(null, { status: 200, statusText: 'OK' });
 
         httpMock.verify();

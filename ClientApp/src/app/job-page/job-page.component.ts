@@ -236,10 +236,11 @@ export class JobPageComponent implements OnInit, OnDestroy {
     this.jobPageDataService.updateApplicantDetails(applicant);
     this.changesMadeToJob = true;
 
+    this.changeQueue = this.changeQueue.filter(chg => chg.sortTag !== `C${applicant.uuid}`);
     this.changeQueue.push(
       new JobPageChanges(`B${this.currentApplicant?.uuid}`, async (serviceInstance: JobPageDataService, commandData: ChangeCommandData) => { 
           const [job, applicant] = commandData;
-          const response = await lastValueFrom(serviceInstance.rejectApplicantFromJob(job.uuid, applicant.uuid));
+          const response = await lastValueFrom(serviceInstance.rejectApplicantFromJob(job.uuid, applicant.uuid, true));
           return response.status === 200;
         },
         [this.currentJob, this.currentApplicant]
@@ -251,7 +252,17 @@ export class JobPageComponent implements OnInit, OnDestroy {
     applicant.rejected = false;
     this.jobPageDataService.updateApplicantDetails(applicant);
     this.changesMadeToJob = true;
+
     this.changeQueue = this.changeQueue.filter(chg => chg.sortTag !== `B${applicant.uuid}`);
+    this.changeQueue.push(
+      new JobPageChanges(`C${this.currentApplicant?.uuid}`, async (serviceInstance: JobPageDataService, commandData: ChangeCommandData) => { 
+          const [job, applicant] = commandData;
+          const response = await lastValueFrom(serviceInstance.rejectApplicantFromJob(job.uuid, applicant.uuid, false));
+          return response.status === 200;
+        },
+        [this.currentJob, this.currentApplicant]
+      )
+    );
   }
 
   _hasInterview(applicant: Applicant): boolean {

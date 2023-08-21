@@ -94,10 +94,10 @@ export class BackendService {
             );
     }
 
-    rejectForJob(jobUuid: string, applicantUuid: string) : Observable<HttpResponse<any>> {
+    rejectForJob(jobUuid: string, applicantUuid: string, isRejected: boolean) : Observable<HttpResponse<any>> {
         const endpoint = `/jobs/reject/${jobUuid}/${applicantUuid}`;
 
-        return this.http.post(Location.joinWithSlash(this.baseUrl, endpoint), null, { observe: "response" })
+        return this.http.post(Location.joinWithSlash(this.baseUrl, endpoint), null, { observe: "response", params: new HttpParams().set('rejected', isRejected) })
             .pipe(
                 catchError((e: HttpErrorResponse) => throwError(() => new Error(e?.error)))
             );

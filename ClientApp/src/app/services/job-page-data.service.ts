@@ -136,16 +136,25 @@ export class JobPageDataService {
         return dates;
     }
 
-    rejectApplicantFromJob(jobUuid: string, applicantUuid: string) : Observable<any> {
-        return this.backendService.rejectForJob(jobUuid, applicantUuid).pipe(
+    rejectApplicantFromJob(jobUuid: string, applicantUuid: string, isRejected: boolean = true) : Observable<any> {
+        return this.backendService.rejectForJob(jobUuid, applicantUuid, isRejected).pipe(
             tap(() => this._jobMap.set(jobUuid, { ...(this._jobMap.get(jobUuid) as JobMapValue), isDirty: true})),
             tap(() => {
-                const gatekept = new Set<string>();
-                let stillInTheGame = this.jobApplicants.get(jobUuid) as Set<string>;
+                if (isRejected) {
+                    const gatekept = new Set<string>();
+                    let stillInTheGame = this.jobApplicants.get(jobUuid) as Set<string>;
 
-                gatekept.add(applicantUuid);
-                stillInTheGame = JobPageDataService._symmetricDifference(gatekept, stillInTheGame);
-                this.jobApplicants.set(jobUuid, stillInTheGame);
+                    gatekept.add(applicantUuid);
+                    stillInTheGame = JobPageDataService._symmetricDifference(gatekept, stillInTheGame);
+                    this.jobApplicants.set(jobUuid, stillInTheGame);
+                }
+                else {
+                    let currentApplicants = this.jobApplicants.get(jobUuid) as Set<string>;
+                    if (!currentApplicants.has(applicantUuid)) {
+                        currentApplicants.add(applicantUuid);
+                        this.jobApplicants.set(jobUuid, currentApplicants);
+                    }
+                }
             })
         );
     }
