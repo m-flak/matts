@@ -17,6 +17,8 @@
 **/
 namespace matts.Interfaces;
 
+using System;
+using Ical.Net;
 using matts.Models;
 
 public interface IJobService
@@ -32,4 +34,6 @@ public interface IJobService
     public Task<Job> CreateNewJob(Job newJob);
 
     public Task<bool> ApplyToJob(ApplyToJob application);
+    
+    public Task<Calendar?> GetICSCalendar(string juuid, string auuid, DateTime dateTime);
 }

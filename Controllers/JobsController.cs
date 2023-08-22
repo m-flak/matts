@@ -24,6 +24,8 @@ using System.Security.Claims;
 using matts.Constants;
 using System.ComponentModel.DataAnnotations;
 using FluentValidation;
+using Ical.Net.Serialization;
+using Ical.Net;
 
 namespace matts.Controllers;
 
@@ -106,6 +108,31 @@ public class JobsController : ControllerBase
         }
 
         return Ok();
+    }
+
+    [HttpGet]
+    [Produces("text/calendar")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK, "text/calendar")]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Route("ics/{juuid}/{auuid}")]
+    public async Task<IActionResult> DownloadICS(
+        [FromRoute] string juuid, 
+        [FromRoute] string auuid,
+        [Required][FromQuery] int y,
+        [Required][FromQuery] int m,
+        [Required][FromQuery] int d,
+        [Required][FromQuery] int h,
+        [Required][FromQuery] int mm
+    )
+    {
+        Calendar? calendar = await _service.GetICSCalendar(juuid, auuid, new DateTime(y, m, d, h, mm, 0));
+
+        if (calendar == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(new CalendarSerializer().SerializeToString(calendar));
     }
 
     [Authorize(Policy = "Employers")]

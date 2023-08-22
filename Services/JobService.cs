@@ -22,6 +22,10 @@ using Microsoft.Extensions.Configuration;
 using matts.Interfaces;
 using matts.Models;
 using matts.Constants;
+using Ical.Net;
+using System;
+using Ical.Net.CalendarComponents;
+using Ical.Net.DataTypes;
 
 public partial class JobService : IJobService
 {
@@ -79,8 +83,8 @@ public partial class JobService : IJobService
         if (_useDummyData)
         { 
             Job job = _jobsDummyData
-            .Where(j => j.Uuid == uuid)
-            .First();
+                .Where(j => j.Uuid == uuid)
+                .First();
 
             return job;
         }
@@ -111,6 +115,58 @@ public partial class JobService : IJobService
         }
 
         return await _repository.ApplyToJob(application.JobUuid, application.ApplicantUuid);
+    }
+
+    public async Task<Calendar?> GetICSCalendar(string juuid, string auuid, DateTime dateTime)
+    {
+        if (_useDummyData) 
+        {
+            Job job = _jobsDummyData
+                .Where(j => j.Uuid == juuid)
+                .First();
+            
+            Applicant applicant = job.Applicants
+                .Where(a => a.Uuid == auuid)
+                .First();
+
+            var employer = new Employer()
+            {
+                Name = "Dummy Employer",
+                Email = "employer@gmail.com"
+            };
+
+            var interviewer = new Attendee()
+            {
+                CommonName = employer.Name,
+                Role = "Interviewer",
+                Rsvp = true,
+                Value = new Uri($"mailto:{employer.Email}")
+            };
+            var interviewee = new Attendee()
+            {
+                CommonName = applicant.Name,
+                Role = "Interviewee",
+                Rsvp = true,
+                Value = new Uri($"mailto:{applicant.Email}")
+            };
+
+            var interview = new CalendarEvent()
+            {
+                Start = new CalDateTime(dateTime),
+                End = new CalDateTime(dateTime.AddHours(1))
+            };
+            interview.Attendees = new List<Attendee>()
+            {
+                interviewer,
+                interviewee
+            };
+
+            var calendar = new Calendar();
+            calendar.Events.Add(interview);
+            return calendar;
+        }
+
+        throw new NotImplementedException();
     }
 
     private void ConfigureService()
