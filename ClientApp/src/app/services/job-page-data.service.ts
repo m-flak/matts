@@ -159,6 +159,10 @@ export class JobPageDataService {
         );
     }
 
+    downloadIcsFile(jobUuid: string, applicantUuid: string, interviewDate: Date) : Observable<Blob> {
+        return this.backendService.downloadIcs(jobUuid, applicantUuid, interviewDate);
+    }
+
     resetService() {
         this._jobMap.clear();
         this.jobApplicants.clear();

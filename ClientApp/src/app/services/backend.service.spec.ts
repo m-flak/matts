@@ -185,4 +185,26 @@ describe('BackendService', () => {
 
         httpMock.verify();
     });
+
+    it('should start the download of an ICS for an applicant\'s job interview using backend', (done) => {
+        const jobUuid = '3ebb58d3-a24c-499b-8c65-75636e7b57de';
+        const applicantUuid = '3b785136-cafb-48ed-b58f-1b2150f74bf6';
+        const today = new Date();
+
+        backendService.downloadIcs(jobUuid, applicantUuid, today).subscribe((blobResponse: any) => {
+            expect(blobResponse instanceof Blob).toBe(true);
+            expect(blobResponse.type).toEqual('text/calendar');
+            blobResponse.text().then((txt: string) => {
+                expect(txt).toEqual('dummy data');
+                done();
+            });
+        });
+
+        const request = httpMock.expectOne(
+            `/jobs/ics/${jobUuid}/${applicantUuid}?y=${today.getFullYear()}&m=${today.getMonth()}&d=${today.getDay()}&h=${today.getHours()}&mm=${today.getMinutes()}`
+        );
+        request.flush(new Blob(['dummy data'], { type: 'text/calendar' }));
+
+        httpMock.verify();
+    });
 });

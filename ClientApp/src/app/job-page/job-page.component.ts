@@ -23,7 +23,7 @@ import { MonthViewDay, EventColor } from 'calendar-utils';
 import { CalendarEvent } from 'angular-calendar';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { InterviewDate, JobPageDataService } from '../services/job-page-data.service';
-import { formatISO, isPast, parse, set } from 'date-fns';
+import { formatISO, isPast, parse, parseISO, set } from 'date-fns';
 import { ChangeCommandData, JobPageChanges } from './job-page-changes';
 import { JobConstants } from '../constants';
 import { ToastService } from '../services/toast.service';
@@ -53,7 +53,7 @@ export class JobPageComponent implements OnInit, OnDestroy {
 
   @ViewChild('confirmationModal')
   confirmationModal: any;
-
+  // used in the modal
   chosenInterviewTimeString = '';
 
   @Input()
@@ -119,12 +119,30 @@ export class JobPageComponent implements OnInit, OnDestroy {
     const date = data.day.date;
 
     if (isPast(date)) {
+      this.toastService.show('Please pick either the current day or a day in the future.', { classname: 'bg-warning text-dark', delay: 5000, ariaLive: 'assertive' });
       //do nothing
       return;
     }
 
     this.viewDate = date;
     this.confirmInterview();
+  }
+
+  async onDownloadICS() {
+    this.toastService.show('Download started. If nothing happens, try disabling your pop-up blocker.', { classname: 'bg-info text-white', delay: 5000 });
+    
+    try {
+      const interviewDate = parseISO(this.currentApplicant?.interviewDate as string);
+      const icsFile = await lastValueFrom(this.jobPageDataService.downloadIcsFile(this.currentJob?.uuid as string, this.currentApplicant?.uuid as string, interviewDate));
+      window.open(URL.createObjectURL(icsFile), '_blank');
+    }
+    catch (e) {
+      if (e instanceof Error) {
+        const err: Error = e;
+        console.error(e?.message);
+      }
+      this.toastService.show('An error ocurred, or the system might be unavailable. Please try again.', { classname: 'bg-danger text-light', delay: 15000, ariaLive: 'assertive' });
+    }
   }
 
   setCurrentJobStatus(status: string) {

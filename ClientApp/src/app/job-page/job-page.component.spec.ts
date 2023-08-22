@@ -207,4 +207,19 @@ describe('JobPageComponent', () => {
         expect(pageService.changeJobData).toHaveBeenCalledBefore(pageService.rejectApplicantFromJob);
       });
   }));
+
+  it('should be able to download an ICS for an Applicant with an interview', waitForAsync(() => {
+    spyOn(pageService, 'downloadIcsFile').and.callFake((job,app,date) => of(new Blob(['dummy data'], { type: 'text/calendar' })));
+    spyOn(window, 'open').and.stub();
+
+    fixture.detectChanges();
+
+    fixture.whenStable()
+      .then(() => component.onDownloadICS())
+      .then(() => {
+        fixture.detectChanges();
+        expect(pageService.downloadIcsFile).toHaveBeenCalled();
+        expect(window.open).toHaveBeenCalled();
+      });
+  }));
 });

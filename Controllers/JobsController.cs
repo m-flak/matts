@@ -124,7 +124,7 @@ public class JobsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [RequestSizeLimit(0)]
     [Route("reject/{juuid}/{auuid}")]
-    public async Task<IActionResult> RejectForJob(string juuid, string auuid)
+    public async Task<IActionResult> RejectForJob([FromRoute] string juuid, [FromRoute] string auuid, [Required][FromQuery] bool rejected)
     {
         return Ok();
     }
