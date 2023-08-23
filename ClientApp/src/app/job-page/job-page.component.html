@@ -52,11 +52,13 @@
                         <div class="applicant-info-container">
                             <mat-form-field>
                                 <mat-label>Email</mat-label>
-                                <input type="email" matInput [readonly]="true" [value]="this.currentApplicant.email" />
+                                <input type="email" matInput [readonly]="true" [value]="this.currentApplicant.email" #email="matInput" />
+                                <mat-icon matSuffix [cmpMatIconLink]="email.type" [inputRef]="email"></mat-icon>
                             </mat-form-field>
                             <mat-form-field>
                                 <mat-label>Phone Number</mat-label>
-                                <input type="tel" matInput [readonly]="true" [value]="this.currentApplicant.phoneNumber" />
+                                <input type="tel" matInput [readonly]="true" [value]="this.currentApplicant.phoneNumber" #telephone="matInput" />
+                                <mat-icon matSuffix [cmpMatIconLink]="telephone.type" [inputRef]="telephone"></mat-icon>
                             </mat-form-field>
                         </div>
                         <div class="btn-group action-buttons">
@@ -71,11 +73,13 @@
                         <div class="applicant-info-container">
                             <mat-form-field>
                                 <mat-label>Email</mat-label>
-                                <input type="email" matInput [readonly]="true" [value]="this.currentApplicant.email" />
+                                <input type="email" matInput [readonly]="true" [value]="this.currentApplicant.email" #email2="matInput" />
+                                <mat-icon matSuffix [cmpMatIconLink]="email2.type" [inputRef]="email2"></mat-icon>
                             </mat-form-field>
                             <mat-form-field>
                                 <mat-label>Phone Number</mat-label>
-                                <input type="tel" matInput [readonly]="true" [value]="this.currentApplicant.phoneNumber" />
+                                <input type="tel" matInput [readonly]="true" [value]="this.currentApplicant.phoneNumber" #telephone2="matInput" />
+                                <mat-icon matSuffix [cmpMatIconLink]="telephone2.type" [inputRef]="telephone2"></mat-icon>
                             </mat-form-field>
                         </div>
                         <div class="btn-group action-buttons">
