@@ -142,6 +142,12 @@ public partial class JobService : IJobService
                 Rsvp = true,
                 Value = new Uri($"mailto:{employer.Email}")
             };
+            var organizer = new Organizer()
+            {
+                CommonName = employer.Name,
+                Value = new Uri($"mailto:{employer.Email}"),
+                SentBy = new Uri($"mailto:{employer.Email}")
+            };
             var interviewee = new Attendee()
             {
                 CommonName = applicant.Name,
@@ -152,6 +158,9 @@ public partial class JobService : IJobService
 
             var interview = new CalendarEvent()
             {
+                Description = $"{job.Name} Interview: {applicant.Name}",
+                Summary = $"{job.Name} Interview: {applicant.Name}",
+                Organizer = organizer,
                 Start = new CalDateTime(dateTime),
                 End = new CalDateTime(dateTime.AddHours(1))
             };

@@ -21,6 +21,7 @@ import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams, HttpResponse } 
 import { Inject, Injectable } from "@angular/core";
 import { Observable, catchError, throwError, map, tap } from "rxjs";
 import { ApplyToJob, Job } from "../models";
+import { getDate } from "date-fns";
 
 @Injectable({
     providedIn: 'root'
@@ -108,8 +109,8 @@ export class BackendService {
         const params = new HttpParams({
             fromObject: {
                 y: interviewDate.getFullYear(),
-                m: interviewDate.getMonth(),
-                d: interviewDate.getDay(),
+                m: interviewDate.getMonth() + 1,
+                d: getDate(interviewDate),
                 h: interviewDate.getHours(),
                 mm: interviewDate.getMinutes()
             }

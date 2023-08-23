@@ -21,6 +21,7 @@ import { HttpClientModule} from "@angular/common/http";
 import { BackendService } from './backend.service';
 import { JobConstants } from '../constants';
 import { ApplyToJob, Job } from '../models';
+import { getDate } from 'date-fns';
 
 describe('BackendService', () => {
     let httpMock: HttpTestingController;
@@ -201,7 +202,7 @@ describe('BackendService', () => {
         });
 
         const request = httpMock.expectOne(
-            `/jobs/ics/${jobUuid}/${applicantUuid}?y=${today.getFullYear()}&m=${today.getMonth()}&d=${today.getDay()}&h=${today.getHours()}&mm=${today.getMinutes()}`
+            `/jobs/ics/${jobUuid}/${applicantUuid}?y=${today.getFullYear()}&m=${today.getMonth()+1}&d=${getDate(today)}&h=${today.getHours()}&mm=${today.getMinutes()}`
         );
         request.flush(new Blob(['dummy data'], { type: 'text/calendar' }));
 
