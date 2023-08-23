@@ -16,16 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 using System.Net.Mime;
+using System.Security.Claims;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using FluentValidation;
+using Ical.Net;
 using matts.Interfaces;
 using matts.Models;
-using System.Security.Claims;
 using matts.Constants;
-using System.ComponentModel.DataAnnotations;
-using FluentValidation;
-using Ical.Net.Serialization;
-using Ical.Net;
+using matts.Controllers.ActionResults;
 
 namespace matts.Controllers;
 
@@ -112,7 +112,7 @@ public class JobsController : ControllerBase
 
     [HttpGet]
     [Produces("text/calendar")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status200OK, "text/calendar")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Route("ics/{juuid}/{auuid}")]
     public async Task<IActionResult> DownloadICS(
@@ -132,7 +132,7 @@ public class JobsController : ControllerBase
             return NotFound();
         }
 
-        return Ok(new CalendarSerializer().SerializeToString(calendar));
+        return new ICalResult(calendar);
     }
 
     [Authorize(Policy = "Employers")]
