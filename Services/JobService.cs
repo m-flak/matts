@@ -32,13 +32,15 @@ public partial class JobService : IJobService
     private static List<Job>? _jobsDummyData = null;
     private readonly IConfiguration _configuration;
     private readonly IJobRepository _repository;
+    private readonly IApplicantRepository _appRepository;
 
     private bool _useDummyData;
 
-    public JobService(IConfiguration configuration, IJobRepository repository)
+    public JobService(IConfiguration configuration, IJobRepository repository, IApplicantRepository appRepository)
     {
         _configuration = configuration;
         _repository = repository;
+        _appRepository = appRepository;
 
         if(_jobsDummyData == null)
         {
@@ -100,6 +102,27 @@ public partial class JobService : IJobService
         }
 
         return await _repository.CreateNewJob(newJob);
+    }
+
+    public async Task<Job> UpdateJob(Job job)
+    {
+        if (_useDummyData)
+        {
+            return job;
+        }
+
+        if (job.Uuid == null)
+        {
+            throw new ArgumentNullException("Job.Uuid is null!");
+        }
+        
+        foreach (Applicant applicant in job.Applicants ?? Enumerable.Empty<Applicant>())
+        {
+            applicant.InterviewDate = await _appRepository.ScheduleInterview(applicant, job.Uuid, applicant.InterviewDate);
+            // TODO: update interviewing with relationship
+        }
+
+        return job;
     }
 
     public async Task<bool> ApplyToJob(ApplyToJob application)

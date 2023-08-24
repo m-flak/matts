@@ -139,11 +139,24 @@ public class JobsController : ControllerBase
     [HttpPatch]
     [Consumes(MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [Route("updatejob")]
     public async Task<IActionResult> UpdateJob(Job job)
     {
-        _logger.LogInformation("{Job}", job);
-        return Ok();
+        var validationResult = _jobValidator.Validate(job);
+        if (!validationResult.IsValid) 
+        {
+           return new BadRequestObjectResult(validationResult.Errors);
+        }
+
+        try
+        {
+            return Ok(await _service.UpdateJob(job));
+        }
+        catch (ArgumentNullException)
+        {
+            return BadRequest();
+        }
     }
 
     [Authorize(Policy = "Employers")]
