@@ -32,6 +32,18 @@ public class JobDao : DaoAbstractBase<JobDb>
     {
     }
 
+    public override async Task<JobDb> CreateNew(JobDb createWhat)
+    {
+        JobDb createWhatCopy = new JobDb(createWhat);
+        createWhatCopy.Uuid = System.Guid.NewGuid().ToString();
+        return await this.CreateNewImpl(createWhatCopy);
+    }
+
+    public override async Task<bool> CreateRelationshipBetween(DbRelationship relationship, JobDb source, object other, Type typeOther)
+    {
+        return await this.CreateRelationshipBetweenImpl(relationship, source, other, typeof(JobDb), typeOther);
+    }
+
     public override async Task<List<JobDb>> GetAll()
     {
         using (var session = _driver.AsyncSession())
@@ -63,6 +75,11 @@ public class JobDao : DaoAbstractBase<JobDb>
         }
     }
 
+    public override async Task<List<JobDb>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties)
+    {
+        return await this.GetAllAndFilterByPropertiesImpl(typeof(JobDb), filterProperties);
+    }
+
     public override async Task<List<JobDb>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid)
     {
         // This relationship is applicant --> job, so use different node settings
@@ -84,26 +101,13 @@ public class JobDao : DaoAbstractBase<JobDb>
         throw new NotImplementedException();
     }
 
-    public override async Task<List<JobDb>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties)
-    {
-        return await this.GetAllAndFilterByPropertiesImpl(typeof(JobDb), filterProperties);
-    }
-
-
     public override async Task<JobDb> GetByUuid(string uuid)
     {
         return await this.GetByUuidImpl(typeof(JobDb), uuid);
     }
 
-    public override async Task<JobDb> CreateNew(JobDb createWhat)
+    public override async Task<bool> HasRelationshipBetween(DbRelationship relationship, JobDb source, object other, Type typeOther)
     {
-        JobDb createWhatCopy = new JobDb(createWhat);
-        createWhatCopy.Uuid = System.Guid.NewGuid().ToString();
-        return await this.CreateNewImpl(createWhatCopy);
-    }
-
-    public override async Task<bool> CreateRelationshipBetween(DbRelationship relationship, JobDb source, object other, Type typeOther)
-    {
-        return await this.CreateRelationshipBetweenImpl(relationship, source, other, typeof(JobDb), typeOther);
+        return await this.HasRelationshipBetweenImpl(relationship, source, other, typeof(JobDb), typeOther);
     }
 }

@@ -34,6 +34,8 @@ public interface IJobService
     public Task<Job> CreateNewJob(Job newJob);
 
     public Task<bool> ApplyToJob(ApplyToJob application);
+
+    public Task<bool> RejectForJob(string jobUuid, string applicantUuid, bool isRejected);
     
     public Task<Calendar?> GetICSCalendar(string juuid, string auuid, DateTime dateTime);
 }

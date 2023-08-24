@@ -149,10 +149,18 @@ public class JobsController : ControllerBase
     [Authorize(Policy = "Employers")]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [RequestSizeLimit(0)]
     [Route("reject/{juuid}/{auuid}")]
     public async Task<IActionResult> RejectForJob([FromRoute] string juuid, [FromRoute] string auuid, [Required][FromQuery] bool rejected)
     {
+        bool wasUpdated = await _service.RejectForJob(juuid, auuid, rejected);
+
+        if (!wasUpdated)
+        {
+            return NoContent();
+        }
+
         return Ok();
     }
 

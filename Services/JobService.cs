@@ -117,6 +117,16 @@ public partial class JobService : IJobService
         return await _repository.ApplyToJob(application.JobUuid, application.ApplicantUuid);
     }
 
+    public async Task<bool> RejectForJob(string jobUuid, string applicantUuid, bool isRejected)
+    {
+        if (_useDummyData)
+        {
+            return true;
+        }
+
+        return await _repository.RejectForJob(jobUuid, applicantUuid, isRejected);
+    }
+
     public async Task<Calendar?> GetICSCalendar(string juuid, string auuid, DateTime dateTime)
     {
         if (_useDummyData) 

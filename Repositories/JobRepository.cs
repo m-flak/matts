@@ -91,4 +91,29 @@ public class JobRepository : IJobRepository
         applyForRelationship.Parameters["rejected"] = false;
         return await _daoApp.CreateRelationshipBetween(applyForRelationship, applicant, job, typeof(JobDb));
     }
+
+    public async Task<bool> RejectForJob(string jobUuid, string applicantUuid, bool isRejected)
+    {
+        var queryRelationship = new DbRelationship(RelationshipConstants.HAS_APPLIED_TO, "r", DbRelationship.Cardinality.BIDIRECTIONAL);
+        var updateRelationship = new DbRelationship(RelationshipConstants.HAS_APPLIED_TO, "r");
+        updateRelationship.Parameters["rejected"] = isRejected;
+
+        JobDb job = new JobDb()
+        {
+            Uuid = jobUuid
+        };
+        ApplicantDb applicant = new ApplicantDb()
+        {
+            Uuid = applicantUuid
+        };
+
+        bool wasUpdated = false;
+        bool doesExist = await _daoJob.HasRelationshipBetween(queryRelationship, job, applicant, typeof(ApplicantDb));
+        if (doesExist)
+        {
+            // TODO: UPDATE RELATIONSHIP
+        }
+
+        return wasUpdated;
+    }
 }

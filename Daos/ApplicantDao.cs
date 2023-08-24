@@ -33,9 +33,26 @@ public class ApplicantDao : DaoAbstractBase<ApplicantDb>
     {
     }
 
+    public override async Task<ApplicantDb> CreateNew(ApplicantDb createWhat)
+    {
+        ApplicantDb createWhatCopy = new ApplicantDb(createWhat);
+        createWhatCopy.Uuid = System.Guid.NewGuid().ToString();
+        return await this.CreateNewImpl(createWhatCopy);
+    }
+
+    public override async Task<bool> CreateRelationshipBetween(DbRelationship relationship, ApplicantDb source, object other, Type typeOther)
+    {
+        return await this.CreateRelationshipBetweenImpl(relationship, source, other, typeof(ApplicantDb), typeOther);
+    }
+
     public override async Task<List<ApplicantDb>> GetAll()
     {
         return await this.GetAllImpl(typeof(ApplicantDb));
+    }
+    
+    public override async Task<List<ApplicantDb>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties)
+    {
+        return await this.GetAllAndFilterByPropertiesImpl(typeof(ApplicantDb), filterProperties);
     }
 
     public override async Task<List<ApplicantDb>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid)
@@ -53,25 +70,13 @@ public class ApplicantDao : DaoAbstractBase<ApplicantDb>
         );
     }
 
-    public override async Task<List<ApplicantDb>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties)
-    {
-        return await this.GetAllAndFilterByPropertiesImpl(typeof(ApplicantDb), filterProperties);
-    }
-
     public override async Task<ApplicantDb> GetByUuid(string uuid)
     {
         return await this.GetByUuidImpl(typeof(ApplicantDb), uuid);
     }
 
-    public override async Task<ApplicantDb> CreateNew(ApplicantDb createWhat)
+    public override async Task<bool> HasRelationshipBetween(DbRelationship relationship, ApplicantDb source, object other, Type typeOther)
     {
-        ApplicantDb createWhatCopy = new ApplicantDb(createWhat);
-        createWhatCopy.Uuid = System.Guid.NewGuid().ToString();
-        return await this.CreateNewImpl(createWhatCopy);
-    }
-
-    public override async Task<bool> CreateRelationshipBetween(DbRelationship relationship, ApplicantDb source, object other, Type typeOther)
-    {
-        return await this.CreateRelationshipBetweenImpl(relationship, source, other, typeof(ApplicantDb), typeOther);
+        return await this.HasRelationshipBetweenImpl(relationship, source, other, typeof(ApplicantDb), typeOther);
     }
 }

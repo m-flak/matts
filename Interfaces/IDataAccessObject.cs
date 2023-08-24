@@ -21,6 +21,10 @@ namespace matts.Interfaces;
 
 public interface IDataAccessObject<T> where T : class
 {
+    public Task<T> CreateNew(T createWhat);
+
+    public Task<bool> CreateRelationshipBetween(DbRelationship relationship, T source, object other, Type typeOther);
+
     public Task<List<T>> GetAll();
 
     public Task<List<T>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid);
@@ -29,7 +33,5 @@ public interface IDataAccessObject<T> where T : class
 
     public Task<T> GetByUuid(string uuid);
 
-    public Task<T> CreateNew(T createWhat);
-
-    public Task<bool> CreateRelationshipBetween(DbRelationship relationship, T source, object other, Type typeOther);
+    public Task<bool> HasRelationshipBetween(DbRelationship relationship, T source, object other, Type typeOther);
 }

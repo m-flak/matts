@@ -64,6 +64,11 @@ public class UserDao : DaoAbstractBase<User>
         return await this.GetByUuidImpl(typeof(User), uuid);
     }
 
+    public override async Task<bool> HasRelationshipBetween(DbRelationship relationship, User source, object other, Type typeOther)
+    {
+        return await this.HasRelationshipBetweenImpl(relationship, source, other, typeof(User), typeOther);
+    }
+
     public virtual async Task<string> GetApplicantIdForUserName(string userName)
     {
         using (var session = _driver.AsyncSession())
