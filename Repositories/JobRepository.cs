@@ -111,7 +111,7 @@ public class JobRepository : IJobRepository
         bool doesExist = await _daoJob.HasRelationshipBetween(queryRelationship, job, applicant, typeof(ApplicantDb));
         if (doesExist)
         {
-            // TODO: UPDATE RELATIONSHIP
+            wasUpdated = await _daoApp.UpdateRelationshipBetween(updateRelationship, applicant, job, typeof(JobDb));
         }
 
         return wasUpdated;

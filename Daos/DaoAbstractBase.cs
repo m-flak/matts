@@ -388,27 +388,27 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
         {
             foreach ((object?, Type) spec in nodeSpecs)
             {
-                    var uuidInfo = spec.Item2.GetProperties().Where(p => p.GetCustomAttribute(typeof(DbNodeUuidAttribute)) != null).Single();
+                var uuidInfo = spec.Item2.GetProperties().Where(p => p.GetCustomAttribute(typeof(DbNodeUuidAttribute)) != null).Single();
 
-                    // value is optional if the spec.Item1 is null
-                    string? value = "";
-                    if (spec.Item1 != null)
+                // value is optional if the spec.Item1 is null
+                string? value = "";
+                if (spec.Item1 != null)
+                {
+                    value = (string?) uuidInfo.GetValue(spec.Item1);
+                    if (value == null) 
                     {
-                        value = (string?) uuidInfo.GetValue(spec.Item1);
-                        if (value == null) 
-                        {
-                            throw new MissingMemberException($"Unable to get the value of the property with DbNodeUuidAttribute for type {spec.Item2.Name}!");
-                        }
+                        throw new MissingMemberException($"Unable to get the value of the property with DbNodeUuidAttribute for type {spec.Item2.Name}!");
                     }
+                }
 
-                    // name is required
-                    string? name = System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(uuidInfo.Name);
-                    if (name == null) 
-                    {
-                        throw new MissingMemberException($"Unable to get the name of the property with DbNodeUuidAttribute for type {spec.Item2.Name}!");
-                    }
+                // name is required
+                string? name = System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(uuidInfo.Name);
+                if (name == null) 
+                {
+                    throw new MissingMemberException($"Unable to get the name of the property with DbNodeUuidAttribute for type {spec.Item2.Name}!");
+                }
 
-                    infos[i++] = new UuidInfo(name, value);
+                infos[i++] = new UuidInfo(name, value);
             }
         }
         catch (InvalidOperationException ioe)
