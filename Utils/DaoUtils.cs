@@ -242,6 +242,19 @@ internal sealed class DaoUtils
         return builder.ToString();
     }
 
+    internal static string CreateSetStatements(IDictionary<string, object> parameters, string prefix)
+    {
+        var keys = parameters.Keys.ToList();
+        var builder = new StringBuilder();
+
+        for (int i = 0; i < keys.Count; ++i)
+        {
+            builder.Append($"SET {prefix}.{keys[i]} = ${keys[i]} ");
+        }
+
+        return builder.ToString();
+    }
+
     // class only holds static methods
     private DaoUtils() { }
 }

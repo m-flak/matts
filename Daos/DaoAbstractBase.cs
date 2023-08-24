@@ -386,7 +386,6 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
         }
     }
 
-    // TODO: IMPLEMENT THIS
     protected async Task<bool> UpdateRelationshipBetweenImpl(DbRelationship relationship, object src, object dest, Type typeSrc, Type typeDest)
     {
         var nodeAttrSrc = Attribute.GetCustomAttribute(typeSrc, typeof(DbNodeAttribute)) as DbNodeAttribute;
@@ -430,19 +429,19 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
             return await session.ExecuteWriteAsync(
                async tx =>
                {
+                   var queryParams = new Dictionary<string, object>(relationship.Parameters);
+                   queryParams["uuid1"] = uuidSrc;
+                   queryParams["uuid2"] = uuidDest;
+
                    var cursor = await tx.RunAsync(
                        $"MATCH ({nodeAttrSrc.Selector}:{nodeAttrSrc.Node}{relationship.ToString(false, true)}({nodeAttrDest.Selector}:{nodeAttrDest.Node}) " +
                        $"WHERE {nodeAttrSrc.Selector}.{uuidSrcName} = $uuid1 AND {nodeAttrDest.Selector}.{uuidDestName} = $uuid2 " +
-                /**/   $"CREATE ({nodeAttrSrc.Selector}){relationship}({nodeAttrDest.Selector})", //*
-                       new
-                       {
-                           uuid1 = uuidSrc,
-                           uuid2 = uuidDest
-                       }
+                       DaoUtils.CreateSetStatements(relationship.Parameters, relationship.Selector),
+                       queryParams
                    );
 
                    var result = await cursor.ConsumeAsync();
-                   return result.Counters.RelationshipsCreated == 1;
+                   return result.Counters.PropertiesSet > 0;
                });
         }
     }
