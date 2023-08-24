@@ -44,6 +44,11 @@ public class UserDao : DaoAbstractBase<User>
         return await this.CreateRelationshipBetweenImpl(relationship, source, other, typeof(User), typeOther);
     }
 
+    public override async Task<bool> UpdateRelationshipBetween(DbRelationship relationship, User source, object other, Type typeOther)
+    {
+        return await this.UpdateRelationshipBetweenImpl(relationship, source, other, typeof(User), typeOther);
+    }
+
     public override async Task<List<User>> GetAll()
     {
         throw new NotImplementedException();

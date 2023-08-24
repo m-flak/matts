@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 using System.Reflection;
+using System.Diagnostics.CodeAnalysis;
 using Neo4j.Driver;
 using matts.Interfaces;
 using matts.Utils;
@@ -26,6 +27,7 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
 {
     public abstract Task<T> CreateNew(T createWhat);
     public abstract Task<bool> CreateRelationshipBetween(DbRelationship relationship, T source, object other, Type typeOther);
+    public abstract Task<bool> UpdateRelationshipBetween(DbRelationship relationship, T source, object other, Type typeOther);
     public abstract Task<List<T>> GetAll();
     public abstract Task<List<T>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties);
     public abstract Task<List<T>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid);
@@ -174,17 +176,9 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
             throw new MissingMemberException("Unable to find the DbNodeAttribute that should be attached to `node`!");
         }
 
-        PropertyInfo? uuidInfo = null;
-        string? uuidFieldName = null;
-        try 
-        {
-            uuidInfo = node.GetProperties().Where(p => p.GetCustomAttribute(typeof(DbNodeUuidAttribute)) != null).Single();
-            uuidFieldName = System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(uuidInfo.Name);
-        }
-        catch (InvalidOperationException ioe)
-        {
-            throw new MissingMemberException("Unable to find the property with DbNodeUuidAttribute within `node`!", ioe);
-        }
+        // Obtain the field used as the Uuid via reflection.
+        var infos = GetUuidInfos((null, node));
+        string uuidFieldName = infos[0].Name;
 
         using (var session = _driver.AsyncSession())
         {
@@ -218,21 +212,9 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
             throw new MissingMemberException("Unable to find the DbNodeAttribute that should be attached to `createWhat`!");
         }
 
-        string? uuid = null;
-        try 
-        {
-            var uuidInfo = createWhatType.GetProperties().Where(p => p.GetCustomAttribute(typeof(DbNodeUuidAttribute)) != null).Single();
-            uuid = (string?) uuidInfo.GetValue(createWhat);
-
-            if (uuid == null)
-            {
-                throw new MissingMemberException("Unable to get the value of the property with DbNodeUuidAttribute within `createWhat`!");
-            }
-        }
-        catch (InvalidOperationException ioe)
-        {
-            throw new MissingMemberException("Unable to find the property with DbNodeUuidAttribute within `createWhat`!", ioe);
-        }
+        // Obtain the field used as the Uuid via reflection.
+        var infos = GetUuidInfos((createWhat, typeof(T)));
+        string uuid = infos[0].Value;
 
         bool created = false;
         using (var session = _driver.AsyncSession())
@@ -269,33 +251,12 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
             throw new MissingMemberException("Unable to find the DbNodeAttribute that should be attached to `src` and/or `dest`!");
         }
 
-        string? uuidSrc = null;
-        string? uuidSrcName = null;
-        string? uuidDest = null;
-        string? uuidDestName = null;
-        try 
-        {
-            var uuidSrcInfo = typeSrc.GetProperties().Where(p => p.GetCustomAttribute(typeof(DbNodeUuidAttribute)) != null).Single();
-            uuidSrc = (string?) uuidSrcInfo.GetValue(src);
-            uuidSrcName = System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(uuidSrcInfo.Name);
-
-            var uuidDestInfo = typeDest.GetProperties().Where(p => p.GetCustomAttribute(typeof(DbNodeUuidAttribute)) != null).Single();
-            uuidDest = (string?) uuidDestInfo.GetValue(dest);
-            uuidDestName = System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(uuidDestInfo.Name);
-
-            if (uuidSrc == null || uuidSrcName == null)
-            {
-                throw new MissingMemberException("Unable to get the value of the property with DbNodeUuidAttribute within `src`!");
-            }
-            if (uuidDest == null || uuidDestName == null)
-            {
-                throw new MissingMemberException("Unable to get the value of the property with DbNodeUuidAttribute within `dest`!");
-            }
-        }
-        catch (InvalidOperationException ioe)
-        {
-            throw new MissingMemberException("Unable to find the property with DbNodeUuidAttribute within `src` and/or `dest`!", ioe);
-        }
+        // Obtain the field used as the Uuid via reflection.
+        var infos = GetUuidInfos((src, typeSrc), (dest, typeDest));
+        string uuidSrc = infos[0].Value;
+        string uuidSrcName = infos[0].Name;
+        string uuidDest = infos[1].Value;
+        string uuidDestName = infos[1].Value;
 
         using (var session = _driver.AsyncSession())
         {
@@ -329,33 +290,12 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
             throw new MissingMemberException("Unable to find the DbNodeAttribute that should be attached to `src` and/or `dest`!");
         }
 
-        string? uuidSrc = null;
-        string? uuidSrcName = null;
-        string? uuidDest = null;
-        string? uuidDestName = null;
-        try 
-        {
-            var uuidSrcInfo = typeSrc.GetProperties().Where(p => p.GetCustomAttribute(typeof(DbNodeUuidAttribute)) != null).Single();
-            uuidSrc = (string?) uuidSrcInfo.GetValue(src);
-            uuidSrcName = System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(uuidSrcInfo.Name);
-
-            var uuidDestInfo = typeDest.GetProperties().Where(p => p.GetCustomAttribute(typeof(DbNodeUuidAttribute)) != null).Single();
-            uuidDest = (string?) uuidDestInfo.GetValue(dest);
-            uuidDestName = System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(uuidDestInfo.Name);
-
-            if (uuidSrc == null || uuidSrcName == null)
-            {
-                throw new MissingMemberException("Unable to get the value of the property with DbNodeUuidAttribute within `src`!");
-            }
-            if (uuidDest == null || uuidDestName == null)
-            {
-                throw new MissingMemberException("Unable to get the value of the property with DbNodeUuidAttribute within `dest`!");
-            }
-        }
-        catch (InvalidOperationException ioe)
-        {
-            throw new MissingMemberException("Unable to find the property with DbNodeUuidAttribute within `src` and/or `dest`!", ioe);
-        }
+        // Obtain the field used as the Uuid via reflection.
+        var infos = GetUuidInfos((src, typeSrc), (dest, typeDest));
+        string uuidSrc = infos[0].Value;
+        string uuidSrcName = infos[0].Name;
+        string uuidDest = infos[1].Value;
+        string uuidDestName = infos[1].Value;
 
         using (var session = _driver.AsyncSession())
         {
@@ -396,33 +336,12 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
             throw new MissingMemberException("Unable to find the DbNodeAttribute that should be attached to `src` and/or `dest`!");
         }
 
-        string? uuidSrc = null;
-        string? uuidSrcName = null;
-        string? uuidDest = null;
-        string? uuidDestName = null;
-        try 
-        {
-            var uuidSrcInfo = typeSrc.GetProperties().Where(p => p.GetCustomAttribute(typeof(DbNodeUuidAttribute)) != null).Single();
-            uuidSrc = (string?) uuidSrcInfo.GetValue(src);
-            uuidSrcName = System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(uuidSrcInfo.Name);
-
-            var uuidDestInfo = typeDest.GetProperties().Where(p => p.GetCustomAttribute(typeof(DbNodeUuidAttribute)) != null).Single();
-            uuidDest = (string?) uuidDestInfo.GetValue(dest);
-            uuidDestName = System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(uuidDestInfo.Name);
-
-            if (uuidSrc == null || uuidSrcName == null)
-            {
-                throw new MissingMemberException("Unable to get the value of the property with DbNodeUuidAttribute within `src`!");
-            }
-            if (uuidDest == null || uuidDestName == null)
-            {
-                throw new MissingMemberException("Unable to get the value of the property with DbNodeUuidAttribute within `dest`!");
-            }
-        }
-        catch (InvalidOperationException ioe)
-        {
-            throw new MissingMemberException("Unable to find the property with DbNodeUuidAttribute within `src` and/or `dest`!", ioe);
-        }
+        // Obtain the field used as the Uuid via reflection.
+        var infos = GetUuidInfos((src, typeSrc), (dest, typeDest));
+        string uuidSrc = infos[0].Value;
+        string uuidSrcName = infos[0].Name;
+        string uuidDest = infos[1].Value;
+        string uuidDestName = infos[1].Value;
 
         using (var session = _driver.AsyncSession())
         {
@@ -444,5 +363,63 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
                    return result.Counters.PropertiesSet > 0;
                });
         }
+    }
+
+    private readonly struct UuidInfo
+    {
+        public required string Name { get; init; }
+        public required string Value { get; init; }
+
+        [SetsRequiredMembers]
+        public UuidInfo(string name, string value)
+        {
+            Name = name;
+            Value = value;
+        }
+    }
+
+    // Pass (someObject, typeof(SomeType)) when you want to both the field name and its value.
+    // Pass (null, typeof(SomeType)) when you only care about the field name itself.
+    private UuidInfo[] GetUuidInfos(params (object?, Type)[] nodeSpecs)
+    {
+        UuidInfo[] infos = new UuidInfo[nodeSpecs.Length];
+        int i = 0;
+        try 
+        {
+            foreach ((object?, Type) spec in nodeSpecs)
+            {
+                    var uuidInfo = spec.Item2.GetProperties().Where(p => p.GetCustomAttribute(typeof(DbNodeUuidAttribute)) != null).Single();
+
+                    // value is optional if the spec.Item1 is null
+                    string? value = "";
+                    if (spec.Item1 != null)
+                    {
+                        value = (string?) uuidInfo.GetValue(spec.Item1);
+                        if (value == null) 
+                        {
+                            throw new MissingMemberException($"Unable to get the value of the property with DbNodeUuidAttribute for type {spec.Item2.Name}!");
+                        }
+                    }
+
+                    // name is required
+                    string? name = System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(uuidInfo.Name);
+                    if (name == null) 
+                    {
+                        throw new MissingMemberException($"Unable to get the name of the property with DbNodeUuidAttribute for type {spec.Item2.Name}!");
+                    }
+
+                    infos[i++] = new UuidInfo(name, value);
+            }
+        }
+        catch (InvalidOperationException ioe)
+        {
+            throw new MissingMemberException("Unable to find the property with DbNodeUuidAttribute attached to the object/type.", ioe);
+        }
+        catch (MissingMemberException mme)
+        {
+            throw mme;
+        }
+
+        return infos;
     }
 }
