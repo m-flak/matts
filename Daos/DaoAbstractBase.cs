@@ -363,7 +363,7 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
                 async tx =>
                 {
                     var cursor = await tx.RunAsync(
-                        $"MATCH ({nodeAttrSrc.Selector}:{nodeAttrSrc.Node}{relationship}({nodeAttrDest.Selector}:{nodeAttrDest.Node}) " +
+                        $"MATCH ({nodeAttrSrc.Selector}:{nodeAttrSrc.Node}{relationship.ToString(false, true)}({nodeAttrDest.Selector}:{nodeAttrDest.Node}) " +
                         $"WHERE {nodeAttrSrc.Selector}.{uuidSrcName} = $uuid1 AND {nodeAttrDest.Selector}.{uuidDestName} = $uuid2 " +
                         $"RETURN COUNT({relationship.Selector}) AS relCount",
                         new
@@ -383,6 +383,67 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
                         return false;
                     }
                 });
+        }
+    }
+
+    // TODO: IMPLEMENT THIS
+    protected async Task<bool> UpdateRelationshipBetweenImpl(DbRelationship relationship, object src, object dest, Type typeSrc, Type typeDest)
+    {
+        var nodeAttrSrc = Attribute.GetCustomAttribute(typeSrc, typeof(DbNodeAttribute)) as DbNodeAttribute;
+        var nodeAttrDest = Attribute.GetCustomAttribute(typeDest, typeof(DbNodeAttribute)) as DbNodeAttribute;
+
+        if (nodeAttrSrc == null || nodeAttrDest == null)
+        {
+            throw new MissingMemberException("Unable to find the DbNodeAttribute that should be attached to `src` and/or `dest`!");
+        }
+
+        string? uuidSrc = null;
+        string? uuidSrcName = null;
+        string? uuidDest = null;
+        string? uuidDestName = null;
+        try 
+        {
+            var uuidSrcInfo = typeSrc.GetProperties().Where(p => p.GetCustomAttribute(typeof(DbNodeUuidAttribute)) != null).Single();
+            uuidSrc = (string?) uuidSrcInfo.GetValue(src);
+            uuidSrcName = System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(uuidSrcInfo.Name);
+
+            var uuidDestInfo = typeDest.GetProperties().Where(p => p.GetCustomAttribute(typeof(DbNodeUuidAttribute)) != null).Single();
+            uuidDest = (string?) uuidDestInfo.GetValue(dest);
+            uuidDestName = System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(uuidDestInfo.Name);
+
+            if (uuidSrc == null || uuidSrcName == null)
+            {
+                throw new MissingMemberException("Unable to get the value of the property with DbNodeUuidAttribute within `src`!");
+            }
+            if (uuidDest == null || uuidDestName == null)
+            {
+                throw new MissingMemberException("Unable to get the value of the property with DbNodeUuidAttribute within `dest`!");
+            }
+        }
+        catch (InvalidOperationException ioe)
+        {
+            throw new MissingMemberException("Unable to find the property with DbNodeUuidAttribute within `src` and/or `dest`!", ioe);
+        }
+
+        using (var session = _driver.AsyncSession())
+        {
+            return await session.ExecuteWriteAsync(
+               async tx =>
+               {
+                   var cursor = await tx.RunAsync(
+                       $"MATCH ({nodeAttrSrc.Selector}:{nodeAttrSrc.Node}{relationship.ToString(false, true)}({nodeAttrDest.Selector}:{nodeAttrDest.Node}) " +
+                       $"WHERE {nodeAttrSrc.Selector}.{uuidSrcName} = $uuid1 AND {nodeAttrDest.Selector}.{uuidDestName} = $uuid2 " +
+                /**/   $"CREATE ({nodeAttrSrc.Selector}){relationship}({nodeAttrDest.Selector})", //*
+                       new
+                       {
+                           uuid1 = uuidSrc,
+                           uuid2 = uuidDest
+                       }
+                   );
+
+                   var result = await cursor.ConsumeAsync();
+                   return result.Counters.RelationshipsCreated == 1;
+               });
         }
     }
 }

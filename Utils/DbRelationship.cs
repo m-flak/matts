@@ -80,6 +80,28 @@ public class DbRelationship
         return $"[{Selector}:{Name} {CreateParametersString()}]";
     }
 
+    public string ToString(bool omitCardinality, bool omitCreationParameters)
+    {
+        if (!omitCreationParameters)
+        {
+            return ToString(omitCardinality);
+        }
+
+        if (!omitCardinality)
+        {
+            if (RelationshipCardinality == Cardinality.BIDIRECTIONAL)
+            {
+                return $"-[{Selector}:{Name} ]-";
+            }
+            else
+            {
+                return $"-[{Selector}:{Name} ]->";
+            }
+        }
+
+        return $"[{Selector}:{Name} ]";
+    }
+
     private string CreateParametersString()
     {
         if (Parameters.Count < 1)
