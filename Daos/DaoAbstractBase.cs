@@ -81,6 +81,9 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
             throw new MissingMemberException("Unable to find the DbNodeAttribute that should be attached to `lhNode` or `rhNode`!");
         }
 
+        // Obtain the field used as the Uuid via reflection.
+        var infos = GetUuidInfos((null, lhNode), (null, rhNode));
+
         using (var session = _driver.AsyncSession())
         {
             return await session.ExecuteReadAsync(
@@ -89,13 +92,17 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
                     var addOptionalParams = (DbRelationship? optRel) => (optRel != null) ? DaoUtils.AddReturnsForRelationshipParams(optRel.Name, optRel.Selector) : "";
 
                     string whereSelector = (config.WhereSelector == GetAllByRelationshipConfig.WhereNodeSelector.LEFT) ? lhAttr.Selector : rhAttr.Selector;
+                    string whereUuidProperty = (config.WhereSelector == GetAllByRelationshipConfig.WhereNodeSelector.LEFT) ? infos[0].Name : infos[1].Name;
                     string returnSelector = (config.ReturnSelector == GetAllByRelationshipConfig.ReturnNodeSelector.LEFT) ? lhAttr.Selector : rhAttr.Selector;
+                    // TODO: Make order by property configurable
+                    string returnUuidProperty = (config.ReturnSelector == GetAllByRelationshipConfig.ReturnNodeSelector.LEFT) ? infos[0].Name : infos[1].Name;
 
                     var cursor = await tx.RunAsync(
                         $"MATCH({lhAttr.Selector}: {lhAttr.Node}){relationship}({rhAttr.Selector}: {rhAttr.Node}) " +
-                        $"WHERE {whereSelector}.uuid = $uuid " +
+                        $"WHERE {whereSelector}.{whereUuidProperty} = $uuid " +
                         $"{DaoUtils.CreateOptionalMatchClause(optionalRelationship?.Name, lhAttr.Selector, rhAttr.Selector)}" +
-                        $"RETURN {returnSelector} {DaoUtils.AddReturnsForRelationshipParams(relationship.Name, relationship.Selector)} {addOptionalParams(optionalRelationship)}",
+                        $"RETURN {returnSelector} {DaoUtils.AddReturnsForRelationshipParams(relationship.Name, relationship.Selector)} {addOptionalParams(optionalRelationship)} " +
+                        $"ORDER BY {returnSelector}.{returnUuidProperty}",
                         new
                         {
                             uuid = whomUuid
@@ -127,6 +134,11 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
             throw new MissingMemberException("Unable to find the DbNodeAttribute that should be attached to `node`!");
         }
 
+        // Obtain the field used as the Uuid via reflection.
+        var infos = GetUuidInfos((null, node));
+        // TODO: Make order by property configurable
+        string orderByProperty = infos[0].Name;
+
         using (var session = _driver.AsyncSession())
         {
             return await session.ExecuteReadAsync(
@@ -135,7 +147,8 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
                     var cursor = await tx.RunAsync(
                         $"MATCH ({nodeAttr.Selector}: {nodeAttr.Node}) " +
                         $"WHERE {DaoUtils.CreateWhereClauseFromDict(filterProperties, nodeAttr.Selector)} " +
-                        $"RETURN {nodeAttr.Selector}"
+                        $"RETURN {nodeAttr.Selector} " +
+                        $"ORDER BY {nodeAttr.Selector}.{orderByProperty}"
                     );
                     var rows = await Wrappers.RunToListAsync(cursor, record => record.Values[nodeAttr.Selector].As<INode>());
                     return rows.Select(row => DaoUtils.MapSimpleRow<T>(row))
@@ -153,6 +166,11 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
             throw new MissingMemberException("Unable to find the DbNodeAttribute that should be attached to `node`!");
         }
 
+        // Obtain the field used as the Uuid via reflection.
+        var infos = GetUuidInfos((null, node));
+        // TODO: Make order by property configurable
+        string orderByProperty = infos[0].Name;
+
         using (var session = _driver.AsyncSession())
         {
             return await session.ExecuteReadAsync(
@@ -160,7 +178,8 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
                 {
                     var cursor = await tx.RunAsync(
                         $"MATCH ({nodeAttr.Selector}: {nodeAttr.Node}) " +
-                        $"RETURN {nodeAttr.Selector}"
+                        $"RETURN {nodeAttr.Selector} " +
+                        $"ORDER BY {nodeAttr.Selector}.{orderByProperty}"
                     );
                     var rows = await Wrappers.RunToListAsync(cursor, record => record.Values[nodeAttr.Selector].As<INode>());
                     return rows.Select(row => DaoUtils.MapSimpleRow<T>(row))
@@ -204,15 +223,20 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
         }
     }
 
-    protected async Task<List<P>> GetPropertyFromRelatedImpl<P>(string relationship, Type relatedNodeType, string propertyName)
+    protected async Task<List<P>> GetPropertyFromRelatedImpl<P>(string relationship, Type thisNodeType, Type relatedNodeType, string propertyName)
     {
-        var lhAttr = Attribute.GetCustomAttribute(typeof(T), typeof(DbNodeAttribute)) as DbNodeAttribute;
+        var lhAttr = Attribute.GetCustomAttribute(thisNodeType, typeof(DbNodeAttribute)) as DbNodeAttribute;
         var rhAttr = Attribute.GetCustomAttribute(relatedNodeType, typeof(DbNodeAttribute)) as DbNodeAttribute;
 
         if (lhAttr == null || rhAttr == null)
         {
             throw new MissingMemberException("Unable to find the DbNodeAttribute that should be attached to the DAO type or `relatedNodeType!");
         }
+
+        // Obtain the field used as the Uuid via reflection.
+        var infos = GetUuidInfos((null, thisNodeType));
+        // TODO: Make order by property configurable
+        string orderByProperty = infos[0].Name;
 
         var queryRelationship = new DbRelationship(relationship, DbRelationship.Cardinality.BIDIRECTIONAL);
 
@@ -223,7 +247,8 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
                 {
                     var cursor = await tx.RunAsync(
                         $"MATCH({lhAttr.Selector}: {lhAttr.Node}){queryRelationship}({rhAttr.Selector}: {rhAttr.Node}) " +
-                        $"RETURN {rhAttr.Selector}.{propertyName} AS {propertyName}"
+                        $"RETURN {rhAttr.Selector}.{propertyName} AS {propertyName} " +
+                        $"ORDER BY {lhAttr.Selector}.{orderByProperty}"
                     );
 
                     var rows = await Wrappers.RunToListAsync(cursor, record => record.Values[propertyName].As<P>());

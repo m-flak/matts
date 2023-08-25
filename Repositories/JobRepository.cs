@@ -63,7 +63,7 @@ public class JobRepository : IJobRepository
     {
         var job = await _daoJob.GetByUuid(uuid);
         var applicants = await _daoApp.GetAllByRelationship(RelationshipConstants.HAS_APPLIED_TO, RelationshipConstants.IS_INTERVIEWING_FOR, uuid);
-        // TODO / FIXME: Ensure the same ordering is followed by above and below.
+
         var interviewingWiths = await _daoApp.GetPropertyFromRelated<string>(RelationshipConstants.INTERVIEWING_WITH, typeof(Employer), "uuid");
         int n = interviewingWiths.Count;
         int i = 0;

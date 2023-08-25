@@ -118,7 +118,7 @@ public class JobDao : DaoAbstractBase<JobDb>
 
     public override async Task<List<P>> GetPropertyFromRelated<P>(string relationship, Type relatedNodeType, string propertyName)
     {
-        return await this.GetPropertyFromRelatedImpl<P>(relationship, relatedNodeType, propertyName);
+        return await this.GetPropertyFromRelatedImpl<P>(relationship, typeof(JobDb), relatedNodeType, propertyName);
     }
 
     public override async Task<bool> HasRelationshipBetween(DbRelationship relationship, JobDb source, object other, Type typeOther)

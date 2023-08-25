@@ -87,7 +87,7 @@ public class ApplicantDao : DaoAbstractBase<ApplicantDb>
 
     public override async Task<List<P>> GetPropertyFromRelated<P>(string relationship, Type relatedNodeType, string propertyName)
     {
-        return await this.GetPropertyFromRelatedImpl<P>(relationship, relatedNodeType, propertyName);
+        return await this.GetPropertyFromRelatedImpl<P>(relationship, typeof(ApplicantDb) ,relatedNodeType, propertyName);
     }
 
     public override async Task<bool> HasRelationshipBetween(DbRelationship relationship, ApplicantDb source, object other, Type typeOther)
