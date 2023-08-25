@@ -42,6 +42,7 @@ public class ApplicantDb
     [DbNodeCreationField]
     public string? Uuid { get; set; }
 
+    [DbNodeOrderBy]
     [DbNodeCreationField]
     public string? Name { get; set; }
 

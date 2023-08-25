@@ -57,12 +57,12 @@ public class ApplicantDao : DaoAbstractBase<ApplicantDb>
 
     public override async Task<List<ApplicantDb>> GetAll()
     {
-        return await this.GetAllImpl(typeof(ApplicantDb));
+        return await this.GetAllImpl(typeof(ApplicantDb), null);
     }
     
     public override async Task<List<ApplicantDb>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties)
     {
-        return await this.GetAllAndFilterByPropertiesImpl(typeof(ApplicantDb), filterProperties);
+        return await this.GetAllAndFilterByPropertiesImpl(typeof(ApplicantDb), filterProperties, null);
     }
 
     public override async Task<List<ApplicantDb>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid)
@@ -76,7 +76,8 @@ public class ApplicantDao : DaoAbstractBase<ApplicantDb>
             ), 
             new DbRelationship(relationship, "r"), 
             (optionalRelationship != null) ? new DbRelationship(optionalRelationship, "r2") : null, 
-            whomUuid
+            whomUuid,
+            null
         );
     }
 
@@ -87,7 +88,7 @@ public class ApplicantDao : DaoAbstractBase<ApplicantDb>
 
     public override async Task<List<P>> GetPropertyFromRelated<P>(string relationship, Type relatedNodeType, string propertyName)
     {
-        return await this.GetPropertyFromRelatedImpl<P>(relationship, typeof(ApplicantDb) ,relatedNodeType, propertyName);
+        return await this.GetPropertyFromRelatedImpl<P>(relationship, typeof(ApplicantDb) ,relatedNodeType, propertyName, null);
     }
 
     public override async Task<bool> HasRelationshipBetween(DbRelationship relationship, ApplicantDb source, object other, Type typeOther)

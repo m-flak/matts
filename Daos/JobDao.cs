@@ -87,7 +87,7 @@ public class JobDao : DaoAbstractBase<JobDb>
 
     public override async Task<List<JobDb>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties)
     {
-        return await this.GetAllAndFilterByPropertiesImpl(typeof(JobDb), filterProperties);
+        return await this.GetAllAndFilterByPropertiesImpl(typeof(JobDb), filterProperties, null);
     }
 
     public override async Task<List<JobDb>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid)
@@ -104,7 +104,8 @@ public class JobDao : DaoAbstractBase<JobDb>
                 ),
                 new DbRelationship(relationship, "r"),
                 (optionalRelationship != null) ? new DbRelationship(optionalRelationship, "r2") : null,
-                whomUuid
+                whomUuid,
+                null
             );
         }
 
@@ -118,7 +119,7 @@ public class JobDao : DaoAbstractBase<JobDb>
 
     public override async Task<List<P>> GetPropertyFromRelated<P>(string relationship, Type relatedNodeType, string propertyName)
     {
-        return await this.GetPropertyFromRelatedImpl<P>(relationship, typeof(JobDb), relatedNodeType, propertyName);
+        return await this.GetPropertyFromRelatedImpl<P>(relationship, typeof(JobDb), relatedNodeType, propertyName, null);
     }
 
     public override async Task<bool> HasRelationshipBetween(DbRelationship relationship, JobDb source, object other, Type typeOther)

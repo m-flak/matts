@@ -25,6 +25,7 @@ using matts.Constants;
 public class User
 {
     [DbNodeUuid]
+    [DbNodeOrderBy]
     [DbNodeCreationField]
     public string? UserName { get; set; }
 

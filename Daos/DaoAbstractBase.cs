@@ -71,15 +71,10 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
         public ReturnNodeSelector ReturnSelector  { get; init; }
     }
 
-    protected async Task<List<T>> GetAllByRelationshipImpl(Type lhNode, Type rhNode, GetAllByRelationshipConfig config, DbRelationship relationship, DbRelationship? optionalRelationship, string whomUuid)
+    protected async Task<List<T>> GetAllByRelationshipImpl(Type lhNode, Type rhNode, GetAllByRelationshipConfig config, DbRelationship relationship, DbRelationship? optionalRelationship, string whomUuid, string? orderBy)
     {
-        var lhAttr = Attribute.GetCustomAttribute(lhNode, typeof(DbNodeAttribute)) as DbNodeAttribute;
-        var rhAttr = Attribute.GetCustomAttribute(rhNode, typeof(DbNodeAttribute)) as DbNodeAttribute;
-
-        if (lhAttr == null || rhAttr == null)
-        {
-            throw new MissingMemberException("Unable to find the DbNodeAttribute that should be attached to `lhNode` or `rhNode`!");
-        }
+        GetNodeAttribute(lhNode, out var lhAttr);
+        GetNodeAttribute(rhNode, out var rhAttr);
 
         // Obtain the field used as the Uuid via reflection.
         var infos = GetUuidInfos((null, lhNode), (null, rhNode));
@@ -94,15 +89,19 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
                     string whereSelector = (config.WhereSelector == GetAllByRelationshipConfig.WhereNodeSelector.LEFT) ? lhAttr.Selector : rhAttr.Selector;
                     string whereUuidProperty = (config.WhereSelector == GetAllByRelationshipConfig.WhereNodeSelector.LEFT) ? infos[0].Name : infos[1].Name;
                     string returnSelector = (config.ReturnSelector == GetAllByRelationshipConfig.ReturnNodeSelector.LEFT) ? lhAttr.Selector : rhAttr.Selector;
-                    // TODO: Make order by property configurable
-                    string returnUuidProperty = (config.ReturnSelector == GetAllByRelationshipConfig.ReturnNodeSelector.LEFT) ? infos[0].Name : infos[1].Name;
+                    // Get Order By Property to sort by
+                    string orderByProperty = (orderBy != null) 
+                        ? orderBy 
+                        : (config.ReturnSelector == GetAllByRelationshipConfig.ReturnNodeSelector.LEFT) 
+                            ? GetOrderByProperty(lhNode) 
+                            : GetOrderByProperty(rhNode);
 
                     var cursor = await tx.RunAsync(
                         $"MATCH({lhAttr.Selector}: {lhAttr.Node}){relationship}({rhAttr.Selector}: {rhAttr.Node}) " +
                         $"WHERE {whereSelector}.{whereUuidProperty} = $uuid " +
                         $"{DaoUtils.CreateOptionalMatchClause(optionalRelationship?.Name, lhAttr.Selector, rhAttr.Selector)}" +
                         $"RETURN {returnSelector} {DaoUtils.AddReturnsForRelationshipParams(relationship.Name, relationship.Selector)} {addOptionalParams(optionalRelationship)} " +
-                        $"ORDER BY {returnSelector}.{returnUuidProperty}",
+                        $"ORDER BY {returnSelector}.{orderByProperty}",
                         new
                         {
                             uuid = whomUuid
@@ -125,19 +124,12 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
         }
     }
 
-    protected async Task<List<T>> GetAllAndFilterByPropertiesImpl(Type node, IReadOnlyDictionary<string, object> filterProperties)
+    protected async Task<List<T>> GetAllAndFilterByPropertiesImpl(Type node, IReadOnlyDictionary<string, object> filterProperties, string? orderBy)
     {
-        var nodeAttr = Attribute.GetCustomAttribute(node, typeof(DbNodeAttribute)) as DbNodeAttribute;
+        GetNodeAttribute(node, out var nodeAttr);
 
-        if (nodeAttr == null)
-        {
-            throw new MissingMemberException("Unable to find the DbNodeAttribute that should be attached to `node`!");
-        }
-
-        // Obtain the field used as the Uuid via reflection.
-        var infos = GetUuidInfos((null, node));
-        // TODO: Make order by property configurable
-        string orderByProperty = infos[0].Name;
+        // Get Order By Property to sort by
+        string orderByProperty = (orderBy != null) ? orderBy : GetOrderByProperty(node);
 
         using (var session = _driver.AsyncSession())
         {
@@ -157,19 +149,12 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
         }
     }
 
-    protected async Task<List<T>> GetAllImpl(Type node)
+    protected async Task<List<T>> GetAllImpl(Type node, string? orderBy)
     {
-        var nodeAttr = Attribute.GetCustomAttribute(node, typeof(DbNodeAttribute)) as DbNodeAttribute;
+        GetNodeAttribute(node, out var nodeAttr);
 
-        if (nodeAttr == null)
-        {
-            throw new MissingMemberException("Unable to find the DbNodeAttribute that should be attached to `node`!");
-        }
-
-        // Obtain the field used as the Uuid via reflection.
-        var infos = GetUuidInfos((null, node));
-        // TODO: Make order by property configurable
-        string orderByProperty = infos[0].Name;
+        // Get Order By Property to sort by
+        string orderByProperty = (orderBy != null) ? orderBy : GetOrderByProperty(node);
 
         using (var session = _driver.AsyncSession())
         {
@@ -190,12 +175,7 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
 
     protected async Task<T> GetByUuidImpl(Type node, string uuid)
     {
-        var nodeAttr = Attribute.GetCustomAttribute(node, typeof(DbNodeAttribute)) as DbNodeAttribute;
-
-        if (nodeAttr == null)
-        {
-            throw new MissingMemberException("Unable to find the DbNodeAttribute that should be attached to `node`!");
-        }
+        GetNodeAttribute(node, out var nodeAttr);
 
         // Obtain the field used as the Uuid via reflection.
         var infos = GetUuidInfos((null, node));
@@ -223,20 +203,13 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
         }
     }
 
-    protected async Task<List<P>> GetPropertyFromRelatedImpl<P>(string relationship, Type thisNodeType, Type relatedNodeType, string propertyName)
+    protected async Task<List<P>> GetPropertyFromRelatedImpl<P>(string relationship, Type thisNodeType, Type relatedNodeType, string propertyName, string? orderBy)
     {
-        var lhAttr = Attribute.GetCustomAttribute(thisNodeType, typeof(DbNodeAttribute)) as DbNodeAttribute;
-        var rhAttr = Attribute.GetCustomAttribute(relatedNodeType, typeof(DbNodeAttribute)) as DbNodeAttribute;
+        GetNodeAttribute(thisNodeType, out var lhAttr);
+        GetNodeAttribute(relatedNodeType, out var rhAttr);
 
-        if (lhAttr == null || rhAttr == null)
-        {
-            throw new MissingMemberException("Unable to find the DbNodeAttribute that should be attached to the DAO type or `relatedNodeType!");
-        }
-
-        // Obtain the field used as the Uuid via reflection.
-        var infos = GetUuidInfos((null, thisNodeType));
-        // TODO: Make order by property configurable
-        string orderByProperty = infos[0].Name;
+        // Get Order By Property to sort by
+        string orderByProperty = (orderBy != null) ? orderBy : GetOrderByProperty(thisNodeType);
 
         var queryRelationship = new DbRelationship(relationship, DbRelationship.Cardinality.BIDIRECTIONAL);
 
@@ -260,12 +233,7 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
     protected async Task<T> CreateNewImpl(T createWhat)
     {
         Type createWhatType = typeof(T);
-        var nodeAttr = Attribute.GetCustomAttribute(createWhatType, typeof(DbNodeAttribute)) as DbNodeAttribute;
-
-        if (nodeAttr == null)
-        {
-            throw new MissingMemberException("Unable to find the DbNodeAttribute that should be attached to `createWhat`!");
-        }
+        GetNodeAttribute(createWhatType, out var nodeAttr);
 
         // Obtain the field used as the Uuid via reflection.
         var infos = GetUuidInfos((createWhat, typeof(T)));
@@ -298,13 +266,8 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
 
     protected async Task<bool> CreateRelationshipBetweenImpl(DbRelationship relationship, object src, object dest, Type typeSrc, Type typeDest)
     {
-        var nodeAttrSrc = Attribute.GetCustomAttribute(typeSrc, typeof(DbNodeAttribute)) as DbNodeAttribute;
-        var nodeAttrDest = Attribute.GetCustomAttribute(typeDest, typeof(DbNodeAttribute)) as DbNodeAttribute;
-
-        if (nodeAttrSrc == null || nodeAttrDest == null)
-        {
-            throw new MissingMemberException("Unable to find the DbNodeAttribute that should be attached to `src` and/or `dest`!");
-        }
+        GetNodeAttribute(typeSrc, out var nodeAttrSrc);
+        GetNodeAttribute(typeDest, out var nodeAttrDest);
 
         // Obtain the field used as the Uuid via reflection.
         var infos = GetUuidInfos((src, typeSrc), (dest, typeDest));
@@ -337,13 +300,8 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
 
     protected async Task<bool> HasRelationshipBetweenImpl(DbRelationship relationship, object src, object dest, Type typeSrc, Type typeDest)
     {
-        var nodeAttrSrc = Attribute.GetCustomAttribute(typeSrc, typeof(DbNodeAttribute)) as DbNodeAttribute;
-        var nodeAttrDest = Attribute.GetCustomAttribute(typeDest, typeof(DbNodeAttribute)) as DbNodeAttribute;
-
-        if (nodeAttrSrc == null || nodeAttrDest == null)
-        {
-            throw new MissingMemberException("Unable to find the DbNodeAttribute that should be attached to `src` and/or `dest`!");
-        }
+        GetNodeAttribute(typeSrc, out var nodeAttrSrc);
+        GetNodeAttribute(typeDest, out var nodeAttrDest);
 
         // Obtain the field used as the Uuid via reflection.
         var infos = GetUuidInfos((src, typeSrc), (dest, typeDest));
@@ -383,13 +341,8 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
 
     protected async Task<bool> UpdateRelationshipBetweenImpl(DbRelationship relationship, object src, object dest, Type typeSrc, Type typeDest)
     {
-        var nodeAttrSrc = Attribute.GetCustomAttribute(typeSrc, typeof(DbNodeAttribute)) as DbNodeAttribute;
-        var nodeAttrDest = Attribute.GetCustomAttribute(typeDest, typeof(DbNodeAttribute)) as DbNodeAttribute;
-
-        if (nodeAttrSrc == null || nodeAttrDest == null)
-        {
-            throw new MissingMemberException("Unable to find the DbNodeAttribute that should be attached to `src` and/or `dest`!");
-        }
+        GetNodeAttribute(typeSrc, out var nodeAttrSrc);
+        GetNodeAttribute(typeDest, out var nodeAttrDest);
 
         // Obtain the field used as the Uuid via reflection.
         var infos = GetUuidInfos((src, typeSrc), (dest, typeDest));
@@ -422,13 +375,8 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
 
     protected async Task<bool> DeleteRelationshipBetweenImpl(DbRelationship relationship, object src, object dest, Type typeSrc, Type typeDest)
     {
-        var nodeAttrSrc = Attribute.GetCustomAttribute(typeSrc, typeof(DbNodeAttribute)) as DbNodeAttribute;
-        var nodeAttrDest = Attribute.GetCustomAttribute(typeDest, typeof(DbNodeAttribute)) as DbNodeAttribute;
-
-        if (nodeAttrSrc == null || nodeAttrDest == null)
-        {
-            throw new MissingMemberException("Unable to find the DbNodeAttribute that should be attached to `src` and/or `dest`!");
-        }
+        GetNodeAttribute(typeSrc, out var nodeAttrSrc);
+        GetNodeAttribute(typeDest, out var nodeAttrDest);
 
         // Obtain the field used as the Uuid via reflection.
         var infos = GetUuidInfos((src, typeSrc), (dest, typeDest));
@@ -515,5 +463,30 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
         }
 
         return infos;
+    }
+
+    private static string GetOrderByProperty(Type node)
+    {
+        PropertyInfo? info = null;
+        try
+        {
+            info = node.GetProperties().Where(p => p.GetCustomAttribute(typeof(DbNodeOrderByAttribute)) != null).Single();
+        }
+        catch (InvalidOperationException ioe)
+        {
+            throw new MissingMemberException($"Unable to find the Order By property within {node.Name}!", ioe);
+        }
+
+        return System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(info.Name);
+    }
+
+    private static void GetNodeAttribute(Type node, out DbNodeAttribute attr)
+    {
+        var _attr = Attribute.GetCustomAttribute(node, typeof(DbNodeAttribute)) as DbNodeAttribute;
+        if (_attr == null)
+        {
+            throw new MissingMemberException($"Unable to find the DbNodeAttribute that should be attached to {node.Name}!");
+        }
+        attr = _attr;
     }
 }
