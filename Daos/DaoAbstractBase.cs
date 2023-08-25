@@ -33,6 +33,7 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
     public abstract Task<List<T>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties);
     public abstract Task<List<T>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid);
     public abstract Task<T> GetByUuid(string uuid);
+    public abstract Task<List<P>> GetPropertyFromRelated<P>(string relationship, Type relatedNodeType, string propertyName);
     public abstract Task<bool> HasRelationshipBetween(DbRelationship relationship, T source, object other, Type typeOther);
 
     // ////////////////////////////////////////////////////////////////////////
@@ -199,6 +200,34 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
                     var row = await Wrappers.RunSingleAsync(cursor, record => record.Values[nodeAttr.Selector].As<INode>());
 
                     return DaoUtils.MapSimpleRow<T>(row);
+                });
+        }
+    }
+
+    protected async Task<List<P>> GetPropertyFromRelatedImpl<P>(string relationship, Type relatedNodeType, string propertyName)
+    {
+        var lhAttr = Attribute.GetCustomAttribute(typeof(T), typeof(DbNodeAttribute)) as DbNodeAttribute;
+        var rhAttr = Attribute.GetCustomAttribute(relatedNodeType, typeof(DbNodeAttribute)) as DbNodeAttribute;
+
+        if (lhAttr == null || rhAttr == null)
+        {
+            throw new MissingMemberException("Unable to find the DbNodeAttribute that should be attached to the DAO type or `relatedNodeType!");
+        }
+
+        var queryRelationship = new DbRelationship(relationship, DbRelationship.Cardinality.BIDIRECTIONAL);
+
+        using (var session = _driver.AsyncSession())
+        {
+            return await session.ExecuteReadAsync(
+                async tx =>
+                {
+                    var cursor = await tx.RunAsync(
+                        $"MATCH({lhAttr.Selector}: {lhAttr.Node}){queryRelationship}({rhAttr.Selector}: {rhAttr.Node}) " +
+                        $"RETURN {rhAttr.Selector}.{propertyName} AS {propertyName}"
+                    );
+
+                    var rows = await Wrappers.RunToListAsync(cursor, record => record.Values[propertyName].As<P>());
+                    return rows.ToList();
                 });
         }
     }
@@ -420,7 +449,7 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
 
     // Pass (someObject, typeof(SomeType)) when you want to both the field name and its value.
     // Pass (null, typeof(SomeType)) when you only care about the field name itself.
-    private UuidInfo[] GetUuidInfos(params (object?, Type)[] nodeSpecs)
+    private static UuidInfo[] GetUuidInfos(params (object?, Type)[] nodeSpecs)
     {
         UuidInfo[] infos = new UuidInfo[nodeSpecs.Length];
         int i = 0;

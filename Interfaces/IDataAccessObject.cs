@@ -37,5 +37,7 @@ public interface IDataAccessObject<T> where T : class
 
     public Task<T> GetByUuid(string uuid);
 
+    public Task<List<P>> GetPropertyFromRelated<P>(string relationship, Type relatedNodeType, string propertyName);
+
     public Task<bool> HasRelationshipBetween(DbRelationship relationship, T source, object other, Type typeOther);
 }

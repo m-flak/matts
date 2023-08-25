@@ -60,6 +60,10 @@ public class DbRelationship
         Parameters = new Dictionary<string, object>();
     }
 
+    public DbRelationship(string name, Cardinality cardinality) : this(name, "", cardinality)
+    {
+    }
+
     public override string ToString()
     {
         if (RelationshipCardinality == Cardinality.BIDIRECTIONAL)

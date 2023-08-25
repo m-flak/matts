@@ -74,6 +74,11 @@ public class UserDao : DaoAbstractBase<User>
         return await this.GetByUuidImpl(typeof(User), uuid);
     }
 
+    public override Task<List<P>> GetPropertyFromRelated<P>(string relationship, Type relatedNodeType, string propertyName)
+    {
+        return this.GetPropertyFromRelatedImpl<P>(relationship, relatedNodeType, propertyName);
+    }
+
     public override async Task<bool> HasRelationshipBetween(DbRelationship relationship, User source, object other, Type typeOther)
     {
         return await this.HasRelationshipBetweenImpl(relationship, source, other, typeof(User), typeOther);
