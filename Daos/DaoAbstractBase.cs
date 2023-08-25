@@ -28,6 +28,7 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
     public abstract Task<T> CreateNew(T createWhat);
     public abstract Task<bool> CreateRelationshipBetween(DbRelationship relationship, T source, object other, Type typeOther);
     public abstract Task<bool> UpdateRelationshipBetween(DbRelationship relationship, T source, object other, Type typeOther);
+    public abstract Task<bool> DeleteRelationshipBetween(DbRelationship relationship, T source, object other, Type typeOther);
     public abstract Task<List<T>> GetAll();
     public abstract Task<List<T>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties);
     public abstract Task<List<T>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid);
@@ -256,7 +257,7 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
         string uuidSrc = infos[0].Value;
         string uuidSrcName = infos[0].Name;
         string uuidDest = infos[1].Value;
-        string uuidDestName = infos[1].Value;
+        string uuidDestName = infos[1].Name;
 
         using (var session = _driver.AsyncSession())
         {
@@ -295,7 +296,7 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
         string uuidSrc = infos[0].Value;
         string uuidSrcName = infos[0].Name;
         string uuidDest = infos[1].Value;
-        string uuidDestName = infos[1].Value;
+        string uuidDestName = infos[1].Name;
 
         using (var session = _driver.AsyncSession())
         {
@@ -303,7 +304,7 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
                 async tx =>
                 {
                     var cursor = await tx.RunAsync(
-                        $"MATCH ({nodeAttrSrc.Selector}:{nodeAttrSrc.Node}{relationship.ToString(false, true)}({nodeAttrDest.Selector}:{nodeAttrDest.Node}) " +
+                        $"MATCH ({nodeAttrSrc.Selector}:{nodeAttrSrc.Node}){relationship.ToString(false, true)}({nodeAttrDest.Selector}:{nodeAttrDest.Node}) " +
                         $"WHERE {nodeAttrSrc.Selector}.{uuidSrcName} = $uuid1 AND {nodeAttrDest.Selector}.{uuidDestName} = $uuid2 " +
                         $"RETURN COUNT({relationship.Selector}) AS relCount",
                         new
@@ -341,7 +342,7 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
         string uuidSrc = infos[0].Value;
         string uuidSrcName = infos[0].Name;
         string uuidDest = infos[1].Value;
-        string uuidDestName = infos[1].Value;
+        string uuidDestName = infos[1].Name;
 
         using (var session = _driver.AsyncSession())
         {
@@ -353,7 +354,7 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
                    queryParams["uuid2"] = uuidDest;
 
                    var cursor = await tx.RunAsync(
-                       $"MATCH ({nodeAttrSrc.Selector}:{nodeAttrSrc.Node}{relationship.ToString(false, true)}({nodeAttrDest.Selector}:{nodeAttrDest.Node}) " +
+                       $"MATCH ({nodeAttrSrc.Selector}:{nodeAttrSrc.Node}){relationship.ToString(false, true)}({nodeAttrDest.Selector}:{nodeAttrDest.Node}) " +
                        $"WHERE {nodeAttrSrc.Selector}.{uuidSrcName} = $uuid1 AND {nodeAttrDest.Selector}.{uuidDestName} = $uuid2 " +
                        DaoUtils.CreateSetStatements(relationship.Parameters, relationship.Selector),
                        queryParams
@@ -362,6 +363,45 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
                    var result = await cursor.ConsumeAsync();
                    return result.Counters.PropertiesSet > 0;
                });
+        }
+    }
+
+    protected async Task<bool> DeleteRelationshipBetweenImpl(DbRelationship relationship, object src, object dest, Type typeSrc, Type typeDest)
+    {
+        var nodeAttrSrc = Attribute.GetCustomAttribute(typeSrc, typeof(DbNodeAttribute)) as DbNodeAttribute;
+        var nodeAttrDest = Attribute.GetCustomAttribute(typeDest, typeof(DbNodeAttribute)) as DbNodeAttribute;
+
+        if (nodeAttrSrc == null || nodeAttrDest == null)
+        {
+            throw new MissingMemberException("Unable to find the DbNodeAttribute that should be attached to `src` and/or `dest`!");
+        }
+
+        // Obtain the field used as the Uuid via reflection.
+        var infos = GetUuidInfos((src, typeSrc), (dest, typeDest));
+        string uuidSrc = infos[0].Value;
+        string uuidSrcName = infos[0].Name;
+        string uuidDest = infos[1].Value;
+        string uuidDestName = infos[1].Name;
+
+        using (var session = _driver.AsyncSession())
+        {
+            return await session.ExecuteWriteAsync(
+                async tx =>
+                {
+                    var cursor = await tx.RunAsync(
+                        $"MATCH ({nodeAttrSrc.Selector}:{nodeAttrSrc.Node}){relationship.ToString(false, true)}({nodeAttrDest.Selector}:{nodeAttrDest.Node}) " +
+                        $"WHERE {nodeAttrSrc.Selector}.{uuidSrcName} = $uuid1 AND {nodeAttrDest.Selector}.{uuidDestName} = $uuid2 " +
+                        $"DELETE {relationship.Selector}",
+                        new
+                        {
+                            uuid1 = uuidSrc,
+                            uuid2 = uuidDest
+                        }
+                    );
+
+                    var result = await cursor.ConsumeAsync();
+                    return result.Counters.RelationshipsDeleted == 1;
+                });
         }
     }
 

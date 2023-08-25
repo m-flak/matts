@@ -38,15 +38,8 @@ public class ApplicantRepository : IApplicantRepository
 
     public async Task<DateTime?> ScheduleInterview(Applicant scheduleFor, string jobUuid, DateTime? when)
     {
-        if (when == null)
-        {
-            // TODO: Remove relationship
-            return null;
-        }
-
         var queryRelationship = new DbRelationship(RelationshipConstants.IS_INTERVIEWING_FOR, "r", DbRelationship.Cardinality.BIDIRECTIONAL);
         var updateRelationship = new DbRelationship(RelationshipConstants.IS_INTERVIEWING_FOR, "r");
-        updateRelationship.Parameters["interviewDate"] = when;
 
         JobDb job = new JobDb()
         {
@@ -57,7 +50,15 @@ public class ApplicantRepository : IApplicantRepository
         bool hasRelationship = await _daoApp.HasRelationshipBetween(queryRelationship, applicant, job, typeof(JobDb));
         if (hasRelationship)
         {
-            await _daoApp.UpdateRelationshipBetween(updateRelationship, applicant, job, typeof(JobDb));
+            if (when == null)
+            {
+                await _daoApp.DeleteRelationshipBetween(updateRelationship, applicant, job, typeof(JobDb));
+            }
+            else
+            {
+                updateRelationship.Parameters["interviewDate"] = ((DateTime) when).ToUniversalTime().ToString("O");
+                await _daoApp.UpdateRelationshipBetween(updateRelationship, applicant, job, typeof(JobDb));
+            }
         }
         else
         {

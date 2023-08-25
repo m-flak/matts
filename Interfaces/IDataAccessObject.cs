@@ -27,6 +27,8 @@ public interface IDataAccessObject<T> where T : class
 
     public Task<bool> UpdateRelationshipBetween(DbRelationship relationship, T source, object other, Type typeOther);
 
+    public Task<bool> DeleteRelationshipBetween(DbRelationship relationship, T source, object other, Type typeOther);
+
     public Task<List<T>> GetAll();
 
     public Task<List<T>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid);

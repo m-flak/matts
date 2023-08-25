@@ -49,6 +49,11 @@ public class EmployerDao : DaoAbstractBase<EmployerDb>
         return await this.UpdateRelationshipBetweenImpl(relationship, source, other, typeof(EmployerDb), typeOther);
     }
 
+    public override async Task<bool> DeleteRelationshipBetween(DbRelationship relationship, EmployerDb source, object other, Type typeOther)
+    {
+        return await this.DeleteRelationshipBetweenImpl(relationship, source, other, typeof(EmployerDb), typeOther);
+    }
+
     public override async Task<List<EmployerDb>> GetAll()
     {
         throw new NotImplementedException();

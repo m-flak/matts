@@ -49,6 +49,11 @@ public class JobDao : DaoAbstractBase<JobDb>
         return await this.UpdateRelationshipBetweenImpl(relationship, source, other, typeof(JobDb), typeOther);
     }
 
+    public override async Task<bool> DeleteRelationshipBetween(DbRelationship relationship, JobDb source, object other, Type typeOther)
+    {
+        return await this.DeleteRelationshipBetweenImpl(relationship, source, other, typeof(JobDb), typeOther);
+    }
+
     public override async Task<List<JobDb>> GetAll()
     {
         using (var session = _driver.AsyncSession())
