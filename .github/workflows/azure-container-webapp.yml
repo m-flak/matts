@@ -78,14 +78,18 @@ jobs:
             echo "$secret_get=$value" >> $GITHUB_OUTPUT
           done
 
-      - name: Configure docker compose
+      - name: Configure Docker Compose
         env:
           NEO4J_USERNAME: ${{ steps.build-secrets.outputs.stagingn4juser }}
           NEO4J_PASSWORD: ${{ steps.build-secrets.outputs.stagingn4jpw }}
-        run: echo TODO
+        run: |
+          cat - > docker.staging.env <<EOF
+          NEO4J_USERNAME=$NEO4J_USERNAME
+          NEO4J_PASSWORD=$NEO4J_PASSWORD
+          EOF
 
       - name: Build Image
-        run: docker compose -f docker-compose.yml -f docker-compose.staging.yml build matts
+        run: docker compose --env-file docker.staging.env -f docker-compose.yml -f docker-compose.staging.yml build matts
 
       - name: Run Frontend Tests
         run: |
