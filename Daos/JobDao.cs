@@ -49,7 +49,7 @@ public class JobDao : DaoAbstractBase<JobDb>
         return await this.UpdateRelationshipBetweenImpl(relationship, source, other, typeof(JobDb), typeOther);
     }
 
-    public override async Task<bool> DeleteRelationshipBetween(DbRelationship relationship, JobDb source, object other, Type typeOther)
+    public override async Task<bool> DeleteRelationshipBetween(DbRelationship relationship, JobDb? source, object? other, Type typeOther)
     {
         return await this.DeleteRelationshipBetweenImpl(relationship, source, other, typeof(JobDb), typeOther);
     }
@@ -125,5 +125,28 @@ public class JobDao : DaoAbstractBase<JobDb>
     public override async Task<bool> HasRelationshipBetween(DbRelationship relationship, JobDb source, object other, Type typeOther)
     {
         return await this.HasRelationshipBetweenImpl(relationship, source, other, typeof(JobDb), typeOther);
+    }
+
+    public virtual async Task<string> UpdateJobStatus(string jobUuid, string newStatus)
+    {
+        using (var session = _driver.AsyncSession())
+        {
+            return await session.ExecuteWriteAsync(
+                async tx =>
+                {
+                    var cursor = await tx.RunAsync(
+                        "MATCH (j:Job) " +
+                        "WHERE j.uuid = $uuid " +
+                        "SET j.status = $status",
+                        new
+                        {
+                            uuid = jobUuid,
+                            status = newStatus
+                        }
+                    );
+                    await cursor.ConsumeAsync();
+                    return newStatus;
+                });
+        }
     }
 }

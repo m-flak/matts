@@ -49,7 +49,7 @@ public class EmployerDao : DaoAbstractBase<EmployerDb>
         return await this.UpdateRelationshipBetweenImpl(relationship, source, other, typeof(EmployerDb), typeOther);
     }
 
-    public override async Task<bool> DeleteRelationshipBetween(DbRelationship relationship, EmployerDb source, object other, Type typeOther)
+    public override async Task<bool> DeleteRelationshipBetween(DbRelationship relationship, EmployerDb? source, object? other, Type typeOther)
     {
         return await this.DeleteRelationshipBetweenImpl(relationship, source, other, typeof(EmployerDb), typeOther);
     }
@@ -66,7 +66,18 @@ public class EmployerDao : DaoAbstractBase<EmployerDb>
 
     public override async Task<List<EmployerDb>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid)
     {
-        throw new NotImplementedException();
+        return await this.GetAllByRelationshipImpl(
+            typeof(EmployerDb),
+            typeof(ApplicantDb),
+            new GetAllByRelationshipConfig(
+                GetAllByRelationshipConfig.WhereNodeSelector.RIGHT,
+                GetAllByRelationshipConfig.ReturnNodeSelector.LEFT
+            ),
+            new DbRelationship(relationship, "r"),
+            (optionalRelationship != null) ? new DbRelationship(optionalRelationship, "r2") : null,
+            whomUuid,
+            null
+        );
     }
 
     public override async Task<EmployerDb> GetByUuid(string uuid)

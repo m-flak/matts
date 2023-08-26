@@ -1,4 +1,4 @@
-/* matts
+﻿/* matts
  * "Matthew's ATS" - Portfolio Project
  * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
  * 
@@ -19,9 +19,8 @@ using matts.Models;
 
 namespace matts.Interfaces;
 
-public interface IApplicantRepository
+public interface IEmployerRepository
 {
-    public Task<Applicant> GetApplicantByUuid(string uuid);
-    public Task<DateTime?> ScheduleInterview(Applicant scheduleFor, string jobUuid, DateTime? when);
-    public Task<bool> CreateOrRemoveInterviewingWith(bool remove, Applicant interviewee, string? interviewerUuid);
+    public Task<bool> CreateOrRemoveInterviewingWith(bool remove, string? interviewerUuid, string intervieweeUuid);
+    public Task<Employer> GetEmployerInterviewingWith(string applicantInterviewingWith);
 }

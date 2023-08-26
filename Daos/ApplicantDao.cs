@@ -50,7 +50,7 @@ public class ApplicantDao : DaoAbstractBase<ApplicantDb>
         return await this.UpdateRelationshipBetweenImpl(relationship, source, other, typeof(ApplicantDb), typeOther);
     }
 
-    public override async Task<bool> DeleteRelationshipBetween(DbRelationship relationship, ApplicantDb source, object other, Type typeOther)
+    public override async Task<bool> DeleteRelationshipBetween(DbRelationship relationship, ApplicantDb? source, object? other, Type typeOther)
     {
         return await this.DeleteRelationshipBetweenImpl(relationship, source, other, typeof(ApplicantDb), typeOther);
     }

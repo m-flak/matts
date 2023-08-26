@@ -28,4 +28,5 @@ public interface IJobRepository
     public Task<Job> CreateNewJob(Job job);
     public Task<bool> ApplyToJob(string jobUuid, string applicantUud);
     public Task<bool> RejectForJob(string jobUuid, string applicantUuid, bool isRejected);
+    public Task<Job> UpdateJob(Job job);
 }

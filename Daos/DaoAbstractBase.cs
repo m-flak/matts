@@ -28,7 +28,7 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
     public abstract Task<T> CreateNew(T createWhat);
     public abstract Task<bool> CreateRelationshipBetween(DbRelationship relationship, T source, object other, Type typeOther);
     public abstract Task<bool> UpdateRelationshipBetween(DbRelationship relationship, T source, object other, Type typeOther);
-    public abstract Task<bool> DeleteRelationshipBetween(DbRelationship relationship, T source, object other, Type typeOther);
+    public abstract Task<bool> DeleteRelationshipBetween(DbRelationship relationship, T? source, object? other, Type typeOther);
     public abstract Task<List<T>> GetAll();
     public abstract Task<List<T>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties);
     public abstract Task<List<T>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid);
@@ -373,16 +373,21 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
         }
     }
 
-    protected async Task<bool> DeleteRelationshipBetweenImpl(DbRelationship relationship, object src, object dest, Type typeSrc, Type typeDest)
+    protected async Task<bool> DeleteRelationshipBetweenImpl(DbRelationship relationship, object? src, object? dest, Type typeSrc, Type typeDest)
     {
+        if (src == null && dest == null)
+        {
+            throw new ArgumentNullException("The source and destination objects cannot both be null.");
+        }
+
         GetNodeAttribute(typeSrc, out var nodeAttrSrc);
         GetNodeAttribute(typeDest, out var nodeAttrDest);
 
         // Obtain the field used as the Uuid via reflection.
         var infos = GetUuidInfos((src, typeSrc), (dest, typeDest));
-        string uuidSrc = infos[0].Value;
+        string uuidSrc = infos[0].Value;    // will be empty str if src is null
         string uuidSrcName = infos[0].Name;
-        string uuidDest = infos[1].Value;
+        string uuidDest = infos[1].Value;   // will be empty str if dest is null
         string uuidDestName = infos[1].Name;
 
         using (var session = _driver.AsyncSession())
@@ -390,16 +395,46 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
             return await session.ExecuteWriteAsync(
                 async tx =>
                 {
-                    var cursor = await tx.RunAsync(
-                        $"MATCH ({nodeAttrSrc.Selector}:{nodeAttrSrc.Node}){relationship.ToString(false, true)}({nodeAttrDest.Selector}:{nodeAttrDest.Node}) " +
-                        $"WHERE {nodeAttrSrc.Selector}.{uuidSrcName} = $uuid1 AND {nodeAttrDest.Selector}.{uuidDestName} = $uuid2 " +
-                        $"DELETE {relationship.Selector}",
-                        new
-                        {
-                            uuid1 = uuidSrc,
-                            uuid2 = uuidDest
-                        }
-                    );
+                    IResultCursor? cursor;
+                    
+                    // dest and src were provided
+                    if (uuidDest.Length > 0 && uuidSrc.Length > 0)
+                    {
+                        cursor = await tx.RunAsync(
+                            $"MATCH ({nodeAttrSrc.Selector}:{nodeAttrSrc.Node}){relationship.ToString(false, true)}({nodeAttrDest.Selector}:{nodeAttrDest.Node}) " +
+                            $"WHERE {nodeAttrSrc.Selector}.{uuidSrcName} = $uuid1 AND {nodeAttrDest.Selector}.{uuidDestName} = $uuid2 " +
+                            $"DELETE {relationship.Selector}",
+                            new
+                            {
+                                uuid1 = uuidSrc,
+                                uuid2 = uuidDest
+                            }
+                        );
+                    }
+                    else if (uuidSrc.Length > 0)
+                    {
+                        cursor = await tx.RunAsync(
+                            $"MATCH ({nodeAttrSrc.Selector}:{nodeAttrSrc.Node}){relationship.ToString(false, true)}() " +
+                            $"WHERE {nodeAttrSrc.Selector}.{uuidSrcName} = $uuid1 " +
+                            $"DELETE {relationship.Selector}",
+                            new
+                            {
+                                uuid1 = uuidSrc
+                            }
+                        );
+                    }
+                    else
+                    {
+                        cursor = await tx.RunAsync(
+                            $"MATCH (){relationship.ToString(false, true)}({nodeAttrDest.Selector}:{nodeAttrDest.Node}) " +
+                            $"WHERE {nodeAttrDest.Selector}.{uuidDestName} = $uuid2 " +
+                            $"DELETE {relationship.Selector}",
+                            new
+                            {
+                                uuid2 = uuidDest
+                            }
+                        );
+                    }
 
                     var result = await cursor.ConsumeAsync();
                     return result.Counters.RelationshipsDeleted == 1;

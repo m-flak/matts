@@ -165,6 +165,7 @@ builder.Services.AddScoped(typeof(IDataAccessObject<ApplicantDb>), typeof(Applic
 builder.Services.AddScoped(typeof(IDataAccessObject<User>), typeof(UserDao));
 builder.Services.AddScoped(typeof(IDataAccessObject<EmployerDb>), typeof(EmployerDao));
 builder.Services.AddScoped<IApplicantRepository, ApplicantRepository>();
+builder.Services.AddScoped<IEmployerRepository, EmployerRepository>();
 builder.Services.AddScoped<IJobRepository, JobRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IJobService, JobService>();

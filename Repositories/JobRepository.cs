@@ -18,6 +18,7 @@
 using Mapster;
 using MapsterMapper;
 using matts.Constants;
+using matts.Daos;
 using matts.Interfaces;
 using matts.Models;
 using matts.Models.Db;
@@ -64,7 +65,7 @@ public class JobRepository : IJobRepository
         var job = await _daoJob.GetByUuid(uuid);
         var applicants = await _daoApp.GetAllByRelationship(RelationshipConstants.HAS_APPLIED_TO, RelationshipConstants.IS_INTERVIEWING_FOR, uuid);
 
-        var interviewingWiths = await _daoApp.GetPropertyFromRelated<string>(RelationshipConstants.INTERVIEWING_WITH, typeof(Employer), "uuid");
+        var interviewingWiths = await _daoApp.GetPropertyFromRelated<string>(RelationshipConstants.INTERVIEWING_WITH, typeof(EmployerDb), "uuid");
         int n = interviewingWiths.Count;
         int i = 0;
         foreach (ApplicantDb applicant in applicants)
@@ -130,5 +131,17 @@ public class JobRepository : IJobRepository
         }
 
         return wasUpdated;
+    }
+
+    public async Task<Job> UpdateJob(Job job)
+    {
+        if (job.Uuid == null || job.Status == null)
+        {
+            throw new ArgumentNullException("Uuid and status should not be null here.");
+        }
+
+        var dao = (JobDao) _daoJob;
+        job.Status = await dao.UpdateJobStatus(job.Uuid, job.Status);
+        return job;
     }
 }

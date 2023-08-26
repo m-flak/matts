@@ -49,7 +49,7 @@ public class UserDao : DaoAbstractBase<User>
         return await this.UpdateRelationshipBetweenImpl(relationship, source, other, typeof(User), typeOther);
     }
 
-    public override async Task<bool> DeleteRelationshipBetween(DbRelationship relationship, User source, object other, Type typeOther)
+    public override async Task<bool> DeleteRelationshipBetween(DbRelationship relationship, User? source, object? other, Type typeOther)
     {
         return await this.DeleteRelationshipBetweenImpl(relationship, source, other, typeof(User), typeOther);
     }

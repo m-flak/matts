@@ -36,35 +36,79 @@ public class ApplicantRepository : IApplicantRepository
         _mapper = mapper;
     }
 
+    public async Task<Applicant> GetApplicantByUuid(string uuid)
+    {
+        var app = await _daoApp.GetByUuid(uuid);
+        return _mapper.Map<Applicant>(app);
+    }
+
     public async Task<DateTime?> ScheduleInterview(Applicant scheduleFor, string jobUuid, DateTime? when)
     {
-        var queryRelationship = new DbRelationship(RelationshipConstants.IS_INTERVIEWING_FOR, "r", DbRelationship.Cardinality.BIDIRECTIONAL);
+        var queryRelationship = new DbRelationship(RelationshipConstants.IS_INTERVIEWING_FOR, "r", DbRelationship.Cardinality.UNIDIRECTIONAL);
         var updateRelationship = new DbRelationship(RelationshipConstants.IS_INTERVIEWING_FOR, "r");
 
-        JobDb job = new JobDb()
+        JobDb job = new()
         {
             Uuid = jobUuid
         };
         ApplicantDb applicant = _mapper.Map<ApplicantDb>(scheduleFor);
 
+        // The delete will delete if it exists or do nothing
+        if (when == null)
+        {
+            await _daoApp.DeleteRelationshipBetween(updateRelationship, applicant, job, typeof(JobDb));
+            return when;
+        }
+
         bool hasRelationship = await _daoApp.HasRelationshipBetween(queryRelationship, applicant, job, typeof(JobDb));
         if (hasRelationship)
         {
-            if (when == null)
-            {
-                await _daoApp.DeleteRelationshipBetween(updateRelationship, applicant, job, typeof(JobDb));
-            }
-            else
-            {
-                updateRelationship.Parameters["interviewDate"] = ((DateTime) when).ToUniversalTime().ToString("O");
-                await _daoApp.UpdateRelationshipBetween(updateRelationship, applicant, job, typeof(JobDb));
-            }
+            updateRelationship.Parameters["interviewDate"] = ((DateTime) when).ToUniversalTime().ToString("O");
+            await _daoApp.UpdateRelationshipBetween(updateRelationship, applicant, job, typeof(JobDb));
         }
         else
         {
+            updateRelationship.Parameters["interviewDate"] = ((DateTime)when).ToUniversalTime().ToString("O");
             await _daoApp.CreateRelationshipBetween(updateRelationship, applicant, job, typeof(JobDb));
         }
         
         return when;
+    }
+
+    public async Task<bool> CreateOrRemoveInterviewingWith(bool remove, Applicant interviewee, string? interviewerUuid)
+    {
+        if (interviewerUuid == null && !remove)
+        {
+            throw new ArgumentNullException(nameof(interviewerUuid), "A Uuid MUST be provided when `remove` is false.");
+        }
+
+        var queryRelationship = new DbRelationship(RelationshipConstants.INTERVIEWING_WITH, "r", DbRelationship.Cardinality.UNIDIRECTIONAL);
+        var createRelationship = new DbRelationship(RelationshipConstants.INTERVIEWING_WITH, "r");
+
+        EmployerDb interviewer = new()
+        {
+            Uuid = interviewerUuid
+        };
+        ApplicantDb applicant = _mapper.Map<ApplicantDb>(interviewee);
+
+        bool hasRelationship = false; 
+        if (interviewerUuid != null)
+        {
+            hasRelationship = await _daoApp.HasRelationshipBetween(queryRelationship, applicant, interviewer, typeof(EmployerDb));
+        }
+        
+        if (!remove)
+        {
+            bool createdOrExisted = hasRelationship;
+            if (!hasRelationship)
+            {
+                createdOrExisted = await _daoApp.CreateRelationshipBetween(createRelationship, applicant, interviewer, typeof(EmployerDb));
+            }
+            return createdOrExisted;
+        }
+        else
+        {
+            return await _daoApp.DeleteRelationshipBetween(createRelationship, applicant, null, typeof(EmployerDb));
+        }
     }
 }
