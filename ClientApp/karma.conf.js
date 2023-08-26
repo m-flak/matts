@@ -10,6 +10,7 @@ module.exports = function (config) {
       require('karma-chrome-launcher'),
       require('karma-jasmine-html-reporter'),
       require('karma-coverage'),
+      require('karma-junit-reporter'),
       require('@angular-devkit/build-angular/plugins/karma')
     ],
     client: {
@@ -33,13 +34,31 @@ module.exports = function (config) {
         { type: 'lcov' }
       ]
     },
-    reporters: ['progress', 'kjhtml'],
+    junitReporter: {
+      outputDir: 'testresults',
+      outputFile: 'junit-test-results.xml',
+      suite: 'ClientApp',
+      useBrowserName: false
+    },
+    reporters: ['progress', 'kjhtml', 'junit'],
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: true,
     //browsers: ['Chrome'],
-    browsers: ["ChromeHeadless"],
+    browsers: ["ChromeHeadless", "ChromeHeadlessCI"],
+    customLaunchers: {
+      ChromeHeadlessCI: {
+        base: 'ChromeHeadless',
+        flags: [
+          '--no-sandbox', 
+          '--disable-gpu',
+          '--disable-setuid-sandbox',
+          '--disable-software-rasterizer',
+          '--disable-dev-shm-usage'
+        ]
+      }
+    },
     singleRun: true,
     restartOnFileChange: true
   });

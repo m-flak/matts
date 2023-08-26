@@ -36,9 +36,13 @@ on:
 
 permissions:
   contents: read
+  issues: read
+  checks: write
+  pull-requests: write
 
 jobs:
   build:
+    name: Build and Test
     permissions: write-all
     runs-on: ubuntu-latest
 
@@ -66,6 +70,29 @@ jobs:
       #     file: ./Dockerfile
       - name: Build image
         run: docker compose -f docker-compose.yml -f docker-compose.staging.yml build matts
+      
+      - name: Run Frontend Tests
+        run: |
+          docker build --target test-node .
+          docker create --name node-tests $(docker images --filter "label=test=node" --format "{{.ID}}")
+          docker cp node-tests:/ClientApp/testresults ./testresults-node
+          docker rm node-tests
+      - name: Run Backend Tests
+        run: |
+          docker build --target test .
+          docker create --name dotnet-tests $(docker images --filter "label=test=dotnet" --format "{{.ID}}")
+          docker cp dotnet-tests:/testresults ./testresults
+          docker rm dotnet-tests
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          compare_to_earlier_commit: false
+          files: |
+            testresults-node/**/*.xml
+            testresults/**/*.xml
+            testresults/**/*.trx
+      
       - name: Tag Image
         run: docker tag ghcr.io/m-flak/matts ghcr.io/${{ env.REPO }}:${{ github.sha }}
       - name: Push image to GitHub container Registry

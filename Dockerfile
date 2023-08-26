@@ -9,6 +9,12 @@ RUN npm install
 COPY ./ClientApp/ . 
 RUN npm run build
 
+FROM zenika/alpine-chrome:with-node AS test-node
+LABEL test=node
+WORKDIR /ClientApp
+COPY --from=build-node --chown=chrome:chrome /ClientApp/ .
+RUN npm run test-ci
+
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 ARG AspNetCoreEnvironment
 ARG DotNetBuildConfiguration
@@ -40,8 +46,7 @@ RUN dotnet build matts.Tests/matts.Tests.csproj -c $DotNetBuildConfiguration -p:
 
 FROM build AS test  
 ARG DotNetBuildConfiguration
-ARG BuildId=localhost
-LABEL test=${BuildId}
+LABEL test=dotnet
 WORKDIR /src/matts
 RUN dotnet test --no-build -c $DotNetBuildConfiguration --results-directory /testresults --logger "trx;LogFileName=test_results.trx" /p:CollectCoverage=true /p:CoverletOutputFormat=json%2cCobertura /p:CoverletOutput=/testresults/coverage/ -p:MergeWith=/testresults/coverage/coverage.json -p:IsDockerBuild=true matts.Tests/matts.Tests.csproj
 
