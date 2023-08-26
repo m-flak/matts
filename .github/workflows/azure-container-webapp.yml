@@ -62,20 +62,45 @@ jobs:
       - name: Lowercase the repo name and username
         run: echo "REPO=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
 
-      - name: Build Image and Run Tests
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Get Build Secrets
+        id: build-secrets
         run: |
-          docker compose -f docker-compose.yml -f docker-compose.staging.yml build matts
-          echo "---------Run Frontend Tests---------"
+          secrets_get=(stagingn4juser stagingn4jpw)
+          for secret_get in ${secrets_get[@]}
+          do
+            value=$(az keyvault secret show --name $secret_get --vault-name matthews-ats-vault --query value --output tsv)
+            echo "::add-mask::$value"
+            echo "$secret_get=$value" >> $GITHUB_OUTPUT
+          done
+
+      - name: Configure docker compose
+        env:
+          NEO4J_USERNAME: ${{ steps.build-secrets.outputs.stagingn4juser }}
+          NEO4J_PASSWORD: ${{ steps.build-secrets.outputs.stagingn4jpw }}
+        run: echo TODO
+
+      - name: Build Image
+        run: docker compose -f docker-compose.yml -f docker-compose.staging.yml build matts
+
+      - name: Run Frontend Tests
+        run: |
           docker build --target test-node .
           docker create --name node-tests $(docker images --filter "label=test=node" --format "{{.ID}}")
           docker cp node-tests:/ClientApp/testresults ./testresults-node
           docker rm node-tests
-          echo "---------Run Backend Tests----------"
+
+      - name: Run Backend Tests
+        run: |
           docker build --target test .
           docker create --name dotnet-tests $(docker images --filter "label=test=dotnet" --format "{{.ID}}")
           docker cp dotnet-tests:/testresults ./testresults
           docker rm dotnet-tests
-      
+
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
