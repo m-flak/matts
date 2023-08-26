@@ -17,6 +17,8 @@
 **/
 namespace matts.Interfaces;
 
+using System;
+using Ical.Net;
 using matts.Models;
 
 public interface IJobService
@@ -28,4 +30,14 @@ public interface IJobService
     public Task<IEnumerable<Job>> GetAppliedJobs(string applicantId);
 
     public Task<Job> GetJobDetails(string uuid);
+
+    public Task<Job> CreateNewJob(Job newJob);
+
+    public Task<Job> UpdateJob(Job job);
+
+    public Task<bool> ApplyToJob(ApplyToJob application);
+
+    public Task<bool> RejectForJob(string jobUuid, string applicantUuid, bool isRejected);
+    
+    public Task<Calendar?> GetICSCalendar(string juuid, string auuid, DateTime dateTime);
 }

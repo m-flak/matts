@@ -11,6 +11,7 @@ import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
 import { MatButtonModule } from '@angular/material/button';
 import { EmployerToolbarComponent } from '../components/employer-toolbar/employer-toolbar.component';
 import { ToastsContainerComponent } from './toasts-container/toasts-container.component';
+import { MatIconLinkDirective } from './mat-icon-link/mat-icon-link.directive';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { ToastsContainerComponent } from './toasts-container/toasts-container.co
     ApplicantComponent,
     JobListComponent,
     EmployerToolbarComponent,
-    ToastsContainerComponent
+    ToastsContainerComponent,
+    MatIconLinkDirective
   ],
   imports: [
     CommonModule,
@@ -32,7 +34,8 @@ import { ToastsContainerComponent } from './toasts-container/toasts-container.co
     ApplicantsPickerComponent,
     JobListComponent,
     EmployerToolbarComponent,
-    ToastsContainerComponent
+    ToastsContainerComponent,
+    MatIconLinkDirective
   ]
 })
 export class ComponentsModule { 

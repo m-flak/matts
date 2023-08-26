@@ -19,8 +19,9 @@
 import { Location } from "@angular/common";
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams, HttpResponse } from "@angular/common/http";
 import { Inject, Injectable } from "@angular/core";
-import { Observable, catchError, throwError, map } from "rxjs";
+import { Observable, catchError, throwError, map, tap } from "rxjs";
 import { ApplyToJob, Job } from "../models";
+import { getDate } from "date-fns";
 
 @Injectable({
     providedIn: 'root'
@@ -94,12 +95,36 @@ export class BackendService {
             );
     }
 
-    rejectForJob(jobUuid: string, applicantUuid: string) : Observable<HttpResponse<any>> {
+    rejectForJob(jobUuid: string, applicantUuid: string, isRejected: boolean) : Observable<HttpResponse<any>> {
         const endpoint = `/jobs/reject/${jobUuid}/${applicantUuid}`;
 
-        return this.http.post(Location.joinWithSlash(this.baseUrl, endpoint), null, { observe: "response" })
+        return this.http.post(Location.joinWithSlash(this.baseUrl, endpoint), null, { observe: "response", params: new HttpParams().set('rejected', isRejected) })
             .pipe(
                 catchError((e: HttpErrorResponse) => throwError(() => new Error(e?.error)))
+            );
+    }
+
+    downloadIcs(jobUuid: string, applicantUuid: string, interviewDate: Date) : Observable<Blob> {
+        const endpoint = `/jobs/ics/${jobUuid}/${applicantUuid}`;
+        const params = new HttpParams({
+            fromObject: {
+                y: interviewDate.getFullYear(),
+                m: interviewDate.getMonth() + 1,
+                d: getDate(interviewDate),
+                h: interviewDate.getHours(),
+                mm: interviewDate.getMinutes()
+            }
+        });
+
+        return this.http.get(Location.joinWithSlash(this.baseUrl, endpoint), { params: params, responseType: 'blob', observe: 'response' })
+            .pipe(
+                catchError((e: HttpErrorResponse) => throwError(() => new Error(e?.error))),
+                tap(response => {
+                    if (response.body === null) {
+                        throwError(() => new Error("Download ICS Error: Received No Content from the Backend"));
+                    }
+                }),
+                map(response => response.body as Blob)
             );
     }
 }

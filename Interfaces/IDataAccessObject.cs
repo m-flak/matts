@@ -15,10 +15,20 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
+using matts.Utils;
+
 namespace matts.Interfaces;
 
 public interface IDataAccessObject<T> where T : class
 {
+    public Task<T> CreateNew(T createWhat);
+
+    public Task<bool> CreateRelationshipBetween(DbRelationship relationship, T source, object other, Type typeOther);
+
+    public Task<bool> UpdateRelationshipBetween(DbRelationship relationship, T source, object other, Type typeOther);
+
+    public Task<bool> DeleteRelationshipBetween(DbRelationship relationship, T? source, object? other, Type typeOther);
+
     public Task<List<T>> GetAll();
 
     public Task<List<T>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid);
@@ -27,7 +37,7 @@ public interface IDataAccessObject<T> where T : class
 
     public Task<T> GetByUuid(string uuid);
 
-    public Task<T> CreateNew(T createWhat);
+    public Task<List<P>> GetPropertyFromRelated<P>(string relationship, Type relatedNodeType, string propertyName);
 
-    public Task<bool> CreateRelationshipBetween(string relationship, T source, object other, Type typeOther);
+    public Task<bool> HasRelationshipBetween(DbRelationship relationship, T source, object other, Type typeOther);
 }

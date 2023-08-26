@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 using System.Reflection;
+using System.Diagnostics.CodeAnalysis;
 using Neo4j.Driver;
 using matts.Interfaces;
 using matts.Utils;
@@ -25,19 +26,26 @@ namespace matts.Daos;
 public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
 {
     public abstract Task<T> CreateNew(T createWhat);
+    public abstract Task<bool> CreateRelationshipBetween(DbRelationship relationship, T source, object other, Type typeOther);
+    public abstract Task<bool> UpdateRelationshipBetween(DbRelationship relationship, T source, object other, Type typeOther);
+    public abstract Task<bool> DeleteRelationshipBetween(DbRelationship relationship, T? source, object? other, Type typeOther);
     public abstract Task<List<T>> GetAll();
     public abstract Task<List<T>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties);
     public abstract Task<List<T>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid);
     public abstract Task<T> GetByUuid(string uuid);
-    public abstract Task<bool> CreateRelationshipBetween(string relationship, T source, object other, Type typeOther);
+    public abstract Task<List<P>> GetPropertyFromRelated<P>(string relationship, Type relatedNodeType, string propertyName);
+    public abstract Task<bool> HasRelationshipBetween(DbRelationship relationship, T source, object other, Type typeOther);
 
     // ////////////////////////////////////////////////////////////////////////
+
+    internal Neo4JWrappers Wrappers { get; set; }
 
     protected readonly IDriver _driver;
 
     protected DaoAbstractBase(IDriver driver)
     {
         _driver = driver;
+        Wrappers = new Neo4JWrappers();
     }
 
     protected readonly struct GetAllByRelationshipConfig
@@ -63,52 +71,65 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
         public ReturnNodeSelector ReturnSelector  { get; init; }
     }
 
-    protected async Task<List<T>> GetAllByRelationshipImpl(Type lhNode, Type rhNode, GetAllByRelationshipConfig config, string relationship, string? optionalRelationship, string whomUuid)
+    protected async Task<List<T>> GetAllByRelationshipImpl(Type lhNode, Type rhNode, GetAllByRelationshipConfig config, DbRelationship relationship, DbRelationship? optionalRelationship, string whomUuid, string? orderBy)
     {
-        var lhAttr = Attribute.GetCustomAttribute(lhNode, typeof(DbNodeAttribute)) as DbNodeAttribute;
-        var rhAttr = Attribute.GetCustomAttribute(rhNode, typeof(DbNodeAttribute)) as DbNodeAttribute;
+        GetNodeAttribute(lhNode, out var lhAttr);
+        GetNodeAttribute(rhNode, out var rhAttr);
 
-        if (lhAttr == null || rhAttr == null)
-        {
-            throw new MissingMemberException("Unable to find the DbNodeAttribute that should be attached to `lhNode` or `rhNode`!");
-        }
+        // Obtain the field used as the Uuid via reflection.
+        var infos = GetUuidInfos((null, lhNode), (null, rhNode));
 
         using (var session = _driver.AsyncSession())
         {
             return await session.ExecuteReadAsync(
                 async tx =>
                 {
-                    var addOptionalParams = (string? optRel) => (optRel != null) ? DaoUtils.AddReturnsForRelationshipParams(optRel, "r2") : "";
+                    var addOptionalParams = (DbRelationship? optRel) => (optRel != null) ? DaoUtils.AddReturnsForRelationshipParams(optRel.Name, optRel.Selector) : "";
 
                     string whereSelector = (config.WhereSelector == GetAllByRelationshipConfig.WhereNodeSelector.LEFT) ? lhAttr.Selector : rhAttr.Selector;
+                    string whereUuidProperty = (config.WhereSelector == GetAllByRelationshipConfig.WhereNodeSelector.LEFT) ? infos[0].Name : infos[1].Name;
                     string returnSelector = (config.ReturnSelector == GetAllByRelationshipConfig.ReturnNodeSelector.LEFT) ? lhAttr.Selector : rhAttr.Selector;
+                    // Get Order By Property to sort by
+                    string orderByProperty = (orderBy != null) 
+                        ? orderBy 
+                        : (config.ReturnSelector == GetAllByRelationshipConfig.ReturnNodeSelector.LEFT) 
+                            ? GetOrderByProperty(lhNode) 
+                            : GetOrderByProperty(rhNode);
 
                     var cursor = await tx.RunAsync(
-                        $"MATCH({lhAttr.Selector}: {lhAttr.Node}) -[r: " + $"{relationship}" + $"]->({rhAttr.Selector}: {rhAttr.Node}) " +
-                        $"{DaoUtils.CreateOptionalMatchClause(optionalRelationship, lhAttr.Selector, rhAttr.Selector)}" +
-                        $"WHERE {whereSelector}.uuid = $uuid " +
-                        $"RETURN {returnSelector} {DaoUtils.AddReturnsForRelationshipParams(relationship, "r")} {addOptionalParams(optionalRelationship)}",
+                        $"MATCH({lhAttr.Selector}: {lhAttr.Node}){relationship}({rhAttr.Selector}: {rhAttr.Node}) " +
+                        $"WHERE {whereSelector}.{whereUuidProperty} = $uuid " +
+                        $"{DaoUtils.CreateOptionalMatchClause(optionalRelationship?.Name, lhAttr.Selector, rhAttr.Selector)}" +
+                        $"RETURN {returnSelector} {DaoUtils.AddReturnsForRelationshipParams(relationship.Name, relationship.Selector)} {addOptionalParams(optionalRelationship)} " +
+                        $"ORDER BY {returnSelector}.{orderByProperty}",
                         new
                         {
                             uuid = whomUuid
                         }
                     );
 
-                    var rows = await cursor.ToListAsync(record => record.Values);
-                    return rows.Select(row => DaoUtils.MapRowWithRelationships<T>(row, lhAttr.Selector, relationship, optionalRelationship, "r", "r2"))
+                    var rows = await Wrappers.RunToListAsync(cursor, record => record.Values);
+                    
+                    return rows.Select(row =>
+                        DaoUtils.MapRowWithRelationships<T>(
+                            row,
+                            returnSelector,
+                            relationship.Name,
+                            optionalRelationship?.Name,
+                            relationship.Selector,
+                            optionalRelationship?.Selector
+                        ))
                         .ToList();
                 });
         }
     }
 
-    protected async Task<List<T>> GetAllAndFilterByPropertiesImpl(Type node, IReadOnlyDictionary<string, object> filterProperties)
+    protected async Task<List<T>> GetAllAndFilterByPropertiesImpl(Type node, IReadOnlyDictionary<string, object> filterProperties, string? orderBy)
     {
-        var nodeAttr = Attribute.GetCustomAttribute(node, typeof(DbNodeAttribute)) as DbNodeAttribute;
+        GetNodeAttribute(node, out var nodeAttr);
 
-        if (nodeAttr == null)
-        {
-            throw new MissingMemberException("Unable to find the DbNodeAttribute that should be attached to `node`!");
-        }
+        // Get Order By Property to sort by
+        string orderByProperty = (orderBy != null) ? orderBy : GetOrderByProperty(node);
 
         using (var session = _driver.AsyncSession())
         {
@@ -118,23 +139,22 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
                     var cursor = await tx.RunAsync(
                         $"MATCH ({nodeAttr.Selector}: {nodeAttr.Node}) " +
                         $"WHERE {DaoUtils.CreateWhereClauseFromDict(filterProperties, nodeAttr.Selector)} " +
-                        $"RETURN {nodeAttr.Selector}"
+                        $"RETURN {nodeAttr.Selector} " +
+                        $"ORDER BY {nodeAttr.Selector}.{orderByProperty}"
                     );
-                    var rows = await cursor.ToListAsync(record => record.Values[nodeAttr.Selector].As<INode>());
+                    var rows = await Wrappers.RunToListAsync(cursor, record => record.Values[nodeAttr.Selector].As<INode>());
                     return rows.Select(row => DaoUtils.MapSimpleRow<T>(row))
                         .ToList();
                 });
         }
     }
 
-    protected async Task<List<T>> GetAllImpl(Type node)
+    protected async Task<List<T>> GetAllImpl(Type node, string? orderBy)
     {
-        var nodeAttr = Attribute.GetCustomAttribute(node, typeof(DbNodeAttribute)) as DbNodeAttribute;
+        GetNodeAttribute(node, out var nodeAttr);
 
-        if (nodeAttr == null)
-        {
-            throw new MissingMemberException("Unable to find the DbNodeAttribute that should be attached to `node`!");
-        }
+        // Get Order By Property to sort by
+        string orderByProperty = (orderBy != null) ? orderBy : GetOrderByProperty(node);
 
         using (var session = _driver.AsyncSession())
         {
@@ -143,9 +163,10 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
                 {
                     var cursor = await tx.RunAsync(
                         $"MATCH ({nodeAttr.Selector}: {nodeAttr.Node}) " +
-                        $"RETURN {nodeAttr.Selector}"
+                        $"RETURN {nodeAttr.Selector} " +
+                        $"ORDER BY {nodeAttr.Selector}.{orderByProperty}"
                     );
-                    var rows = await cursor.ToListAsync(record => record.Values[nodeAttr.Selector].As<INode>());
+                    var rows = await Wrappers.RunToListAsync(cursor, record => record.Values[nodeAttr.Selector].As<INode>());
                     return rows.Select(row => DaoUtils.MapSimpleRow<T>(row))
                         .ToList();
                 });
@@ -154,24 +175,11 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
 
     protected async Task<T> GetByUuidImpl(Type node, string uuid)
     {
-        var nodeAttr = Attribute.GetCustomAttribute(node, typeof(DbNodeAttribute)) as DbNodeAttribute;
+        GetNodeAttribute(node, out var nodeAttr);
 
-        if (nodeAttr == null)
-        {
-            throw new MissingMemberException("Unable to find the DbNodeAttribute that should be attached to `node`!");
-        }
-
-        PropertyInfo? uuidInfo = null;
-        string? uuidFieldName = null;
-        try 
-        {
-            uuidInfo = node.GetProperties().Where(p => p.GetCustomAttribute(typeof(DbNodeUuidAttribute)) != null).Single();
-            uuidFieldName = System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(uuidInfo.Name);
-        }
-        catch (InvalidOperationException ioe)
-        {
-            throw new MissingMemberException("Unable to find the property with DbNodeUuidAttribute within `node`!", ioe);
-        }
+        // Obtain the field used as the Uuid via reflection.
+        var infos = GetUuidInfos((null, node));
+        string uuidFieldName = infos[0].Name;
 
         using (var session = _driver.AsyncSession())
         {
@@ -188,9 +196,36 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
                         }
                     );
 
-                    var row = await cursor.SingleAsync(record => record.Values[nodeAttr.Selector].As<INode>());
+                    var row = await Wrappers.RunSingleAsync(cursor, record => record.Values[nodeAttr.Selector].As<INode>());
 
                     return DaoUtils.MapSimpleRow<T>(row);
+                });
+        }
+    }
+
+    protected async Task<List<P>> GetPropertyFromRelatedImpl<P>(string relationship, Type thisNodeType, Type relatedNodeType, string propertyName, string? orderBy)
+    {
+        GetNodeAttribute(thisNodeType, out var lhAttr);
+        GetNodeAttribute(relatedNodeType, out var rhAttr);
+
+        // Get Order By Property to sort by
+        string orderByProperty = (orderBy != null) ? orderBy : GetOrderByProperty(thisNodeType);
+
+        var queryRelationship = new DbRelationship(relationship, DbRelationship.Cardinality.BIDIRECTIONAL);
+
+        using (var session = _driver.AsyncSession())
+        {
+            return await session.ExecuteReadAsync(
+                async tx =>
+                {
+                    var cursor = await tx.RunAsync(
+                        $"MATCH({lhAttr.Selector}: {lhAttr.Node}){queryRelationship}({rhAttr.Selector}: {rhAttr.Node}) " +
+                        $"RETURN {rhAttr.Selector}.{propertyName} AS {propertyName} " +
+                        $"ORDER BY {lhAttr.Selector}.{orderByProperty}"
+                    );
+
+                    var rows = await Wrappers.RunToListAsync(cursor, record => record.Values[propertyName].As<P>());
+                    return rows.ToList();
                 });
         }
     }
@@ -198,28 +233,11 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
     protected async Task<T> CreateNewImpl(T createWhat)
     {
         Type createWhatType = typeof(T);
-        var nodeAttr = Attribute.GetCustomAttribute(createWhatType, typeof(DbNodeAttribute)) as DbNodeAttribute;
+        GetNodeAttribute(createWhatType, out var nodeAttr);
 
-        if (nodeAttr == null)
-        {
-            throw new MissingMemberException("Unable to find the DbNodeAttribute that should be attached to `createWhat`!");
-        }
-
-        string? uuid = null;
-        try 
-        {
-            var uuidInfo = createWhatType.GetProperties().Where(p => p.GetCustomAttribute(typeof(DbNodeUuidAttribute)) != null).Single();
-            uuid = (string?) uuidInfo.GetValue(createWhat);
-
-            if (uuid == null)
-            {
-                throw new MissingMemberException("Unable to get the value of the property with DbNodeUuidAttribute within `createWhat`!");
-            }
-        }
-        catch (InvalidOperationException ioe)
-        {
-            throw new MissingMemberException("Unable to find the property with DbNodeUuidAttribute within `createWhat`!", ioe);
-        }
+        // Obtain the field used as the Uuid via reflection.
+        var infos = GetUuidInfos((createWhat, typeof(T)));
+        string uuid = infos[0].Value;
 
         bool created = false;
         using (var session = _driver.AsyncSession())
@@ -248,41 +266,15 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
 
     protected async Task<bool> CreateRelationshipBetweenImpl(DbRelationship relationship, object src, object dest, Type typeSrc, Type typeDest)
     {
-        var nodeAttrSrc = Attribute.GetCustomAttribute(typeSrc, typeof(DbNodeAttribute)) as DbNodeAttribute;
-        var nodeAttrDest = Attribute.GetCustomAttribute(typeDest, typeof(DbNodeAttribute)) as DbNodeAttribute;
+        GetNodeAttribute(typeSrc, out var nodeAttrSrc);
+        GetNodeAttribute(typeDest, out var nodeAttrDest);
 
-        if (nodeAttrSrc == null || nodeAttrDest == null)
-        {
-            throw new MissingMemberException("Unable to find the DbNodeAttribute that should be attached to `src` and/or `dest`!");
-        }
-
-        string? uuidSrc = null;
-        string? uuidSrcName = null;
-        string? uuidDest = null;
-        string? uuidDestName = null;
-        try 
-        {
-            var uuidSrcInfo = typeSrc.GetProperties().Where(p => p.GetCustomAttribute(typeof(DbNodeUuidAttribute)) != null).Single();
-            uuidSrc = (string?) uuidSrcInfo.GetValue(src);
-            uuidSrcName = System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(uuidSrcInfo.Name);
-
-            var uuidDestInfo = typeDest.GetProperties().Where(p => p.GetCustomAttribute(typeof(DbNodeUuidAttribute)) != null).Single();
-            uuidDest = (string?) uuidDestInfo.GetValue(dest);
-            uuidDestName = System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(uuidDestInfo.Name);
-
-            if (uuidSrc == null || uuidSrcName == null)
-            {
-                throw new MissingMemberException("Unable to get the value of the property with DbNodeUuidAttribute within `src`!");
-            }
-            if (uuidDest == null || uuidDestName == null)
-            {
-                throw new MissingMemberException("Unable to get the value of the property with DbNodeUuidAttribute within `dest`!");
-            }
-        }
-        catch (InvalidOperationException ioe)
-        {
-            throw new MissingMemberException("Unable to find the property with DbNodeUuidAttribute within `src` and/or `dest`!", ioe);
-        }
+        // Obtain the field used as the Uuid via reflection.
+        var infos = GetUuidInfos((src, typeSrc), (dest, typeDest));
+        string uuidSrc = infos[0].Value;
+        string uuidSrcName = infos[0].Name;
+        string uuidDest = infos[1].Value;
+        string uuidDestName = infos[1].Name;
 
         using (var session = _driver.AsyncSession())
         {
@@ -292,7 +284,7 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
                    var cursor = await tx.RunAsync(
                        $"MATCH ({nodeAttrSrc.Selector}:{nodeAttrSrc.Node}" + " { " + $"{uuidSrcName}: $uuid1" + " }) " +
                        $"MATCH ({nodeAttrDest.Selector}:{nodeAttrDest.Node}" + " { " + $"{uuidDestName}: $uuid2" + " }) "  +
-                       $"CREATE ({nodeAttrSrc.Selector})-{relationship}->({nodeAttrDest.Selector})",
+                       $"CREATE ({nodeAttrSrc.Selector}){relationship}({nodeAttrDest.Selector})",
                        new
                        {
                            uuid1 = uuidSrc,
@@ -304,5 +296,232 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
                    return result.Counters.RelationshipsCreated == 1;
                });
         }
+    }
+
+    protected async Task<bool> HasRelationshipBetweenImpl(DbRelationship relationship, object src, object dest, Type typeSrc, Type typeDest)
+    {
+        GetNodeAttribute(typeSrc, out var nodeAttrSrc);
+        GetNodeAttribute(typeDest, out var nodeAttrDest);
+
+        // Obtain the field used as the Uuid via reflection.
+        var infos = GetUuidInfos((src, typeSrc), (dest, typeDest));
+        string uuidSrc = infos[0].Value;
+        string uuidSrcName = infos[0].Name;
+        string uuidDest = infos[1].Value;
+        string uuidDestName = infos[1].Name;
+
+        using (var session = _driver.AsyncSession())
+        {
+            return await session.ExecuteReadAsync(
+                async tx =>
+                {
+                    var cursor = await tx.RunAsync(
+                        $"MATCH ({nodeAttrSrc.Selector}:{nodeAttrSrc.Node}){relationship.ToString(false, true)}({nodeAttrDest.Selector}:{nodeAttrDest.Node}) " +
+                        $"WHERE {nodeAttrSrc.Selector}.{uuidSrcName} = $uuid1 AND {nodeAttrDest.Selector}.{uuidDestName} = $uuid2 " +
+                        $"RETURN COUNT({relationship.Selector}) AS relCount",
+                        new
+                        {
+                           uuid1 = uuidSrc,
+                           uuid2 = uuidDest
+                        }
+                    );
+
+                    try 
+                    {
+                        var count = await Wrappers.RunSingleAsync(cursor, record => record.Values["relCount"].As<long>());
+                        return count >= 1;
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        return false;
+                    }
+                });
+        }
+    }
+
+    protected async Task<bool> UpdateRelationshipBetweenImpl(DbRelationship relationship, object src, object dest, Type typeSrc, Type typeDest)
+    {
+        GetNodeAttribute(typeSrc, out var nodeAttrSrc);
+        GetNodeAttribute(typeDest, out var nodeAttrDest);
+
+        // Obtain the field used as the Uuid via reflection.
+        var infos = GetUuidInfos((src, typeSrc), (dest, typeDest));
+        string uuidSrc = infos[0].Value;
+        string uuidSrcName = infos[0].Name;
+        string uuidDest = infos[1].Value;
+        string uuidDestName = infos[1].Name;
+
+        using (var session = _driver.AsyncSession())
+        {
+            return await session.ExecuteWriteAsync(
+               async tx =>
+               {
+                   var queryParams = new Dictionary<string, object>(relationship.Parameters);
+                   queryParams["uuid1"] = uuidSrc;
+                   queryParams["uuid2"] = uuidDest;
+
+                   var cursor = await tx.RunAsync(
+                       $"MATCH ({nodeAttrSrc.Selector}:{nodeAttrSrc.Node}){relationship.ToString(false, true)}({nodeAttrDest.Selector}:{nodeAttrDest.Node}) " +
+                       $"WHERE {nodeAttrSrc.Selector}.{uuidSrcName} = $uuid1 AND {nodeAttrDest.Selector}.{uuidDestName} = $uuid2 " +
+                       DaoUtils.CreateSetStatements(relationship.Parameters, relationship.Selector),
+                       queryParams
+                   );
+
+                   var result = await cursor.ConsumeAsync();
+                   return result.Counters.PropertiesSet > 0;
+               });
+        }
+    }
+
+    protected async Task<bool> DeleteRelationshipBetweenImpl(DbRelationship relationship, object? src, object? dest, Type typeSrc, Type typeDest)
+    {
+        if (src == null && dest == null)
+        {
+            throw new ArgumentNullException("The source and destination objects cannot both be null.");
+        }
+
+        GetNodeAttribute(typeSrc, out var nodeAttrSrc);
+        GetNodeAttribute(typeDest, out var nodeAttrDest);
+
+        // Obtain the field used as the Uuid via reflection.
+        var infos = GetUuidInfos((src, typeSrc), (dest, typeDest));
+        string uuidSrc = infos[0].Value;    // will be empty str if src is null
+        string uuidSrcName = infos[0].Name;
+        string uuidDest = infos[1].Value;   // will be empty str if dest is null
+        string uuidDestName = infos[1].Name;
+
+        using (var session = _driver.AsyncSession())
+        {
+            return await session.ExecuteWriteAsync(
+                async tx =>
+                {
+                    IResultCursor? cursor;
+                    
+                    // dest and src were provided
+                    if (uuidDest.Length > 0 && uuidSrc.Length > 0)
+                    {
+                        cursor = await tx.RunAsync(
+                            $"MATCH ({nodeAttrSrc.Selector}:{nodeAttrSrc.Node}){relationship.ToString(false, true)}({nodeAttrDest.Selector}:{nodeAttrDest.Node}) " +
+                            $"WHERE {nodeAttrSrc.Selector}.{uuidSrcName} = $uuid1 AND {nodeAttrDest.Selector}.{uuidDestName} = $uuid2 " +
+                            $"DELETE {relationship.Selector}",
+                            new
+                            {
+                                uuid1 = uuidSrc,
+                                uuid2 = uuidDest
+                            }
+                        );
+                    }
+                    else if (uuidSrc.Length > 0)
+                    {
+                        cursor = await tx.RunAsync(
+                            $"MATCH ({nodeAttrSrc.Selector}:{nodeAttrSrc.Node}){relationship.ToString(false, true)}() " +
+                            $"WHERE {nodeAttrSrc.Selector}.{uuidSrcName} = $uuid1 " +
+                            $"DELETE {relationship.Selector}",
+                            new
+                            {
+                                uuid1 = uuidSrc
+                            }
+                        );
+                    }
+                    else
+                    {
+                        cursor = await tx.RunAsync(
+                            $"MATCH (){relationship.ToString(false, true)}({nodeAttrDest.Selector}:{nodeAttrDest.Node}) " +
+                            $"WHERE {nodeAttrDest.Selector}.{uuidDestName} = $uuid2 " +
+                            $"DELETE {relationship.Selector}",
+                            new
+                            {
+                                uuid2 = uuidDest
+                            }
+                        );
+                    }
+
+                    var result = await cursor.ConsumeAsync();
+                    return result.Counters.RelationshipsDeleted == 1;
+                });
+        }
+    }
+
+    private readonly struct UuidInfo
+    {
+        public required string Name { get; init; }
+        public required string Value { get; init; }
+
+        [SetsRequiredMembers]
+        public UuidInfo(string name, string value)
+        {
+            Name = name;
+            Value = value;
+        }
+    }
+
+    // Pass (someObject, typeof(SomeType)) when you want to both the field name and its value.
+    // Pass (null, typeof(SomeType)) when you only care about the field name itself.
+    private static UuidInfo[] GetUuidInfos(params (object?, Type)[] nodeSpecs)
+    {
+        UuidInfo[] infos = new UuidInfo[nodeSpecs.Length];
+        int i = 0;
+        try 
+        {
+            foreach ((object?, Type) spec in nodeSpecs)
+            {
+                var uuidInfo = spec.Item2.GetProperties().Where(p => p.GetCustomAttribute(typeof(DbNodeUuidAttribute)) != null).Single();
+
+                // value is optional if the spec.Item1 is null
+                string? value = "";
+                if (spec.Item1 != null)
+                {
+                    value = (string?) uuidInfo.GetValue(spec.Item1);
+                    if (value == null) 
+                    {
+                        throw new MissingMemberException($"Unable to get the value of the property with DbNodeUuidAttribute for type {spec.Item2.Name}!");
+                    }
+                }
+
+                // name is required
+                string? name = System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(uuidInfo.Name);
+                if (name == null) 
+                {
+                    throw new MissingMemberException($"Unable to get the name of the property with DbNodeUuidAttribute for type {spec.Item2.Name}!");
+                }
+
+                infos[i++] = new UuidInfo(name, value);
+            }
+        }
+        catch (InvalidOperationException ioe)
+        {
+            throw new MissingMemberException("Unable to find the property with DbNodeUuidAttribute attached to the object/type.", ioe);
+        }
+        catch (MissingMemberException mme)
+        {
+            throw mme;
+        }
+
+        return infos;
+    }
+
+    private static string GetOrderByProperty(Type node)
+    {
+        PropertyInfo? info = null;
+        try
+        {
+            info = node.GetProperties().Where(p => p.GetCustomAttribute(typeof(DbNodeOrderByAttribute)) != null).Single();
+        }
+        catch (InvalidOperationException ioe)
+        {
+            throw new MissingMemberException($"Unable to find the Order By property within {node.Name}!", ioe);
+        }
+
+        return System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(info.Name);
+    }
+
+    private static void GetNodeAttribute(Type node, out DbNodeAttribute attr)
+    {
+        var _attr = Attribute.GetCustomAttribute(node, typeof(DbNodeAttribute)) as DbNodeAttribute;
+        if (_attr == null)
+        {
+            throw new MissingMemberException($"Unable to find the DbNodeAttribute that should be attached to {node.Name}!");
+        }
+        attr = _attr;
     }
 }

@@ -27,7 +27,7 @@ public class DbRelationshipTests
         sut.Parameters["interviewDate"] = DateTime.Parse("2023-04-09T05:53:12.5468730Z");
 
         string expected = "[:IS_INTERVIEWING_FOR { interviewDate: '2023-04-09T05:53:12.5468730Z' }]";
-        Assert.Equal(expected, sut.ToString());
+        Assert.Equal(expected, sut.ToString(true));
     }
 
     [Fact]
@@ -37,7 +37,7 @@ public class DbRelationshipTests
         sut.Parameters["interviewDate"] = "2023-04-09T05:53:12.5468730Z";
 
         string expected = "[:IS_INTERVIEWING_FOR { interviewDate: '2023-04-09T05:53:12.5468730Z' }]";
-        Assert.Equal(expected, sut.ToString());
+        Assert.Equal(expected, sut.ToString(true));
     }
 
     [Fact]
@@ -47,7 +47,7 @@ public class DbRelationshipTests
         sut.Parameters["rejected"] = true;
 
         string expected = "[:HAS_APPLIED_TO { rejected: true }]";
-        Assert.Equal(expected, sut.ToString());
+        Assert.Equal(expected, sut.ToString(true));
     }
 
     [Fact]
@@ -56,7 +56,7 @@ public class DbRelationshipTests
         var sut = new DbRelationship(RelationshipConstants.IS_USER_FOR);
 
         string expected = "[:IS_USER_FOR ]";
-        Assert.Equal(expected, sut.ToString());
+        Assert.Equal(expected, sut.ToString(true));
     }
 
     [Fact]
@@ -66,10 +66,65 @@ public class DbRelationshipTests
         
         sut.Parameters["test"] = "Robby' }] WITH true as ignored MATCH (s:Student) DETACH DELETE s;//////////";
         string expected = "[:TEST { test: 'Robby\\' }] WITH true as ignored MATCH (s:Student) DETACH DELETE s;' }]";
-        Assert.Equal(expected, sut.ToString());
+        Assert.Equal(expected, sut.ToString(true));
 
         sut.Parameters["test"] = "'}];  DETACH DELETE s;/////////////";
         expected = "[:TEST { test: '\\'}];  DETACH DELETE s;' }]";
-        Assert.Equal(expected, sut.ToString());
+        Assert.Equal(expected, sut.ToString(true));
+    }
+
+    [Theory]
+    [InlineData(RelationshipConstants.HAS_APPLIED_TO, "r", DbRelationship.Cardinality.UNIDIRECTIONAL)]
+    [InlineData(RelationshipConstants.INTERVIEWING_WITH, "r", DbRelationship.Cardinality.BIDIRECTIONAL)]
+    public void ToString_IncludesSelectorAndCardinality(string relationship, string selector, DbRelationship.Cardinality cardinality)
+    {
+        var sut = new DbRelationship(relationship, selector, cardinality);
+
+        if (cardinality == DbRelationship.Cardinality.UNIDIRECTIONAL)
+        {
+            string expected = $"-[{selector}:{relationship} ]->";
+            Assert.Equal(expected, sut.ToString());
+        }
+        else
+        {
+            string expected = $"-[{selector}:{relationship} ]-";
+            Assert.Equal(expected, sut.ToString());
+        }
+    }
+
+    [Theory]
+    [InlineData(RelationshipConstants.HAS_APPLIED_TO, "r", DbRelationship.Cardinality.UNIDIRECTIONAL, "rejected", "true")]
+    [InlineData(RelationshipConstants.INTERVIEWING_WITH, "r", DbRelationship.Cardinality.BIDIRECTIONAL, "interviewDate", "2023-04-09T05:53:12.5468730Z")]
+    public void ToString_ExcludingParameters_IncludesSelectorAndCardinality(string relationship, string selector, DbRelationship.Cardinality cardinality, string param, string paramVal)
+    {
+        var sut = new DbRelationship(relationship, selector, cardinality);
+        sut.Parameters[param] = paramVal;
+
+        if (cardinality == DbRelationship.Cardinality.UNIDIRECTIONAL)
+        {
+            string expected = $"-[{selector}:{relationship} ]->";
+            Assert.Equal(expected, sut.ToString(false, true));
+            Assert.DoesNotContain(param, sut.ToString(false, true));
+            Assert.DoesNotContain(paramVal, sut.ToString(false, true));
+        }
+        else
+        {
+            string expected = $"-[{selector}:{relationship} ]-";
+            Assert.Equal(expected, sut.ToString(false, true));
+            Assert.DoesNotContain(param, sut.ToString(false, true));
+            Assert.DoesNotContain(paramVal, sut.ToString(false, true));
+        }
+    }
+
+    [Fact]
+    public void ToString_ExcludingParameters_ExcludesCardinality()
+    {
+        var sut = new DbRelationship(RelationshipConstants.IS_INTERVIEWING_FOR, "r");
+        sut.Parameters["interviewDate"] = DateTime.Parse("2023-04-09T05:53:12.5468730Z");
+
+        string expected = "[r:IS_INTERVIEWING_FOR ]";
+        Assert.Equal(expected, sut.ToString(true, true));
+        Assert.DoesNotContain("interviewDate", sut.ToString(false, true));
+        Assert.DoesNotContain("2023-04-09T05:53:12.5468730Z", sut.ToString(false, true));
     }
 }

@@ -36,6 +36,7 @@ public class EmployerDb
     [DbNodeCreationField]
     public string? Uuid { get; set; }
 
+    [DbNodeOrderBy]
     [DbNodeCreationField]
     public string? Name { get; set; }
 

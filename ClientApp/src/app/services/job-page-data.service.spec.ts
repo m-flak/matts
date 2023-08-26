@@ -195,5 +195,23 @@ describe('JobPageDataService', () => {
             expect(jobPageDataService.getCurrentJob().applicants?.find(a => a.uuid === 'db185379-70e8-4ec6-b5f7-370415ca3b43')).toBeUndefined();
             done();
         });
-    })
+    });
+
+    it('should mark a job dirty and restore the applicant relationship', (done) => {
+        spyOn(backendService, 'rejectForJob').and.callThrough();
+        jobPageDataService.setCurrentJob(jobData);
+
+        // remove relationsip. it should be restored after the call
+        jobPageDataService.jobApplicants.get('54991ebe-ba9e-440b-a202-247f0c33574f')?.delete('db185379-70e8-4ec6-b5f7-370415ca3b43');
+
+        jobPageDataService.rejectApplicantFromJob('54991ebe-ba9e-440b-a202-247f0c33574f', 'db185379-70e8-4ec6-b5f7-370415ca3b43', false).subscribe(() => {
+            expect(backendService.rejectForJob).toHaveBeenCalled();
+
+            // null bcuz it's dirty
+            expect(jobPageDataService._getJob('54991ebe-ba9e-440b-a202-247f0c33574f')).toBeNull();
+            expect(jobPageDataService.jobApplicants.get('54991ebe-ba9e-440b-a202-247f0c33574f')?.has('db185379-70e8-4ec6-b5f7-370415ca3b43')).toBe(true);
+            expect(jobPageDataService.getCurrentJob().applicants?.find(a => a.uuid === 'db185379-70e8-4ec6-b5f7-370415ca3b43')).not.toBeUndefined();
+            done();
+        });
+    });
 });

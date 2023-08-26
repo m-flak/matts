@@ -4,11 +4,19 @@
 		<button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('cancel')"></button>
 	</div>
 	<div class="modal-body">
-        <p>Do you wish to schedule an interview for <span class="emphasis">{{ this.currentApplicant?.name }}</span> on <span class="emphasis">{{ viewDate | date:'longDate' }}</span>?</p>
+        <p>Please pick a time for the interview with <span class="emphasis">{{ this.currentApplicant?.name }}</span> on <span class="emphasis">{{ viewDate | date:'longDate' }}</span>.</p>
+        <br/>
+        <ngx-timepicker-field [controlOnly]="true" (timeChanged)="this.chosenInterviewTimeString = $event"></ngx-timepicker-field>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-outline-dark" (click)="modal.close('no')">No</button>
-        <button type="button" class="btn btn-success" (click)="modal.close('yes')">Yes</button>
+        <button type="button" class="btn btn-outline-dark" (click)="modal.close('no')">Cancel</button>
+        <button 
+            type="button" 
+            [ngClass]="{ 'btn': true, 'btn-success': this.chosenInterviewTimeString !== '', 'btn-outline-secondary': this.chosenInterviewTimeString === '' }" 
+            (click)="modal.close('yes')" 
+            [disabled]="this.chosenInterviewTimeString === ''">
+                Schedule
+        </button>
     </div>
 </ng-template>
 <article class="selected-job">
@@ -44,11 +52,13 @@
                         <div class="applicant-info-container">
                             <mat-form-field>
                                 <mat-label>Email</mat-label>
-                                <input type="email" matInput [readonly]="true" [value]="this.currentApplicant.email" />
+                                <input type="email" matInput [readonly]="true" [value]="this.currentApplicant.email" #email="matInput" />
+                                <mat-icon matSuffix [cmpMatIconLink]="email.type" [inputRef]="email"></mat-icon>
                             </mat-form-field>
                             <mat-form-field>
                                 <mat-label>Phone Number</mat-label>
-                                <input type="tel" matInput [readonly]="true" [value]="this.currentApplicant.phoneNumber" />
+                                <input type="tel" matInput [readonly]="true" [value]="this.currentApplicant.phoneNumber" #telephone="matInput" />
+                                <mat-icon matSuffix [cmpMatIconLink]="telephone.type" [inputRef]="telephone"></mat-icon>
                             </mat-form-field>
                         </div>
                         <div class="btn-group action-buttons">
@@ -63,15 +73,17 @@
                         <div class="applicant-info-container">
                             <mat-form-field>
                                 <mat-label>Email</mat-label>
-                                <input type="email" matInput [readonly]="true" [value]="this.currentApplicant.email" />
+                                <input type="email" matInput [readonly]="true" [value]="this.currentApplicant.email" #email2="matInput" />
+                                <mat-icon matSuffix [cmpMatIconLink]="email2.type" [inputRef]="email2"></mat-icon>
                             </mat-form-field>
                             <mat-form-field>
                                 <mat-label>Phone Number</mat-label>
-                                <input type="tel" matInput [readonly]="true" [value]="this.currentApplicant.phoneNumber" />
+                                <input type="tel" matInput [readonly]="true" [value]="this.currentApplicant.phoneNumber" #telephone2="matInput" />
+                                <mat-icon matSuffix [cmpMatIconLink]="telephone2.type" [inputRef]="telephone2"></mat-icon>
                             </mat-form-field>
                         </div>
                         <div class="btn-group action-buttons">
-                            <button mat-flat-button color="accent">Download ICS</button>
+                            <button mat-flat-button color="accent" (click)="onDownloadICS()">Download ICS</button>
                             <button mat-flat-button color="warn" (click)="cancelInterview(this.currentApplicant)">Cancel Interview</button>
                         </div>
                     </div>

@@ -21,6 +21,7 @@ import { HttpClientModule} from "@angular/common/http";
 import { BackendService } from './backend.service';
 import { JobConstants } from '../constants';
 import { ApplyToJob, Job } from '../models';
+import { getDate } from 'date-fns';
 
 describe('BackendService', () => {
     let httpMock: HttpTestingController;
@@ -175,13 +176,35 @@ describe('BackendService', () => {
         const jobUuid = '3ebb58d3-a24c-499b-8c65-75636e7b57de';
         const applicantUuid = '3b785136-cafb-48ed-b58f-1b2150f74bf6';
 
-        backendService.rejectForJob(jobUuid, applicantUuid).subscribe(response => {
+        backendService.rejectForJob(jobUuid, applicantUuid, true).subscribe(response => {
             expect(response.status).toEqual(200);
             done();
         });
 
-        const request = httpMock.expectOne(`/jobs/reject/${jobUuid}/${applicantUuid}`);
+        const request = httpMock.expectOne(`/jobs/reject/${jobUuid}/${applicantUuid}?rejected=true`);
         request.flush(null, { status: 200, statusText: 'OK' });
+
+        httpMock.verify();
+    });
+
+    it('should start the download of an ICS for an applicant\'s job interview using backend', (done) => {
+        const jobUuid = '3ebb58d3-a24c-499b-8c65-75636e7b57de';
+        const applicantUuid = '3b785136-cafb-48ed-b58f-1b2150f74bf6';
+        const today = new Date();
+
+        backendService.downloadIcs(jobUuid, applicantUuid, today).subscribe((blobResponse: any) => {
+            expect(blobResponse instanceof Blob).toBe(true);
+            expect(blobResponse.type).toEqual('text/calendar');
+            blobResponse.text().then((txt: string) => {
+                expect(txt).toEqual('dummy data');
+                done();
+            });
+        });
+
+        const request = httpMock.expectOne(
+            `/jobs/ics/${jobUuid}/${applicantUuid}?y=${today.getFullYear()}&m=${today.getMonth()+1}&d=${getDate(today)}&h=${today.getHours()}&mm=${today.getMinutes()}`
+        );
+        request.flush(new Blob(['dummy data'], { type: 'text/calendar' }));
 
         httpMock.verify();
     });

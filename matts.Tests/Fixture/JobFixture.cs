@@ -55,6 +55,15 @@ public class JobFixture
         };
     }
 
+    public static List<string> CreateEmployerUuidsForApplicantList(List<ApplicantDb> list)
+    {
+        var uuid = System.Guid.NewGuid().ToString();
+
+        return list.Where(a => a.InterviewDate != null)
+            .Select((_) => uuid)
+            .ToList();
+    }
+
     private JobFixture()
     {
 

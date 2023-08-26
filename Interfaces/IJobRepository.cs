@@ -25,4 +25,8 @@ public interface IJobRepository
     public Task<List<Job>> GetAllByStatus(string status);
     public Task<List<Job>> GetAllAppliedByApplicantId(string applicantId);
     public Task<Job> GetJobByUuid(string uuid);
+    public Task<Job> CreateNewJob(Job job);
+    public Task<bool> ApplyToJob(string jobUuid, string applicantUud);
+    public Task<bool> RejectForJob(string jobUuid, string applicantUuid, bool isRejected);
+    public Task<Job> UpdateJob(Job job);
 }

@@ -22,6 +22,8 @@ import { AuthService } from '../services/auth.service';
 import { Subscription, lastValueFrom, map, switchMap } from 'rxjs';
 import { Job } from '../models';
 import { ApplicantDataService } from '../services/applicant-data.service';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FileInput } from 'ngx-material-file-input';
 
 @Component({
   selector: 'app-apply-job-page',
@@ -35,7 +37,17 @@ export class ApplyJobPageComponent implements OnInit, OnDestroy {
   @Input()
   currentJob: Job | null = null;
 
-  constructor(private activatedRoute: ActivatedRoute, private applicantDataService: ApplicantDataService, private backendService: BackendService, private authService: AuthService) {}
+  applyToJobForm: FormGroup;
+
+  constructor(
+    private formBuilder: FormBuilder,
+    private activatedRoute: ActivatedRoute, 
+    private applicantDataService: ApplicantDataService, 
+    private backendService: BackendService, 
+    private authService: AuthService
+  ) {
+    this.applyToJobForm = new FormGroup([]);
+  }
 
   ngOnInit(): void {
     this._subscription = 
@@ -51,6 +63,10 @@ export class ApplyJobPageComponent implements OnInit, OnDestroy {
       ).subscribe(async (data) => {
         this.currentJob = data;
       });
+    
+    this.applyToJobForm = this.formBuilder.group({
+      resumeFile: [ undefined, [Validators.required] ]
+    });
   }
 
   ngOnDestroy(): void {
@@ -63,6 +79,13 @@ export class ApplyJobPageComponent implements OnInit, OnDestroy {
   }
 
   applyToJob(): void {
+    if (this.applyToJobForm.invalid) {
+      return;
+    }
+
+    const fileControlData: FileInput = this.applyToJobForm.controls.resumeFile.value;
+    console.log(fileControlData.files);
+
     this._subscription2 = this.applicantDataService.applyToJob(this.authService.currentUser?.applicantId as string, this.currentJob?.uuid as string).subscribe(async (response) => {
       if (response.status === 200) {
 

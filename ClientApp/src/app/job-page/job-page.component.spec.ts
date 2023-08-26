@@ -36,6 +36,7 @@ import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { JWT_OPTIONS, JwtHelperService } from '@auth0/angular-jwt';
 import { jwtOptionsFactory } from '../app.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
 
 const jobData: Job = {
   "id": 1,
@@ -87,7 +88,15 @@ describe('JobPageComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ BrowserAnimationsModule, ComponentsModule, MatButtonModule, MatInputModule, MatIconModule, NgbAlertModule ],
+      imports: [ 
+        BrowserAnimationsModule, 
+        ComponentsModule, 
+        MatButtonModule, 
+        MatInputModule, 
+        MatIconModule, 
+        NgbAlertModule,
+        NgxMaterialTimepickerModule 
+      ],
       declarations: [ JobPageComponent ],
       providers: [
         { 
@@ -196,6 +205,21 @@ describe('JobPageComponent', () => {
         fixture.detectChanges();
         const wait4me = await component.persistChanges();
         expect(pageService.changeJobData).toHaveBeenCalledBefore(pageService.rejectApplicantFromJob);
+      });
+  }));
+
+  it('should be able to download an ICS for an Applicant with an interview', waitForAsync(() => {
+    spyOn(pageService, 'downloadIcsFile').and.callFake((job,app,date) => of(new Blob(['dummy data'], { type: 'text/calendar' })));
+    spyOn(window, 'open').and.stub();
+
+    fixture.detectChanges();
+
+    fixture.whenStable()
+      .then(() => component.onDownloadICS())
+      .then(() => {
+        fixture.detectChanges();
+        expect(pageService.downloadIcsFile).toHaveBeenCalled();
+        expect(window.open).toHaveBeenCalled();
       });
   }));
 });

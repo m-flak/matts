@@ -23,7 +23,7 @@ import { MonthViewDay, EventColor } from 'calendar-utils';
 import { CalendarEvent } from 'angular-calendar';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { InterviewDate, JobPageDataService } from '../services/job-page-data.service';
-import { formatISO } from 'date-fns';
+import { formatISO, isPast, parse, parseISO, set } from 'date-fns';
 import { ChangeCommandData, JobPageChanges } from './job-page-changes';
 import { JobConstants } from '../constants';
 import { ToastService } from '../services/toast.service';
@@ -53,6 +53,8 @@ export class JobPageComponent implements OnInit, OnDestroy {
 
   @ViewChild('confirmationModal')
   confirmationModal: any;
+  // used in the modal
+  chosenInterviewTimeString = '';
 
   @Input()
   currentJob: Job | null = null;
@@ -115,8 +117,32 @@ export class JobPageComponent implements OnInit, OnDestroy {
 
   onDayClicked(data:{ day: MonthViewDay<any>; sourceEvent: MouseEvent | KeyboardEvent;}) {
     const date = data.day.date;
+
+    if (isPast(date)) {
+      this.toastService.show('Please pick either the current day or a day in the future.', { classname: 'bg-warning text-dark', delay: 5000, ariaLive: 'assertive' });
+      //do nothing
+      return;
+    }
+
     this.viewDate = date;
     this.confirmInterview();
+  }
+
+  async onDownloadICS() {
+    this.toastService.show('Download started. If nothing happens, try disabling your pop-up blocker.', { classname: 'bg-info text-white', delay: 5000 });
+    
+    try {
+      const interviewDate = parseISO(this.currentApplicant?.interviewDate as string);
+      const icsFile = await lastValueFrom(this.jobPageDataService.downloadIcsFile(this.currentJob?.uuid as string, this.currentApplicant?.uuid as string, interviewDate));
+      window.open(URL.createObjectURL(icsFile), '_blank');
+    }
+    catch (e) {
+      if (e instanceof Error) {
+        const err: Error = e;
+        console.error(e?.message);
+      }
+      this.toastService.show('An error ocurred, or the system might be unavailable. Please try again.', { classname: 'bg-danger text-light', delay: 15000, ariaLive: 'assertive' });
+    }
   }
 
   setCurrentJobStatus(status: string) {
@@ -189,9 +215,14 @@ export class JobPageComponent implements OnInit, OnDestroy {
     this.modalService.open(this.confirmationModal, { ariaLabelledBy: 'modal-basic-title' }).result.then(async (result) => {
       if (result === 'yes') {
         const applicant = this.currentApplicant as Applicant;
-        //viewDate is the new interview date
-        applicant.interviewDate = formatISO(this.viewDate);
+        // Combine viewDate and the time from the picker for the interview date.
+        const time = parse(this.chosenInterviewTimeString, 'hh:mm a', new Date());
+        let interviewDate = new Date(this.viewDate);
+        interviewDate = set(interviewDate, { hours: time.getHours(), minutes: time.getMinutes() });
+        applicant.interviewDate = formatISO(interviewDate);
+
         applicant.interviewingWith = this.authService.currentUser?.employerId as string;
+
         this.jobPageDataService.updateApplicantDetails(applicant);
         this.changesMadeToJob = true;
 
@@ -204,6 +235,9 @@ export class JobPageComponent implements OnInit, OnDestroy {
         
         this.setMode(this.MODE_JOB_DETAILS);
       }
+
+      // always clear the time, in case its set
+      this.chosenInterviewTimeString = '';
     });
   }
 
@@ -220,10 +254,11 @@ export class JobPageComponent implements OnInit, OnDestroy {
     this.jobPageDataService.updateApplicantDetails(applicant);
     this.changesMadeToJob = true;
 
+    this.changeQueue = this.changeQueue.filter(chg => chg.sortTag !== `C${applicant.uuid}`);
     this.changeQueue.push(
       new JobPageChanges(`B${this.currentApplicant?.uuid}`, async (serviceInstance: JobPageDataService, commandData: ChangeCommandData) => { 
           const [job, applicant] = commandData;
-          const response = await lastValueFrom(serviceInstance.rejectApplicantFromJob(job.uuid, applicant.uuid));
+          const response = await lastValueFrom(serviceInstance.rejectApplicantFromJob(job.uuid, applicant.uuid, true));
           return response.status === 200;
         },
         [this.currentJob, this.currentApplicant]
@@ -235,7 +270,17 @@ export class JobPageComponent implements OnInit, OnDestroy {
     applicant.rejected = false;
     this.jobPageDataService.updateApplicantDetails(applicant);
     this.changesMadeToJob = true;
+
     this.changeQueue = this.changeQueue.filter(chg => chg.sortTag !== `B${applicant.uuid}`);
+    this.changeQueue.push(
+      new JobPageChanges(`C${this.currentApplicant?.uuid}`, async (serviceInstance: JobPageDataService, commandData: ChangeCommandData) => { 
+          const [job, applicant] = commandData;
+          const response = await lastValueFrom(serviceInstance.rejectApplicantFromJob(job.uuid, applicant.uuid, false));
+          return response.status === 200;
+        },
+        [this.currentJob, this.currentApplicant]
+      )
+    );
   }
 
   _hasInterview(applicant: Applicant): boolean {

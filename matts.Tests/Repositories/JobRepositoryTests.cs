@@ -74,11 +74,15 @@ public class JobRepositoryTests
         JobDb jobDb = JobFixture.CreateJob("Some Job", JobConstants.STATUS_OPEN);
         jobDb.ApplicantCount = 1;
         ApplicantDb applicantDb = JobFixture.CreateApplicant("Some Applicant", null, true);
+        var applicants = new List<ApplicantDb> { applicantDb };
+        var interviewingWiths = JobFixture.CreateEmployerUuidsForApplicantList(applicants);
 
         _daoJob.Setup(dj => dj.GetByUuid(It.IsAny<string>()))
             .Returns(Task.FromResult(jobDb));
         _daoApp.Setup(da => da.GetAllByRelationship(It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string>()))
-            .Returns(Task.FromResult(new List<ApplicantDb> { applicantDb }));
+            .Returns(Task.FromResult(applicants));
+        _daoApp.Setup(da => da.GetPropertyFromRelated<string>(It.IsAny<string>(), It.IsAny<Type>(), It.IsAny<string>()))
+            .Returns(Task.FromResult(interviewingWiths));
 
         var sut = new JobRepository(_daoJob.Object, _daoApp.Object, new MapsterMapper.Mapper());
 
@@ -88,6 +92,7 @@ public class JobRepositoryTests
         Assert.NotNull(job.Applicants);
         Assert.Equal(applicantDb.Rejected, job.Applicants.First().Rejected);
         Assert.Equal(applicantDb.InterviewDate, job.Applicants.First().InterviewDate);
+        Assert.Equal(interviewingWiths.First(), job.Applicants.First().InterviewingWith);
     }
 
     [Fact]

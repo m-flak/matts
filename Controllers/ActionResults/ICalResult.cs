@@ -1,4 +1,4 @@
-﻿/* matts
+/* matts
  * "Matthew's ATS" - Portfolio Project
  * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
  * 
@@ -15,37 +15,30 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-namespace matts.Models.Db;
+using Microsoft.AspNetCore.Mvc;
+using Ical.Net.Serialization;
+using Ical.Net;
 
-using matts.Utils;
+namespace matts.Controllers.ActionResults;
 
-[DbNode("Job", "j")]
-public class JobDb
+public class ICalResult : ActionResult
 {
-    public JobDb()
-    { }
-    public JobDb(JobDb other)
+    private readonly Calendar _calendar;
+
+    public ICalResult(Calendar calendar) : base()
     {
-        Uuid = other.Uuid;
-        Name = other.Name;
-        Status = other.Status;
-        Description = other.Description;
-        ApplicantCount = other.ApplicantCount;
+        _calendar = calendar;
     }
 
-    [DbNodeUuid]
-    [DbNodeCreationField]
-    public string? Uuid { get; set; }
-
-    [DbNodeOrderBy]
-    [DbNodeCreationField]
-    public string? Name { get; set; }
-
-    [DbNodeCreationField]
-    public string? Status { get; set; }
-
-    [DbNodeCreationField]
-    public string? Description { get; set; }
-    
-    public long ApplicantCount { get; set; }
+    public override Task ExecuteResultAsync(ActionContext context)
+    {
+        var serializer = new CalendarSerializer();
+        var response = context.HttpContext.Response;
+        response.ContentType = "text/calendar";
+        response.StatusCode = StatusCodes.Status200OK;
+        
+        return response
+            .WriteAsync(serializer.SerializeToString(_calendar))
+            .ContinueWith((_) => response.CompleteAsync());
+    }
 }

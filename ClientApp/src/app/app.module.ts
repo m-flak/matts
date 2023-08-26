@@ -19,15 +19,20 @@ import { CalendarModule, DateAdapter } from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import {NgbAlertModule, NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MaterialFileInputModule } from 'ngx-material-file-input';
+import { JWT_OPTIONS, JwtModule } from '@auth0/angular-jwt';
 import { UserRoleConstants } from './constants';
 import { HomeGuard } from './guards/home.guard';
 import { AppRootHomeComponent } from './app-root-home';
 import { HomeApplicantComponent } from './home-applicant/home-applicant.component';
 import { AuthGuard } from './guards/auth.guard';
 import { LoginPageComponent } from './login-page/login-page.component';
-import { JWT_OPTIONS, JwtModule } from '@auth0/angular-jwt';
 import { ApplyJobPageComponent } from './apply-job-page/apply-job-page.component';
 import { NewJobPageComponent } from './new-job-page/new-job-page.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { TextFieldModule } from '@angular/cdk/text-field';
+import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
+
 
 export const BASE_URL = new InjectionToken<string>('BASE_URL');
 
@@ -44,6 +49,7 @@ export const BASE_URL = new InjectionToken<string>('BASE_URL');
     NewJobPageComponent
   ],
   imports: [
+    NgxMaterialTimepickerModule,
     NgbModule,
     NgbAlertModule,
     MatCardModule,
@@ -51,6 +57,9 @@ export const BASE_URL = new InjectionToken<string>('BASE_URL');
     MatIconModule,
     MatExpansionModule,
     MatInputModule,
+    TextFieldModule,
+    MatFormFieldModule,
+    MaterialFileInputModule,
     ComponentsModule,
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
     HttpClientModule,

@@ -205,4 +205,14 @@ public class DaoUtilsTests
         string actual = DaoUtils.CreateCreationParameterString(DaoUtils.CreateRunAsyncParameters<ApplicantDb>(applicant));
         Assert.Equal("{ uuid: $uuid, name: $name, email: $email, phoneNumber: $phoneNumber, applicantPhoto: $applicantPhoto }", actual);
     }
+
+    [Fact]
+    public void CreateSetStatements_MakesStatement()
+    {
+        var relationship = new DbRelationship(RelationshipConstants.HAS_APPLIED_TO, "r");
+        relationship.Parameters["rejected"] = true;
+
+        string actual = DaoUtils.CreateSetStatements(relationship.Parameters, relationship.Selector);
+        Assert.Equal("SET r.rejected = $rejected ", actual);
+    }
 }

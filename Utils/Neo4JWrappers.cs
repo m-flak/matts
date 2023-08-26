@@ -15,37 +15,29 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-namespace matts.Models.Db;
+using Neo4j.Driver;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-using matts.Utils;
+namespace matts.Utils;
 
-[DbNode("Job", "j")]
-public class JobDb
+// Extension Method Wrappers so we can use Moq with Neo4J
+internal class Neo4JWrappers
 {
-    public JobDb()
+    internal Neo4JWrappers()
     { }
-    public JobDb(JobDb other)
+
+    // Extension Wrapper for testing
+    internal virtual async Task<List<T>> RunToListAsync<T>(IResultCursor cursor, Func<IRecord, T> operation)
     {
-        Uuid = other.Uuid;
-        Name = other.Name;
-        Status = other.Status;
-        Description = other.Description;
-        ApplicantCount = other.ApplicantCount;
+        return await cursor.ToListAsync(operation);
     }
 
-    [DbNodeUuid]
-    [DbNodeCreationField]
-    public string? Uuid { get; set; }
-
-    [DbNodeOrderBy]
-    [DbNodeCreationField]
-    public string? Name { get; set; }
-
-    [DbNodeCreationField]
-    public string? Status { get; set; }
-
-    [DbNodeCreationField]
-    public string? Description { get; set; }
-    
-    public long ApplicantCount { get; set; }
+    internal virtual async Task<T> RunSingleAsync<T>(IResultCursor cursor, Func<IRecord, T> operation)
+    {
+        return await cursor.SingleAsync(operation);
+    }
 }

@@ -32,6 +32,28 @@ public class JobDao : DaoAbstractBase<JobDb>
     {
     }
 
+    public override async Task<JobDb> CreateNew(JobDb createWhat)
+    {
+        JobDb createWhatCopy = new JobDb(createWhat);
+        createWhatCopy.Uuid = System.Guid.NewGuid().ToString();
+        return await this.CreateNewImpl(createWhatCopy);
+    }
+
+    public override async Task<bool> CreateRelationshipBetween(DbRelationship relationship, JobDb source, object other, Type typeOther)
+    {
+        return await this.CreateRelationshipBetweenImpl(relationship, source, other, typeof(JobDb), typeOther);
+    }
+
+    public override async Task<bool> UpdateRelationshipBetween(DbRelationship relationship, JobDb source, object other, Type typeOther)
+    {
+        return await this.UpdateRelationshipBetweenImpl(relationship, source, other, typeof(JobDb), typeOther);
+    }
+
+    public override async Task<bool> DeleteRelationshipBetween(DbRelationship relationship, JobDb? source, object? other, Type typeOther)
+    {
+        return await this.DeleteRelationshipBetweenImpl(relationship, source, other, typeof(JobDb), typeOther);
+    }
+
     public override async Task<List<JobDb>> GetAll()
     {
         using (var session = _driver.AsyncSession())
@@ -41,7 +63,7 @@ public class JobDao : DaoAbstractBase<JobDb>
                 {
                     var cursor = await tx.RunAsync(
                         "MATCH (j:Job) " +
-                        "MATCH (a:Applicant)-[r:HAS_APPLIED_TO]->(jj:Job) " +
+                        "OPTIONAL MATCH (a:Applicant)-[r:HAS_APPLIED_TO]->(jj:Job) " +
                         "WHERE j.uuid = jj.uuid " +
                         "RETURN j, COUNT(a) as cA"
                     );
@@ -63,6 +85,11 @@ public class JobDao : DaoAbstractBase<JobDb>
         }
     }
 
+    public override async Task<List<JobDb>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties)
+    {
+        return await this.GetAllAndFilterByPropertiesImpl(typeof(JobDb), filterProperties, null);
+    }
+
     public override async Task<List<JobDb>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid)
     {
         // This relationship is applicant --> job, so use different node settings
@@ -74,34 +101,52 @@ public class JobDao : DaoAbstractBase<JobDb>
                 new GetAllByRelationshipConfig(
                     GetAllByRelationshipConfig.WhereNodeSelector.LEFT,
                     GetAllByRelationshipConfig.ReturnNodeSelector.RIGHT
-                ), 
-                relationship, 
-                optionalRelationship, 
-                whomUuid
+                ),
+                new DbRelationship(relationship, "r"),
+                (optionalRelationship != null) ? new DbRelationship(optionalRelationship, "r2") : null,
+                whomUuid,
+                null
             );
         }
 
         throw new NotImplementedException();
     }
 
-    public override async Task<List<JobDb>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties)
-    {
-        return await this.GetAllAndFilterByPropertiesImpl(typeof(JobDb), filterProperties);
-    }
-
-
     public override async Task<JobDb> GetByUuid(string uuid)
     {
         return await this.GetByUuidImpl(typeof(JobDb), uuid);
     }
 
-    public override async Task<JobDb> CreateNew(JobDb createWhat)
+    public override async Task<List<P>> GetPropertyFromRelated<P>(string relationship, Type relatedNodeType, string propertyName)
     {
-        throw new NotImplementedException();
+        return await this.GetPropertyFromRelatedImpl<P>(relationship, typeof(JobDb), relatedNodeType, propertyName, null);
     }
 
-    public override async Task<bool> CreateRelationshipBetween(string relationship, JobDb source, object other, Type typeOther)
+    public override async Task<bool> HasRelationshipBetween(DbRelationship relationship, JobDb source, object other, Type typeOther)
     {
-        return await this.CreateRelationshipBetweenImpl(new DbRelationship(relationship), source, other, typeof(JobDb), typeOther);
+        return await this.HasRelationshipBetweenImpl(relationship, source, other, typeof(JobDb), typeOther);
+    }
+
+    public virtual async Task<string> UpdateJobStatus(string jobUuid, string newStatus)
+    {
+        using (var session = _driver.AsyncSession())
+        {
+            return await session.ExecuteWriteAsync(
+                async tx =>
+                {
+                    var cursor = await tx.RunAsync(
+                        "MATCH (j:Job) " +
+                        "WHERE j.uuid = $uuid " +
+                        "SET j.status = $status",
+                        new
+                        {
+                            uuid = jobUuid,
+                            status = newStatus
+                        }
+                    );
+                    await cursor.ConsumeAsync();
+                    return newStatus;
+                });
+        }
     }
 }

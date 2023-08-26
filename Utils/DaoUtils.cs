@@ -46,8 +46,15 @@ internal sealed class DaoUtils
             {
                 foreach (string param in relationshipParams)
                 {
-                    var paramValue = row[$"{relPrefix}.{param}"];
-                    t.Add(param, paramValue);
+                    try
+                    {
+                        var paramValue = row[$"{relPrefix}.{param}"];
+                        t.Add(param, paramValue);
+                    }
+                    catch (KeyNotFoundException)
+                    {
+                        continue;
+                    }
                 }
             }
 
@@ -55,8 +62,15 @@ internal sealed class DaoUtils
             {
                 foreach (string param in optRelationshipParams)
                 {
-                    var paramValue = row[$"{optRelPrefix}.{param}"];
-                    t.Add(param, paramValue);
+                    try
+                    {
+                        var paramValue = row[$"{optRelPrefix}.{param}"];
+                        t.Add(param, paramValue);
+                    }
+                    catch (KeyNotFoundException)
+                    {
+                        continue;
+                    }
                 }
             }
 
@@ -224,6 +238,19 @@ internal sealed class DaoUtils
             }
         }
         builder.Append(" }");
+
+        return builder.ToString();
+    }
+
+    internal static string CreateSetStatements(IDictionary<string, object> parameters, string prefix)
+    {
+        var keys = parameters.Keys.ToList();
+        var builder = new StringBuilder();
+
+        for (int i = 0; i < keys.Count; ++i)
+        {
+            builder.Append($"SET {prefix}.{keys[i]} = ${keys[i]} ");
+        }
 
         return builder.ToString();
     }

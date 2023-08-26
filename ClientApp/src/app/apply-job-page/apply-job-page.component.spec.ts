@@ -26,9 +26,14 @@ import { AuthService, CurrentUser } from '../services/auth.service';
 import { UserRoleConstants } from '../constants';
 import { MatButtonModule } from '@angular/material/button';
 import { ApplicantDataService } from '../services/applicant-data.service';
-import { HarnessLoader } from '@angular/cdk/testing';
+import { ComponentHarness, HarnessLoader, HarnessPredicate, TestElement } from '@angular/cdk/testing';
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import {MatButtonHarness}  from '@angular/material/button/testing';
+import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FileInput, MaterialFileInputModule } from 'ngx-material-file-input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 
 const jobData: Job = {
@@ -90,9 +95,18 @@ describe('ApplyJobPageComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ MatButtonModule ],
+      imports: [
+        BrowserAnimationsModule, 
+        MatButtonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MaterialFileInputModule
+      ],
       declarations: [ ApplyJobPageComponent ],
       providers: [
+        FormBuilder,
         { provide: AuthService, useValue: FakeAuthService },
         { provide: BackendService, useValue: FakeBackendService },
         { provide: ActivatedRoute, useValue: { 'paramMap': of((() => { let m = new Map(); m.set('id', '54991ebe-ba9e-440b-a202-247f0c33574f'); return m as unknown as ParamMap;})()) } },
@@ -132,5 +146,23 @@ describe('ApplyJobPageComponent', () => {
     expect(applyForText).toBeNull();
     expect(alreadApplyText).not.toBeNull();
     expect(buttonIsDisabled).toBe(true);
+  }));
+
+  it('should take files in the form', fakeAsync(async () => {
+    spyOn(applicantDataService, "isJobAppliedFor").and.returnValue(false);
+    component.ngOnInit();
+    tick(2);
+    fixture.detectChanges();
+
+    await fixture.whenStable();
+    const file = new File([''], 'resume.docx');
+    component.applyToJobForm.setValue({ 
+        resumeFile: new FileInput([ file ])
+    });
+    fixture.detectChanges();
+
+    const fileInputData: FileInput = component.applyToJobForm.controls.resumeFile.value;
+    expect(fileInputData.files.length).toEqual(1);
+    expect(fileInputData.fileNames.split(', ').length).toEqual(1);
   }));
 });

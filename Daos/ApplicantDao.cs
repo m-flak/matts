@@ -33,9 +33,36 @@ public class ApplicantDao : DaoAbstractBase<ApplicantDb>
     {
     }
 
+    public override async Task<ApplicantDb> CreateNew(ApplicantDb createWhat)
+    {
+        ApplicantDb createWhatCopy = new ApplicantDb(createWhat);
+        createWhatCopy.Uuid = System.Guid.NewGuid().ToString();
+        return await this.CreateNewImpl(createWhatCopy);
+    }
+
+    public override async Task<bool> CreateRelationshipBetween(DbRelationship relationship, ApplicantDb source, object other, Type typeOther)
+    {
+        return await this.CreateRelationshipBetweenImpl(relationship, source, other, typeof(ApplicantDb), typeOther);
+    }
+
+    public override async Task<bool> UpdateRelationshipBetween(DbRelationship relationship, ApplicantDb source, object other, Type typeOther)
+    {
+        return await this.UpdateRelationshipBetweenImpl(relationship, source, other, typeof(ApplicantDb), typeOther);
+    }
+
+    public override async Task<bool> DeleteRelationshipBetween(DbRelationship relationship, ApplicantDb? source, object? other, Type typeOther)
+    {
+        return await this.DeleteRelationshipBetweenImpl(relationship, source, other, typeof(ApplicantDb), typeOther);
+    }
+
     public override async Task<List<ApplicantDb>> GetAll()
     {
-        return await this.GetAllImpl(typeof(ApplicantDb));
+        return await this.GetAllImpl(typeof(ApplicantDb), null);
+    }
+    
+    public override async Task<List<ApplicantDb>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties)
+    {
+        return await this.GetAllAndFilterByPropertiesImpl(typeof(ApplicantDb), filterProperties, null);
     }
 
     public override async Task<List<ApplicantDb>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid)
@@ -47,15 +74,11 @@ public class ApplicantDao : DaoAbstractBase<ApplicantDb>
                 GetAllByRelationshipConfig.WhereNodeSelector.RIGHT, 
                 GetAllByRelationshipConfig.ReturnNodeSelector.LEFT
             ), 
-            relationship, 
-            optionalRelationship, 
-            whomUuid
+            new DbRelationship(relationship, "r"), 
+            (optionalRelationship != null) ? new DbRelationship(optionalRelationship, "r2") : null, 
+            whomUuid,
+            null
         );
-    }
-
-    public override async Task<List<ApplicantDb>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties)
-    {
-        return await this.GetAllAndFilterByPropertiesImpl(typeof(ApplicantDb), filterProperties);
     }
 
     public override async Task<ApplicantDb> GetByUuid(string uuid)
@@ -63,15 +86,13 @@ public class ApplicantDao : DaoAbstractBase<ApplicantDb>
         return await this.GetByUuidImpl(typeof(ApplicantDb), uuid);
     }
 
-    public override async Task<ApplicantDb> CreateNew(ApplicantDb createWhat)
+    public override async Task<List<P>> GetPropertyFromRelated<P>(string relationship, Type relatedNodeType, string propertyName)
     {
-        ApplicantDb createWhatCopy = new ApplicantDb(createWhat);
-        createWhatCopy.Uuid = System.Guid.NewGuid().ToString();
-        return await this.CreateNewImpl(createWhatCopy);
+        return await this.GetPropertyFromRelatedImpl<P>(relationship, typeof(ApplicantDb) ,relatedNodeType, propertyName, null);
     }
 
-    public override async Task<bool> CreateRelationshipBetween(string relationship, ApplicantDb source, object other, Type typeOther)
+    public override async Task<bool> HasRelationshipBetween(DbRelationship relationship, ApplicantDb source, object other, Type typeOther)
     {
-        return await this.CreateRelationshipBetweenImpl(new DbRelationship(relationship), source, other, typeof(ApplicantDb), typeOther);
+        return await this.HasRelationshipBetweenImpl(relationship, source, other, typeof(ApplicantDb), typeOther);
     }
 }

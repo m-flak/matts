@@ -16,14 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 using System.Net.Mime;
+using System.Security.Claims;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using FluentValidation;
+using Ical.Net;
 using matts.Interfaces;
 using matts.Models;
-using System.Security.Claims;
 using matts.Constants;
-using System.ComponentModel.DataAnnotations;
-using FluentValidation;
+using matts.Controllers.ActionResults;
 
 namespace matts.Controllers;
 
@@ -89,6 +91,7 @@ public class JobsController : ControllerBase
     [Consumes(MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
     [Route("applytojob")]
     public async Task<IActionResult> ApplyToJob(ApplyToJob applyToJob)
     {
@@ -98,34 +101,86 @@ public class JobsController : ControllerBase
            return new BadRequestObjectResult(validationResult.Errors);
         }
 
+        bool wasCreated = await _service.ApplyToJob(applyToJob);
+        if (!wasCreated)
+        {
+            return Problem("Database is unavailable.", null, StatusCodes.Status503ServiceUnavailable);
+        }
+
         return Ok();
+    }
+
+    [HttpGet]
+    [Produces("text/calendar")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Route("ics/{juuid}/{auuid}")]
+    public async Task<IActionResult> DownloadICS(
+        [FromRoute] string juuid, 
+        [FromRoute] string auuid,
+        [Required][FromQuery] int y,
+        [Required][FromQuery] int m,
+        [Required][FromQuery] int d,
+        [Required][FromQuery] int h,
+        [Required][FromQuery] int mm
+    )
+    {
+        Calendar? calendar = await _service.GetICSCalendar(juuid, auuid, new DateTime(y, m, d, h, mm, 0));
+
+        if (calendar == null)
+        {
+            return NotFound();
+        }
+
+        return new ICalResult(calendar);
     }
 
     [Authorize(Policy = "Employers")]
     [HttpPatch]
     [Consumes(MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [Route("updatejob")]
     public async Task<IActionResult> UpdateJob(Job job)
     {
-        _logger.LogInformation("{Job}", job);
-        return Ok();
+        var validationResult = _jobValidator.Validate(job);
+        if (!validationResult.IsValid) 
+        {
+           return new BadRequestObjectResult(validationResult.Errors);
+        }
+
+        try
+        {
+            return Ok(await _service.UpdateJob(job));
+        }
+        catch (ArgumentNullException)
+        {
+            return BadRequest();
+        }
     }
 
     [Authorize(Policy = "Employers")]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [RequestSizeLimit(0)]
     [Route("reject/{juuid}/{auuid}")]
-    public async Task<IActionResult> RejectForJob(string juuid, string auuid)
+    public async Task<IActionResult> RejectForJob([FromRoute] string juuid, [FromRoute] string auuid, [Required][FromQuery] bool rejected)
     {
+        bool wasUpdated = await _service.RejectForJob(juuid, auuid, rejected);
+
+        if (!wasUpdated)
+        {
+            return NoContent();
+        }
+
         return Ok();
     }
 
     [Authorize(Policy = "Employers")]
     [HttpPost]
     [Consumes(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Job), StatusCodes.Status200OK, MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [Route("postnewjob")]
     public async Task<IActionResult> PostNewJob(Job job)
@@ -136,7 +191,7 @@ public class JobsController : ControllerBase
            return new BadRequestObjectResult(validationResult.Errors);
         }
 
-        _logger.LogInformation("{Job}", job);
-        return Ok();
+        Job postedJob = await _service.CreateNewJob(job);
+        return Ok(postedJob);
     }
 }
