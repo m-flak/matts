@@ -49,15 +49,6 @@ docker-compose --env-file ./docker.development.env -f docker-compose.yml -f dock
 
 ```
 
-__While Neo4J is running,__ connect to it via web browser, `http://localhost:7474/browser/`, to configure the constraints. This only has to be done once:
-
-```
-CREATE CONSTRAINT FOR(a:Applicant) REQUIRE a.uuid IS UNIQUE
-CREATE CONSTRAINT FOR(j:Job) REQUIRE j.uuid IS UNIQUE
-CREATE CONSTRAINT FOR(e:Employer) REQUIRE e.uuid IS UNIQUE
-CREATE CONSTRAINT FOR(u:User) REQUIRE u.userName IS UNIQUE
-```
-
 #### Subsequent Rebuilds
 
 This is all that's required once the initial secrets setup & cert generation has been performed.
@@ -76,15 +67,6 @@ First, setup the container...
 
 ```powershell
 docker-compose --env-file ./docker.development.env -f docker-compose.yml -f docker-compose.development.yml up neo4j -d
-```
-
-Next, connect to `http://localhost:7474/browser/` and connect to it via web browser to configure the constraints. This only has to be done once:
-
-```
-CREATE CONSTRAINT FOR(a:Applicant) REQUIRE a.uuid IS UNIQUE
-CREATE CONSTRAINT FOR(j:Job) REQUIRE j.uuid IS UNIQUE
-CREATE CONSTRAINT FOR(e:Employer) REQUIRE e.uuid IS UNIQUE
-CREATE CONSTRAINT FOR(u:User) REQUIRE u.userName IS UNIQUE
 ```
 
 __(One time only)__ Next, you need to setup your secrets:
