@@ -89,7 +89,7 @@ jobs:
           EOF
 
       - name: Build Image
-        run: docker compose --env-file docker.staging.env -f docker-compose.yml -f docker-compose.staging.yml build matts
+        run: docker compose --env-file docker.staging.env -f docker-compose.yml -f docker-compose.staging.yml build
 
       - name: Run Frontend Tests
         run: |
@@ -114,11 +114,13 @@ jobs:
             testresults-node/**/*.xml
             testresults/**/*.trx
       
-      - name: Tag Image
-        run: docker tag ghcr.io/m-flak/matts ghcr.io/${{ env.REPO }}:${{ github.sha }}
+      - name: Tag Images
+        run: |
+          docker tag ghcr.io/m-flak/matts ghcr.io/${{ env.REPO }}:${{ github.sha }}
+          docker tag ghcr.io/m-flak/matts-database ghcr.io/${{ env.REPO }}-database:${{ github.sha }}
 
-      - name: Push image to GitHub container Registry
-        run: docker compose -f docker-compose.yml -f docker-compose.staging.yml push matts
+      - name: Push images to GitHub container Registry
+        run: docker compose --env-file docker.staging.env -f docker-compose.yml -f docker-compose.staging.yml push
 
   deploy:
     name: Deploy to Azure
