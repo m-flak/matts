@@ -82,10 +82,14 @@ jobs:
         env:
           NEO4J_USERNAME: ${{ steps.build-secrets.outputs.stagingn4juser }}
           NEO4J_PASSWORD: ${{ steps.build-secrets.outputs.stagingn4jpw }}
+          AZ_STORAGE_ACCT_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
+          CERT_PASSPHRASE: ${{ secrets.CERT_PASSPHRASE }}
         run: |
           cat - > docker.staging.env <<EOF
           NEO4J_USERNAME=$NEO4J_USERNAME
           NEO4J_PASSWORD=$NEO4J_PASSWORD
+          AZ_STORAGE_ACCT_KEY=$AZ_STORAGE_ACCT_KEY
+          CERT_PASSPHRASE=$CERT_PASSPHRASE
           EOF
 
       - name: Build Image
@@ -125,12 +129,12 @@ jobs:
   deploy:
     name: Deploy to Azure
     permissions:
-      contents: none
+      contents: read
     runs-on: ubuntu-latest
     needs: build
     environment:
       name: 'Staging'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+      url: 'https://matthews-ats-staging.gdhpevhuaffrhah8.eastus.azurecontainer.io/'
 
     steps:
       - name: Lowercase the repo name and username
@@ -139,11 +143,10 @@ jobs:
       - uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Deploy to Azure Web App
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v2
+      
+      - name: Deploy to ACI
+        uses: azure/CLI@v1
         with:
-          app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_STAGING }}
-          images: 'ghcr.io/${{ env.REPO }}:${{ github.sha }}'
+          azcliversion: 2.30.0
+          inlineScript: |
+            az deployment group create --resource-group matthews-ats --name matthews-ats-staging --template-file .azure/template.json --parameters storage_account_key='${{ secrets.AZURE_STORAGE_KEY }}' app_image='ghcr.io/${{ env.REPO }}:${{ github.sha }}' db_image='ghcr.io/${{ env.REPO }}-database:${{ github.sha }}' registry_password='${{ github.token }}'

@@ -7,16 +7,49 @@ services:
       - "7687:7687"
     expose:
       - 7687
+    environment:
+      - NEO4J_AUTH=$NEO4J_USERNAME/$NEO4J_PASSWORD
+    volumes:
+      - neo4jlogs:/logs
+      - neo4jdata:/data
   
   matts:
     ports:
       - "80:80"
+      - "443:443"
     expose:
       - 80
+      - 443
     environment:
       - ASPNETCORE_ENVIRONMENT=Staging
-      - ASPNETCORE_URLS=http://+
+      - ASPNETCORE_URLS=https://+;http://+
+      - ASPNETCORE_HTTPS_PORT=443
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/matts-staging.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=$CERT_PASSPHRASE
+      - Neo4J__ConnectionURL=bolt://neo4j:7687
     build:
       args:
         - AspNetCoreEnvironment=Staging
         - DotNetBuildConfiguration=Release
+    volumes:
+      - apphttps:/https/
+
+volumes:
+  neo4jlogs:
+    driver: azure_file
+    driver_opts:
+      share_name: appdata
+      storage_account_name: matthewsatsdata
+      storage_account_key: $AZ_STORAGE_ACCT_KEY
+  neo4jdata:
+    driver: azure_file
+    driver_opts:
+      share_name: appdata
+      storage_account_name: matthewsatsdata
+      storage_account_key: $AZ_STORAGE_ACCT_KEY
+  apphttps:
+    driver: azure_file
+    driver_opts:
+      share_name: appdata
+      storage_account_name: matthewsatsdata
+      storage_account_key: $AZ_STORAGE_ACCT_KEY
