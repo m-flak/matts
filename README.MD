@@ -1,6 +1,17 @@
 
 # matts - "Matthew's ATS"
 
+### Azure Setup
+The ACI Group will need a system assigned managed identity with permissions to access the key vault and app config store. The key vault is also used in the GH Action pipeline.
+
+For the nitty-gritty on the container setup, see the `.azure/template.json` file. Since ARM is being used instead of docker-compose for deployment, ensure what's in the docker-compose file is mirrored in the ARM template.
+Each volume for a container will need to be assigned an Azure File Share. It's share per volume, apparently.
+
+These settings need to be in the configuration store. The application will filter by its prefix and the build environment that it was built against.
+![app config keys](https://github.com/m-flak/matts/assets/35634280/2904018e-d511-4c71-b9d3-db577de4db6b)
+
+The service endpoint of the App Config itself will need to be placed within the appropriate `appsettings.json` file.
+
 ### Local Dev Environment Setup
 
 ### DOCKER
