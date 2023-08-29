@@ -134,7 +134,7 @@ jobs:
     needs: build
     environment:
       name: 'Staging'
-      url: 'https://matthews-ats-staging.gdhpevhuaffrhah8.eastus.azurecontainer.io/'
+      url: ${{ steps.deploy-to-aci.outputs.url }}
 
     steps:
       - uses: actions/checkout@v3
@@ -149,8 +149,11 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       
       - name: Deploy to ACI
+        id: deploy-to-aci
         uses: azure/CLI@v1
         with:
           azcliversion: 2.30.0
           inlineScript: |
-            az deployment group create --resource-group matthews-ats --name matthews-ats-staging --template-file $GITHUB_WORKSPACE/.azure/template.json --parameters storage_account_key='${{ secrets.AZURE_STORAGE_KEY }}' app_image='ghcr.io/${{ env.REPO }}:${{ github.sha }}' db_image='ghcr.io/${{ env.REPO }}-database:${{ github.sha }}' registry_password='${{ secrets.AZ_DEPLOY_PAT }}'
+            az deployment group create --resource-group matthews-ats --name matthews-ats-staging --template-file $GITHUB_WORKSPACE/.azure/template.json --parameters storage_account_key='${{ secrets.AZURE_STORAGE_KEY }}' app_image='ghcr.io/${{ env.REPO }}:latest' db_image='ghcr.io/${{ env.REPO }}-database:latest' registry_password='${{ secrets.AZ_DEPLOY_PAT }}'
+            url=$(az container show --resource-group matthews-ats --name matthews-ats-staging --query ipAddress.fqdn)
+            echo "url=$url" >> $GITHUB_OUTPUT
