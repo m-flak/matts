@@ -26,7 +26,7 @@ services:
       - ASPNETCORE_HTTPS_PORT=443
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/matts-staging.pfx
       - ASPNETCORE_Kestrel__Certificates__Default__Password=$CERT_PASSPHRASE
-      - Neo4J__ConnectionURL=bolt://neo4j:7687
+      - Neo4J__ConnectionURL=bolt://localhost:7687
     build:
       args:
         - AspNetCoreEnvironment=Staging
