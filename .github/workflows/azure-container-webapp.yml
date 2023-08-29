@@ -137,6 +137,10 @@ jobs:
       url: 'https://matthews-ats-staging.gdhpevhuaffrhah8.eastus.azurecontainer.io/'
 
     steps:
+      - uses: actions/checkout@v3
+        with:
+          sparse-checkout: .azure
+
       - name: Lowercase the repo name and username
         run: echo "REPO=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
 
