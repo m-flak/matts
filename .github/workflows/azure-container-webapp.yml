@@ -153,4 +153,4 @@ jobs:
         with:
           azcliversion: 2.30.0
           inlineScript: |
-            az deployment group create --resource-group matthews-ats --name matthews-ats-staging --template-file $GITHUB_WORKSPACE/.azure/template.json --parameters storage_account_key='${{ secrets.AZURE_STORAGE_KEY }}' app_image='ghcr.io/${{ env.REPO }}:${{ github.sha }}' db_image='ghcr.io/${{ env.REPO }}-database:${{ github.sha }}' registry_password='${{ github.token }}'
+            az deployment group create --resource-group matthews-ats --name matthews-ats-staging --template-file $GITHUB_WORKSPACE/.azure/template.json --parameters storage_account_key='${{ secrets.AZURE_STORAGE_KEY }}' app_image='ghcr.io/${{ env.REPO }}:${{ github.sha }}' db_image='ghcr.io/${{ env.REPO }}-database:${{ github.sha }}' registry_password='${{ secrets.AZ_DEPLOY_PAT }}'
