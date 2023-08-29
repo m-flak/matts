@@ -21,5 +21,8 @@ WORKDIR "${NEO4J_HOME}"
 VOLUME /data /logs
 EXPOSE 7474 7473 7687
 
+# azure can't execute the scripts? hope this fixes it
+RUN chmod -R a+x /startup/*.sh
+
 ENTRYPOINT ["tini", "-g", "--", "/startup/new-docker-entrypoint.sh"]
 CMD ["neo4j"]

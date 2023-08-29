@@ -156,4 +156,4 @@ jobs:
           inlineScript: |
             az deployment group create --resource-group matthews-ats --name matthews-ats-staging --template-file $GITHUB_WORKSPACE/.azure/template.json --parameters storage_account_key='${{ secrets.AZURE_STORAGE_KEY }}' app_image='ghcr.io/${{ env.REPO }}:latest' db_image='ghcr.io/${{ env.REPO }}-database:latest' registry_password='${{ secrets.AZ_DEPLOY_PAT }}'
             url=$(az container show --resource-group matthews-ats --name matthews-ats-staging --query ipAddress.fqdn)
-            echo "url=$url" >> $GITHUB_OUTPUT
+            echo "url=https://$url/" >> $GITHUB_OUTPUT
