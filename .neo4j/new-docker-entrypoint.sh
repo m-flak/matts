@@ -7,10 +7,12 @@ function running_as_root
 
 # Parameters must separated when using ARM
 # This won't be set yet then
+set +u
 if [[ -z "${NEO4J_AUTH}" ]]; then
     echo "NEO4J_AUTH not present. Building it with N4J_USER and N4J_PW..."
     export NEO4J_AUTH="${N4J_USER}/${N4J_PW}"
 fi
+set -u
 
 # Fork the original EP which will start the actual Neo4J service
 /startup/docker-entrypoint.sh "$@" &
