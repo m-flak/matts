@@ -38,18 +38,18 @@ volumes:
   neo4jlogs:
     driver: azure_file
     driver_opts:
-      share_name: appdata
+      share_name: neo4jlogs
       storage_account_name: matthewsatsdata
       storage_account_key: $AZ_STORAGE_ACCT_KEY
   neo4jdata:
     driver: azure_file
     driver_opts:
-      share_name: appdata
+      share_name: neo4jdata
       storage_account_name: matthewsatsdata
       storage_account_key: $AZ_STORAGE_ACCT_KEY
   apphttps:
     driver: azure_file
     driver_opts:
-      share_name: appdata
+      share_name: apphttps
       storage_account_name: matthewsatsdata
       storage_account_key: $AZ_STORAGE_ACCT_KEY

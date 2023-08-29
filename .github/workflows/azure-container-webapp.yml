@@ -148,12 +148,23 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       
+      - name: Get Build Secrets for ARM
+        id: build-secrets-arm
+        run: |
+          secrets_get=(stagingn4juser stagingn4jpw)
+          for secret_get in ${secrets_get[@]}
+          do
+            value=$(az keyvault secret show --name $secret_get --vault-name matthews-ats-vault --query value --output tsv)
+            echo "::add-mask::$value"
+            echo "$secret_get=$value" >> $GITHUB_OUTPUT
+          done
+
       - name: Deploy to ACI
         id: deploy-to-aci
         uses: azure/CLI@v1
         with:
           azcliversion: 2.30.0
           inlineScript: |
-            az deployment group create --resource-group matthews-ats --name matthews-ats-staging --template-file $GITHUB_WORKSPACE/.azure/template.json --parameters storage_account_key='${{ secrets.AZURE_STORAGE_KEY }}' app_image='ghcr.io/${{ env.REPO }}:latest' db_image='ghcr.io/${{ env.REPO }}-database:latest' registry_password='${{ secrets.AZ_DEPLOY_PAT }}'
+            az deployment group create --resource-group matthews-ats --name matthews-ats-staging --template-file $GITHUB_WORKSPACE/.azure/template.json --parameters storage_account_key='${{ secrets.AZURE_STORAGE_KEY }}' app_image='ghcr.io/${{ env.REPO }}:latest' db_image='ghcr.io/${{ env.REPO }}-database:latest' registry_password='${{ secrets.AZ_DEPLOY_PAT }}' ssl_cert_passphrase='${{ secrets.CERT_PASSPHRASE }}' n4j_user='${{ steps.build-secrets-arm.outputs.stagingn4juser }}' n4j_pw='${{ steps.build-secrets-arm.outputs.stagingn4jpw }}'
             url=$(az container show --resource-group matthews-ats --name matthews-ats-staging --query ipAddress.fqdn)
-            echo "url=https://$url/" >> $GITHUB_OUTPUT
+            echo "url=https://$(echo $url | sed 's/\"//g')/" >> $GITHUB_OUTPUT
