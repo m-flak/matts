@@ -12,6 +12,10 @@ These settings need to be in the configuration store. The application will filte
 
 The service endpoint of the App Config itself will need to be placed within the appropriate `appsettings.json` file.
 
+__For HTTPS,__ current the application utilizes a self-signed certificate. Place a PFX certificate file within the root of the `apphttps` file share. The DnsName of the cert needs to match the deployment url, which will remain the same after the container group is created, even if the group needs to be deleted due to certain prop changes. If you create one first in Azure Portal, be sure to add together the values for memory and cpu of both containers, so you don't have to delete it before a deployment.
+
+After a successful deployment, the application is accessible at the url attached to [the deployment](https://github.com/m-flak/matts/deployments).
+
 ### Local Dev Environment Setup
 
 ### DOCKER
