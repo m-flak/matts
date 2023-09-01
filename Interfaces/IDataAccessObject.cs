@@ -31,7 +31,7 @@ public interface IDataAccessObject<T> where T : class
 
     public Task<List<T>> GetAll();
 
-    public Task<List<T>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid);
+    public Task<List<T>> GetAllByRelationship(DbRelationship relationship, DbRelationship? optionalRelationship, string whomUuid);
 
     public Task<List<T>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties);
 

@@ -47,7 +47,12 @@ public class JobRepository : IJobRepository
 
     public async Task<List<Job>> GetAllAppliedByApplicantId(string applicantId)
     {
-        var jobs = await _daoJob.GetAllByRelationship(RelationshipConstants.HAS_APPLIED_TO, null, applicantId);
+        var jobs = await _daoJob.GetAllByRelationship(
+            new DbRelationship<ApplicantDb, JobDb>(RelationshipConstants.HAS_APPLIED_TO, "r"), 
+            null, 
+            applicantId
+        );
+
         return jobs.Select(j => _mapper.Map<Job>(j)).ToList();
     }
 
@@ -63,7 +68,11 @@ public class JobRepository : IJobRepository
     public async Task<Job> GetJobByUuid(string uuid)
     {
         var job = await _daoJob.GetByUuid(uuid);
-        var applicants = await _daoApp.GetAllByRelationship(RelationshipConstants.HAS_APPLIED_TO, RelationshipConstants.IS_INTERVIEWING_FOR, uuid);
+        var applicants = await _daoApp.GetAllByRelationship(
+            new DbRelationship<ApplicantDb, JobDb>(RelationshipConstants.HAS_APPLIED_TO, "r"), 
+            new DbRelationship<ApplicantDb, JobDb>(RelationshipConstants.IS_INTERVIEWING_FOR, "r2"), 
+            uuid
+        );
 
         var interviewingWiths = await _daoApp.GetPropertyFromRelated<string>(RelationshipConstants.INTERVIEWING_WITH, typeof(EmployerDb), "uuid");
         int n = interviewingWiths.Count;

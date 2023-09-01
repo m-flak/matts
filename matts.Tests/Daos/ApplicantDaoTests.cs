@@ -66,7 +66,11 @@ public class ApplicantDaoTests
         var sut = new ApplicantDao(_driver.Object);
         sut.Wrappers = _wrappers.Object;
 
-        var applicants = await sut.GetAllByRelationship(RelationshipConstants.HAS_APPLIED_TO, null, "7df53d53-7c25-4b37-a004-6d9e30d44abe");
+        var applicants = await sut.GetAllByRelationship(
+            new DbRelationship<ApplicantDb, JobDb>(RelationshipConstants.HAS_APPLIED_TO, "r"), 
+            null, 
+            "7df53d53-7c25-4b37-a004-6d9e30d44abe"
+        );
 
         Assert.NotNull(applicants);
         Assert.Equal(4, applicants.Count);

@@ -61,7 +61,11 @@ public class JobDaoTests
         var sut = new JobDao(_driver.Object);
         sut.Wrappers = _wrappers.Object;
 
-        var jobs = await sut.GetAllByRelationship(RelationshipConstants.HAS_APPLIED_TO, null, "7df53d53-7c25-4b37-a004-6d9e30d44abe");
+        var jobs = await sut.GetAllByRelationship(
+            new DbRelationship<ApplicantDb, JobDb>(RelationshipConstants.HAS_APPLIED_TO, "r"), 
+            null, 
+            "7df53d53-7c25-4b37-a004-6d9e30d44abe"
+        );
 
         Assert.NotNull(jobs);
         Assert.Equal(6, jobs.Count);

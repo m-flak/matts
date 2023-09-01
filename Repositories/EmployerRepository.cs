@@ -85,7 +85,12 @@ public class EmployerRepository : IEmployerRepository
 
     public async Task<Employer> GetEmployerInterviewingWith(string applicantInterviewingWith)
     {
-        var results = await _daoEmp.GetAllByRelationship(RelationshipConstants.INTERVIEWING_WITH, null, applicantInterviewingWith);
+        var results = await _daoEmp.GetAllByRelationship(
+            new DbRelationship<EmployerDb, ApplicantDb>(RelationshipConstants.INTERVIEWING_WITH, "r"),
+            null, 
+            applicantInterviewingWith
+        );
+
         var employer = results.First();
         return _mapper.Map<Employer>(employer);
     }

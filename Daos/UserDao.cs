@@ -34,58 +34,6 @@ public class UserDao : DaoAbstractBase<User>
     {
     }
 
-    public override async Task<User> CreateNew(User createWhat)
-    {
-        return await this.CreateNewImpl(createWhat);
-    }
-
-    public override async Task<bool> CreateRelationshipBetween(DbRelationship relationship, User source, object other, Type typeOther)
-    {
-        return await this.CreateRelationshipBetweenImpl(relationship, source, other, typeof(User), typeOther);
-    }
-
-    public override async Task<bool> UpdateRelationshipBetween(DbRelationship relationship, User source, object other, Type typeOther)
-    {
-        return await this.UpdateRelationshipBetweenImpl(relationship, source, other, typeof(User), typeOther);
-    }
-
-    public override async Task<bool> DeleteRelationshipBetween(DbRelationship relationship, User? source, object? other, Type typeOther)
-    {
-        return await this.DeleteRelationshipBetweenImpl(relationship, source, other, typeof(User), typeOther);
-    }
-
-    public override async Task<List<User>> GetAll()
-    {
-        return await this.GetAllImpl(typeof(User), null);
-    }
-
-    public override async Task<List<User>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties)
-    {
-        return await this.GetAllAndFilterByPropertiesImpl(typeof(User), filterProperties, null);
-    }
-
-    public override async Task<List<User>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid)
-    {
-        // FIXME: Cannot implement. Refactor required.
-        // FIXME: The relationship for a user could point to either an Applicant or an Employer. :/
-        throw new NotImplementedException();
-    }
-
-    public override async Task<User> GetByUuid(string uuid)
-    {
-        return await this.GetByUuidImpl(typeof(User), uuid);
-    }
-
-    public override Task<List<P>> GetPropertyFromRelated<P>(string relationship, Type relatedNodeType, string propertyName)
-    {
-        return this.GetPropertyFromRelatedImpl<P>(relationship, typeof(User), relatedNodeType, propertyName, null);
-    }
-
-    public override async Task<bool> HasRelationshipBetween(DbRelationship relationship, User source, object other, Type typeOther)
-    {
-        return await this.HasRelationshipBetweenImpl(relationship, source, other, typeof(User), typeOther);
-    }
-
     public virtual async Task<string> GetApplicantIdForUserName(string userName)
     {
         using (var session = _driver.AsyncSession())
