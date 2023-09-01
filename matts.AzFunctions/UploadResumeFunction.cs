@@ -16,7 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 using System.Net;
+using System.Text.RegularExpressions;
+using Azure;
 using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
+using HttpMultipartParser;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
@@ -25,9 +29,6 @@ namespace matts.AzFunctions;
 
 public class UploadResumeFunction
 {
-    public const string HEADER_JOB_UUID = "X-MatthewsAts-JobUuid";
-    public const string HEADER_APPLICANT_UUID = "X-MatthewsAts-ApplicantUuid";
-
     private readonly ILogger _logger;
     private readonly BlobServiceClient _blobServiceClient;
 
@@ -40,44 +41,108 @@ public class UploadResumeFunction
     [Function("UploadResumeFunction")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req)
     {
-        GetRequiredHeaderParameter(req.Headers, HEADER_JOB_UUID, out var jobUuid);
-        GetRequiredHeaderParameter(req.Headers, HEADER_APPLICANT_UUID, out var applicantUuid);
+        var parsedFormBody = await MultipartFormDataParser.ParseAsync(req.Body);
+        string? fileName = parsedFormBody.GetParameterValue("fileName");
+        string? jobUuid = parsedFormBody.GetParameterValue("jobUuid");
+        string? applicantUuid = parsedFormBody.GetParameterValue("applicantUuid");
 
+        if (fileName == null)
+        {
+            var responseBad = req.CreateResponse(HttpStatusCode.BadRequest);
+            _logger.LogError("Missing {Field} from Form Data!", nameof(fileName));
+            await responseBad.WriteStringAsync($"Missing {nameof(fileName)} from Form Data!");
+            return responseBad;
+        }
         if (jobUuid == null)
         {
-            _logger.LogError("Missing Header {Header}, {Parameter} is null", HEADER_JOB_UUID, nameof(jobUuid));
             var responseBad = req.CreateResponse(HttpStatusCode.BadRequest);
+            _logger.LogError("Missing {Field} from Form Data!", nameof(jobUuid));
+            await responseBad.WriteStringAsync($"Missing {nameof(jobUuid)} from Form Data!");
             return responseBad;
         }
         if (applicantUuid == null) 
         {
-            _logger.LogError("Missing Header {Header}, {Parameter} is null", HEADER_APPLICANT_UUID, nameof(applicantUuid));
             var responseBad = req.CreateResponse(HttpStatusCode.BadRequest);
+            _logger.LogError("Missing {Field} from Form Data!", nameof(applicantUuid));
+            await responseBad.WriteStringAsync($"Missing {nameof(applicantUuid)} from Form Data!");
             return responseBad;
         }
 
         BlobContainerClient blobContainerClient = _blobServiceClient.GetBlobContainerClient("resumes");
+        if ( !await blobContainerClient.ExistsAsync() )
+        {
+            try
+            {
+                var options = new BlobContainerEncryptionScopeOptions
+                {
+                    DefaultEncryptionScope = "$account-encryption-key",
+                    PreventEncryptionScopeOverride = false
+                };
+                await blobContainerClient.CreateAsync(PublicAccessType.None, null, options);
+            }
+            catch (RequestFailedException rfe)
+            {
+                _logger.LogError("Unable to create the container when it didn't exist in the first place!", rfe);
+                var responseBad = req.CreateResponse(HttpStatusCode.ServiceUnavailable);
+                await responseBad.WriteStringAsync("Unable to create the container when it didn't exist in the first place!");
+                return responseBad;
+            }
+        }
 
+        // If only my employer let us use C# instead of Java... this keyword here would eliminate KLOCs of code lol
+        dynamic blobInformation;
+        try
+        {
+            string blobName = CreateBlobName(jobUuid, applicantUuid, fileName);
+            BlobClient blobClient = blobContainerClient.GetBlobClient(blobName);
+            var options = new BlobUploadOptions
+            {
+                Tags = new Dictionary<string, string>
+                {
+                    ["jobUuid"] = jobUuid,
+                    ["applicantUuid"] = applicantUuid
+                }
+            };
+            await blobClient.UploadAsync(parsedFormBody.Files[0].Data, options);
+            var propResponse = await blobClient.GetPropertiesAsync();
+            blobInformation = new
+            {
+                Name = blobName,
+                Uri = blobClient.Uri,
+                Properties = propResponse.Value
+            };
+        }
+        catch (RequestFailedException rfe)
+        {
+            _logger.LogError("BLOB CLIENT: Upload failure!", rfe);
+            var responseBad = req.CreateResponse(HttpStatusCode.ServiceUnavailable);
+            await responseBad.WriteStringAsync("BLOB CLIENT: Upload failure!");
+            return responseBad;
+        }
+        catch (Exception e) // This catch-all should cover the exceptions not thrown by the Azure stuff
+        {
+            _logger.LogError("Upload failure!", e);
+            var responseBad = req.CreateResponse(HttpStatusCode.BadRequest);
+            await responseBad.WriteStringAsync("Upload failure!");
+            return responseBad;
+        }
 
-        _logger.LogInformation("C# HTTP trigger function processed a request.");
-        var response = req.CreateResponse(HttpStatusCode.OK);
-        response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-
-        await response.WriteStringAsync("Welcome to Azure Functions!");
+        _logger.LogInformation("Uploaded file {File} at {Uri}", (string) blobInformation.Name, (Uri) blobInformation.Uri);
+        var response = req.CreateResponse();
+        await response.WriteAsJsonAsync((object) blobInformation);
 
         return response;
     }
 
-    private static void GetRequiredHeaderParameter(HttpHeadersCollection headers, string paramName, out string? parameter)
+    private static string CreateBlobName(string juuid, string auuid, string fileName)
     {
-        headers.TryGetValues(paramName, out var values);
-        if (values != null)
+        string pattern = @"\.\w+$";
+        Match m = Regex.Match(fileName, pattern);
+        if (!m.Success)
         {
-            parameter = values.First();
+            throw new ArgumentException("The File Name is missing an extension!", nameof(fileName));
         }
-        else
-        {
-            parameter = null;
-        }
+
+        return $"{juuid}/{auuid}{m.Value}";
     }
 }
