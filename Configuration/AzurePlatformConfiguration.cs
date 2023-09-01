@@ -21,10 +21,20 @@ public sealed class AzurePlatformConfiguration
 {
     public bool? UseAzureAppConfiguration { get; set; }
     public AzureAppConfiguration? AzureAppConfiguration { get; set; }
+    public bool? UseAzureBlobService { get; set; }
+    public AzureBlobConfiguration[]? AzureBlobConfigurations { get; set; }
 }
 
 public sealed class AzureAppConfiguration
 {
     // Used with Managed Identity
     public Uri? PrimaryServiceUrl { get; set; }
+}
+
+public sealed class AzureBlobConfiguration
+{
+    // Name used to identify the config and the client
+    public string? ServiceName { get; set; }
+    public Uri? PrimaryServiceUrl { get; set; }
+    public string? ContainerName { get; set; }
 }
