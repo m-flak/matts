@@ -76,11 +76,28 @@ public class AuthController : ControllerBase
         var audience = _options.Value.Audience;
         var signingKey = _options.Value.SigningKey;
 
+        if (issuer == null || audience == null || signingKey == null)
+        {
+            string sensitiveValue(string? value)
+            {
+                return (value == null) ? "null" : "***";
+            }
+
+            _logger.LogError("JWT Configuration Invalid! Issuer: {Issuer}, Audience: {Audience}, SigningKey: {SigningKey}",
+                sensitiveValue(issuer),
+                sensitiveValue(audience),
+                sensitiveValue(signingKey)
+            );
+
+            // Throw so a nice scary 500 is generated
+            throw new InvalidOperationException("One of the required JWT Configuration values is missing from configuration");
+        }
+
         var claims = new List<Claim>()
         {
             new Claim("id", Guid.NewGuid().ToString()),
-            new Claim(ClaimTypes.Role, user.Role),
-            new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
+            new Claim(ClaimTypes.Role, user.Role!),
+            new Claim(JwtRegisteredClaimNames.Sub, user!.UserName!),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
