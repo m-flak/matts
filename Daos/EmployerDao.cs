@@ -56,12 +56,12 @@ public class EmployerDao : DaoAbstractBase<EmployerDb>
 
     public override async Task<List<EmployerDb>> GetAll()
     {
-        throw new NotImplementedException();
+        return await this.GetAllImpl(typeof(EmployerDb), null);
     }
 
     public override async Task<List<EmployerDb>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties)
     {
-        throw new NotImplementedException();
+        return await this.GetAllAndFilterByPropertiesImpl(typeof(EmployerDb), filterProperties, null);
     }
 
     public override async Task<List<EmployerDb>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid)

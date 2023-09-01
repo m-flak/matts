@@ -56,16 +56,18 @@ public class UserDao : DaoAbstractBase<User>
 
     public override async Task<List<User>> GetAll()
     {
-        throw new NotImplementedException();
+        return await this.GetAllImpl(typeof(User), null);
     }
 
     public override async Task<List<User>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties)
     {
-        throw new NotImplementedException();
+        return await this.GetAllAndFilterByPropertiesImpl(typeof(User), filterProperties, null);
     }
 
     public override async Task<List<User>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid)
     {
+        // FIXME: Cannot implement. Refactor required.
+        // FIXME: The relationship for a user could point to either an Applicant or an Employer. :/
         throw new NotImplementedException();
     }
 
