@@ -89,6 +89,7 @@ builder.Services.AddAzureClients(clients =>
         }
 
         // Create blob clients and register their configs as well
+        int i = 0;
         foreach (var config in blobConfigs)
         {
             if (config.ServiceName == null)
@@ -112,12 +113,7 @@ builder.Services.AddAzureClients(clients =>
 
             builder.Services.Configure<AzureBlobConfiguration>(
                 config.ServiceName,
-                c => new AzureBlobConfiguration
-                {
-                    ServiceName = config.ServiceName,
-                    PrimaryServiceUrl = config.PrimaryServiceUrl,
-                    ContainerName = config.ContainerName
-                }
+                builder.Configuration.GetSection($"AzurePlatform:AzureBlobConfigurations:{i++}")
             );
         }
     }

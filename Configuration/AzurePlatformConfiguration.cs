@@ -35,6 +35,7 @@ public sealed class AzureBlobConfiguration
 {
     // Name used to identify the config and the client
     public string? ServiceName { get; set; }
+    public string? AccountName { get; set; }
     public Uri? PrimaryServiceUrl { get; set; }
     public string? ContainerName { get; set; }
 }

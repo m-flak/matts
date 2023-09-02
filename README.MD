@@ -98,7 +98,7 @@ dotnet user-jwts create
 
 Finally, all you need to do to run the app is to execute **`dotnet run`** from the project root directory.
 
-### Azure App Configuration on Local
+### Azure App Configuration and Blob Storage on Local
 
 You need to setup the connection string. It varies slightly whether using Docker or not.
 Be sure to also update the appropriate `appsettings.json` too.
@@ -108,6 +108,7 @@ Be sure to also update the appropriate `appsettings.json` too.
 In the `docker.development.secret.env` file created earlier, add the following line:
 ```
 ConnectionStrings__AzureAppConfiguration=<YOUR CONNECTION STRING HERE>
+ConnectionStrings__<ServiceName from Blob Config Item>=<YOUR CONNECTION STRING HERE>
 ```
 
 ### NON-DOCKER
@@ -115,4 +116,5 @@ ConnectionStrings__AzureAppConfiguration=<YOUR CONNECTION STRING HERE>
 Use the user secrets tool.
 ```
 dotnet user-secrets set "ConnectionStrings:AzureAppConfiguration" "<YOUR CONNECTION STRING HERE>"
+dotnet user-secrets set "ConnectionStrings:<ServiceName from Blob Config Item>" "<YOUR CONNECTION STRING HERE>"
 ```
