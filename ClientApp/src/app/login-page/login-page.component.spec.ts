@@ -39,6 +39,7 @@ describe('LoginPageComponent', () => {
         RouterTestingModule.withRoutes([])
       ],
       providers: [
+        { provide: 'BASE_URL', useValue: '' },
         { provide: AuthService, useValue: FakeAuthService },
         FormBuilder
       ],

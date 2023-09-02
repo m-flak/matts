@@ -190,6 +190,7 @@ builder.Services.AddAuthentication("Bearer").AddJwtBearer(o =>
 builder.Services.Configure<AzurePlatformConfiguration>(builder.Configuration.GetSection("AzurePlatform"));
 builder.Services.Configure<Neo4JConfiguration>(builder.Configuration.GetSection("Neo4J"));
 builder.Services.Configure<JwtConfiguration>(builder.Configuration.GetSection("Jwt"));
+builder.Services.Configure<ClientAppConfiguration>(builder.Configuration.GetSection("ClientApp"));
 
 builder.Services.AddControllersWithViews();
 
