@@ -39,7 +39,7 @@ public class UploadResumeFunction
     }
 
     [Function("UploadResumeFunction")]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req)
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route="resumes/upload")] HttpRequestData req)
     {
         var parsedFormBody = await MultipartFormDataParser.ParseAsync(req.Body);
         string? fileName = parsedFormBody.GetParameterValue("fileName");
