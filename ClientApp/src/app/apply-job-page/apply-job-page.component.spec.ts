@@ -34,6 +34,9 @@ import { FileInput, MaterialFileInputModule } from 'ngx-material-file-input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ConfigService } from '../services/config.service';
+import { HttpClientModule } from '@angular/common/http';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 
 const jobData: Job = {
@@ -102,7 +105,9 @@ describe('ApplyJobPageComponent', () => {
         ReactiveFormsModule,
         MatFormFieldModule,
         MatIconModule,
-        MaterialFileInputModule
+        MaterialFileInputModule,
+        HttpClientModule,
+        HttpClientTestingModule
       ],
       declarations: [ ApplyJobPageComponent ],
       providers: [
@@ -110,7 +115,9 @@ describe('ApplyJobPageComponent', () => {
         { provide: AuthService, useValue: FakeAuthService },
         { provide: BackendService, useValue: FakeBackendService },
         { provide: ActivatedRoute, useValue: { 'paramMap': of((() => { let m = new Map(); m.set('id', '54991ebe-ba9e-440b-a202-247f0c33574f'); return m as unknown as ParamMap;})()) } },
-        ApplicantDataService
+        ApplicantDataService,
+        { provide: 'BASE_URL', useValue: '' },
+        ConfigService
       ]
     })
     .compileComponents();

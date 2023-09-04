@@ -24,6 +24,7 @@ import { Job } from '../models';
 import { ApplicantDataService } from '../services/applicant-data.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FileInput } from 'ngx-material-file-input';
+import { ConfigService } from '../services/config.service';
 
 @Component({
   selector: 'app-apply-job-page',
@@ -44,7 +45,8 @@ export class ApplyJobPageComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute, 
     private applicantDataService: ApplicantDataService, 
     private backendService: BackendService, 
-    private authService: AuthService
+    private authService: AuthService,
+    private configService: ConfigService
   ) {
     this.applyToJobForm = new FormGroup([]);
   }
@@ -84,8 +86,14 @@ export class ApplyJobPageComponent implements OnInit, OnDestroy {
     }
 
     const fileControlData: FileInput = this.applyToJobForm.controls.resumeFile.value;
-    console.log(fileControlData.files);
+    const uploadData = new FormData();
+    uploadData.append('file', fileControlData.files[0]);
+    uploadData.append('fileName', fileControlData.fileNames.split(', ')[0]);
+    uploadData.append('jobUuid', this.currentJob?.uuid as string);
+    uploadData.append('applicantUuid', this.authService.currentUser?.applicantId as string);
+    console.log(uploadData);
 
+    // TODO: Invoke the upload resume endpoint & switchmap to applytojob
     this._subscription2 = this.applicantDataService.applyToJob(this.authService.currentUser?.applicantId as string, this.currentJob?.uuid as string).subscribe(async (response) => {
       if (response.status === 200) {
 
