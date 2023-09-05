@@ -17,11 +17,23 @@
 **/
 import { TestBed} from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { HttpClientModule} from "@angular/common/http";
+import { HttpClientModule, HttpEventType, HttpUploadProgressEvent} from "@angular/common/http";
 import { BackendService } from './backend.service';
 import { JobConstants } from '../constants';
-import { ApplyToJob, Job } from '../models';
+import { ApplyToJob, Configuration, Job } from '../models';
 import { getDate } from 'date-fns';
+import { ConfigService } from './config.service';
+
+const config: Configuration = {
+    externalApis: {
+        resumeUploadEndpoint: "http://localhost:7274/api/resumes/upload",
+        resumeUploadApiKey: "123"
+    }
+};
+
+const FakeConfigService = {
+    config: config
+};
 
 describe('BackendService', () => {
     let httpMock: HttpTestingController;
@@ -36,7 +48,8 @@ describe('BackendService', () => {
         ],
         providers: [
             { provide: 'BASE_URL', useValue: '' },
-            BackendService
+            BackendService,
+            { provide: ConfigService, useValue: FakeConfigService }
         ]
       });
 
@@ -205,6 +218,34 @@ describe('BackendService', () => {
             `/jobs/ics/${jobUuid}/${applicantUuid}?y=${today.getFullYear()}&m=${today.getMonth()+1}&d=${getDate(today)}&h=${today.getHours()}&mm=${today.getMinutes()}`
         );
         request.flush(new Blob(['dummy data'], { type: 'text/calendar' }));
+
+        httpMock.verify();
+    });
+
+    it('should start the upload of a resume file and report progress', (done) => {
+        const uploadData = new FormData();
+        uploadData.append('file', new Blob(['dummy data']));
+        uploadData.append('fileName', 'resume.docx');
+        uploadData.append('jobUuid', '3ebb58d3-a24c-499b-8c65-75636e7b57de');
+        uploadData.append('applicantUuid', '3b785136-cafb-48ed-b58f-1b2150f74bf6');
+
+        let counter = 1;
+        backendService.uploadResume(uploadData).subscribe((httpEvent) => {
+            if (httpEvent.type !== HttpEventType.Sent) {
+                const event = httpEvent as HttpUploadProgressEvent;
+                expect(event.total).toEqual(3);
+                expect(event.loaded).toEqual(counter++);
+                if (counter === 3) {
+                    done();
+                }
+            }
+        });
+
+        const request = httpMock.expectOne('http://localhost:7274/api/resumes/upload?code=123');
+        const progress = (l: number, t: number) => ({ type: HttpEventType.UploadProgress, loaded: l, total: t } as HttpUploadProgressEvent);
+        request.event(progress(1,3));
+        request.event(progress(2,3));
+        request.event(progress(3,3));
 
         httpMock.verify();
     });

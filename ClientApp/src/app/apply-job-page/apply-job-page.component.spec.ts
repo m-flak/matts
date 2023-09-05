@@ -19,7 +19,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 
 import { ApplyJobPageComponent } from './apply-job-page.component';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { of } from 'rxjs';
+import { from, of } from 'rxjs';
 import { Job } from '../models';
 import { BackendService } from '../services/backend.service';
 import { AuthService, CurrentUser } from '../services/auth.service';
@@ -35,7 +35,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ConfigService } from '../services/config.service';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HttpEventType, HttpResponse, HttpSentEvent, HttpUploadProgressEvent } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 
@@ -76,8 +76,12 @@ const jobData: Job = {
   ]
 };
 
+const progress = (l: number, t: number) => ({ type: HttpEventType.UploadProgress, loaded: l, total: t } as HttpUploadProgressEvent);
+const sent = () => ({type: HttpEventType.Sent} as HttpSentEvent);
+
 const FakeBackendService = {
-  getJobDetails: (id: string) => of(jobData)
+  getJobDetails: (id: string) => of(jobData),
+  uploadResume: (data: FormData) => from([sent(), progress(1,2), progress(2,2), new HttpResponse<any>()])
 };
 
 const FakeAuthService = {
@@ -115,9 +119,7 @@ describe('ApplyJobPageComponent', () => {
         { provide: AuthService, useValue: FakeAuthService },
         { provide: BackendService, useValue: FakeBackendService },
         { provide: ActivatedRoute, useValue: { 'paramMap': of((() => { let m = new Map(); m.set('id', '54991ebe-ba9e-440b-a202-247f0c33574f'); return m as unknown as ParamMap;})()) } },
-        ApplicantDataService,
-        { provide: 'BASE_URL', useValue: '' },
-        ConfigService
+        ApplicantDataService
       ]
     })
     .compileComponents();
@@ -171,5 +173,34 @@ describe('ApplyJobPageComponent', () => {
     const fileInputData: FileInput = component.applyToJobForm.controls.resumeFile.value;
     expect(fileInputData.files.length).toEqual(1);
     expect(fileInputData.fileNames.split(', ').length).toEqual(1);
+  }));
+
+  it('should upload the files from the form', fakeAsync(async () => {
+    spyOn(applicantDataService, "isJobAppliedFor").and.returnValue(false);
+    spyOn(applicantDataService, "applyToJob").and.returnValue( of(new HttpResponse<any>({ status: 200 })) );
+    spyOn(applicantDataService, "getOpenAndAppliedJobs").and.returnValue( of([jobData]) );
+    component.ngOnInit();
+    tick(2);
+    fixture.detectChanges();
+
+    await fixture.whenStable();
+    const file = new File([''], 'resume.docx');
+    component.applyToJobForm.setValue({ 
+        resumeFile: new FileInput([ file ])
+    });
+    fixture.detectChanges();
+
+    const fileInputData: FileInput = component.applyToJobForm.controls.resumeFile.value;
+    expect(fileInputData.files.length).toEqual(1);
+    expect(fileInputData.fileNames.split(', ').length).toEqual(1);
+
+    const button = await loader.getHarness(MatButtonHarness);
+    await button.click();
+    tick(6);
+    fixture.detectChanges();
+
+    await fixture.whenStable();
+    expect(applicantDataService.applyToJob).toHaveBeenCalledTimes(1);
+    expect(applicantDataService.getOpenAndAppliedJobs).toHaveBeenCalledTimes(1);
   }));
 });
