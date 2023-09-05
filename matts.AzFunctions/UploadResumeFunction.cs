@@ -39,8 +39,17 @@ public class UploadResumeFunction
     }
 
     [Function("UploadResumeFunction")]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route="resumes/upload")] HttpRequestData req)
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Function, "post", "options", Route="resumes/upload")] HttpRequestData req)
     {
+        if (string.Equals(req.Method, "OPTIONS", StringComparison.OrdinalIgnoreCase))
+        {
+            var optionsResponse = req.CreateResponse();
+            optionsResponse.Headers.Add("Allow", new[] { "POST", "OPTIONS" });
+            optionsResponse.Headers.Add("Access-Control-Allow-Origin", "*");
+            optionsResponse.StatusCode = HttpStatusCode.OK;
+            return optionsResponse;
+        }
+
         var parsedFormBody = await MultipartFormDataParser.ParseAsync(req.Body);
         string? fileName = parsedFormBody.GetParameterValue("fileName");
         string? jobUuid = parsedFormBody.GetParameterValue("jobUuid");
