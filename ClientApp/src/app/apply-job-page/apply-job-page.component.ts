@@ -41,6 +41,9 @@ export class ApplyJobPageComponent implements OnInit, OnDestroy {
 
   applyToJobForm: FormGroup;
 
+  uploadStarted = false;
+  uploadingMsg = 'Uploading...';
+
   constructor(
     private formBuilder: FormBuilder,
     private activatedRoute: ActivatedRoute, 
@@ -92,17 +95,20 @@ export class ApplyJobPageComponent implements OnInit, OnDestroy {
     uploadData.append('jobUuid', this.currentJob?.uuid as string);
     uploadData.append('applicantUuid', this.authService.currentUser?.applicantId as string);
 
+    this.uploadStarted = true;
     this._subscription2 = this.backendService.uploadResume(uploadData).pipe(
       tap(response => {
         if (response.type === HttpEventType.UploadProgress) {
           const percentDone = Math.round(100 * response.loaded / (response.total ?? response.loaded));
-          console.log('Progress ' + percentDone + '%');
+          this.uploadingMsg = `Uploading ${percentDone}%...`;
         }
       }),
       filter(response => response.type === HttpEventType.Response),
       take(1),
       switchMap(() => this.applicantDataService.applyToJob(this.authService.currentUser?.applicantId as string, this.currentJob?.uuid as string))
       ).subscribe(async (response) => {
+        this.uploadStarted = false;
+        this.uploadingMsg = 'Uploading...';
         if (response.status === 200) {
   
           const jobs = await lastValueFrom(this.applicantDataService.getOpenAndAppliedJobs(this.authService.currentUser?.applicantId as string));
