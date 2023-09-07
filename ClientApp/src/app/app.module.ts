@@ -33,6 +33,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
 import { ConfigService } from './services/config.service';
+import { PipesModule } from './pipes/pipes.module';
 
 
 export const BASE_URL = new InjectionToken<string>('BASE_URL');
@@ -62,6 +63,7 @@ export const BASE_URL = new InjectionToken<string>('BASE_URL');
     MatFormFieldModule,
     MaterialFileInputModule,
     ComponentsModule,
+    PipesModule,
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
     HttpClientModule,
     FormsModule,

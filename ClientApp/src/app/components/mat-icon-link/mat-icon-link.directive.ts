@@ -38,6 +38,9 @@ export class MatIconLinkDirective implements OnInit {
 
     @Input()
     inputRef: MatInput | null | undefined;
+
+    @Input()
+    resumeDownloadHref = '';
     
     constructor(
         @Host() @Self() @Optional() public hostMatIcon: MatIcon | null
@@ -49,19 +52,28 @@ export class MatIconLinkDirective implements OnInit {
                 this.hostTooltip = 'Send Email';
                 this.hostMatIcon.fontIcon = 'email';
                 this._uriPrefix = 'mailto:';
+                this._uri = this.inputRef.value;
             }
             else if (this.cmpMatIconLink === 'tel') {
                 this.hostTooltip = 'Call';
                 this.hostMatIcon.fontIcon = 'phone';
                 this._uriPrefix = 'tel:';
+                this._uri = this.inputRef.value;
             }
-
-            this._uri = this.inputRef.value;
+            else if (this.cmpMatIconLink === 'resume') {
+                this.hostTooltip = 'Download Resume';
+                this.hostMatIcon.fontIcon = 'folder_shared';
+            }
         }
     }
 
     @HostListener('click')
     onHostClick(): void {
-        window.open(`${this._uriPrefix}${this._uri}`, '_blank');
+        if (this.cmpMatIconLink !== 'resume') {
+            window.open(`${this._uriPrefix}${this._uri}`, '_blank');
+        }
+        else {
+            window.open(this.resumeDownloadHref, '_blank');
+        }
     }
 }

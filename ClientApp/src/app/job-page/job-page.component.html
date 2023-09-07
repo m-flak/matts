@@ -60,6 +60,11 @@
                                 <input type="tel" matInput [readonly]="true" [value]="this.currentApplicant.phoneNumber" #telephone="matInput" />
                                 <mat-icon matSuffix [cmpMatIconLink]="telephone.type" [inputRef]="telephone"></mat-icon>
                             </mat-form-field>
+                            <mat-form-field>
+                                <mat-label>Resume</mat-label>
+                                <input type="text" matInput [readonly]="true" value="{{this.currentApplicant.name | resumeName}}" #resume="matInput"/>
+                                <mat-icon matSuffix cmpMatIconLink="resume" [resumeDownloadHref]="_makeResumeDownloadLink()" [inputRef]="resume"></mat-icon>
+                            </mat-form-field>
                         </div>
                         <div class="btn-group action-buttons">
                             <button mat-flat-button color="accent" (click)="setMode(MODE_INTERVIEW)">Schedule Interview</button>
@@ -80,6 +85,11 @@
                                 <mat-label>Phone Number</mat-label>
                                 <input type="tel" matInput [readonly]="true" [value]="this.currentApplicant.phoneNumber" #telephone2="matInput" />
                                 <mat-icon matSuffix [cmpMatIconLink]="telephone2.type" [inputRef]="telephone2"></mat-icon>
+                            </mat-form-field>
+                            <mat-form-field>
+                                <mat-label>Resume</mat-label>
+                                <input type="text" matInput [readonly]="true" value="{{this.currentApplicant.name | resumeName}}" #resume2="matInput"/>
+                                <mat-icon matSuffix cmpMatIconLink="resume" [resumeDownloadHref]="_makeResumeDownloadLink()" [inputRef]="resume2"></mat-icon>
                             </mat-form-field>
                         </div>
                         <div class="btn-group action-buttons">

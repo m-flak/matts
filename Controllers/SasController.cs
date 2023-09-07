@@ -30,7 +30,6 @@ using Azure;
 
 namespace matts.Controllers;
 
-[Authorize(Policy = "LoggedInUsers")]
 [ApiController]
 [Route("[controller]")]
 public class SasController : ControllerBase
@@ -52,6 +51,7 @@ public class SasController : ControllerBase
         GenerateAccountSasUriStrategy = (client) => client.GenerateAccountSasUri(AccountSasPermissions.Read,DateTimeOffset.UtcNow.AddDays(7),AccountSasResourceTypes.Object);
     }
 
+    [AllowAnonymous]
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status302Found)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

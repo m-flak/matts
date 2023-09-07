@@ -37,6 +37,7 @@ import { JWT_OPTIONS, JwtHelperService } from '@auth0/angular-jwt';
 import { jwtOptionsFactory } from '../app.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
+import { PipesModule } from '../pipes/pipes.module';
 
 const jobData: Job = {
   "id": 1,
@@ -90,7 +91,8 @@ describe('JobPageComponent', () => {
     await TestBed.configureTestingModule({
       imports: [ 
         BrowserAnimationsModule, 
-        ComponentsModule, 
+        ComponentsModule,
+        PipesModule, 
         MatButtonModule, 
         MatInputModule, 
         MatIconModule, 
