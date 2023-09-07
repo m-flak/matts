@@ -1,6 +1,21 @@
 
 # matts - "Matthew's ATS"
 
+### Azure Setup
+The ACI Group will need a system assigned managed identity with permissions to access the key vault and app config store. The key vault is also used in the GH Action pipeline.
+
+For the nitty-gritty on the container setup, see the `.azure/template.json` file. Since ARM is being used instead of docker-compose for deployment, ensure what's in the docker-compose file is mirrored in the ARM template.
+Each volume for a container will need to be assigned an Azure File Share. It's share per volume, apparently.
+
+These settings need to be in the configuration store. The application will filter by its prefix and the build environment that it was built against.
+![app config keys](https://github.com/m-flak/matts/assets/35634280/2904018e-d511-4c71-b9d3-db577de4db6b)
+
+The service endpoint of the App Config itself will need to be placed within the appropriate `appsettings.json` file.
+
+__For HTTPS,__ current the application utilizes a self-signed certificate. Place a PFX certificate file within the root of the `apphttps` file share. The DnsName of the cert needs to match the deployment url, which will remain the same after the container group is created, even if the group needs to be deleted due to certain prop changes. If you create one first in Azure Portal, be sure to add together the values for memory and cpu of both containers, so you don't have to delete it before a deployment.
+
+After a successful deployment, the application is accessible at the url attached to [the deployment](https://github.com/m-flak/matts/deployments).
+
 ### Local Dev Environment Setup
 
 ### DOCKER
@@ -83,7 +98,7 @@ dotnet user-jwts create
 
 Finally, all you need to do to run the app is to execute **`dotnet run`** from the project root directory.
 
-### Azure App Configuration on Local
+### Azure App Configuration and Blob Storage on Local
 
 You need to setup the connection string. It varies slightly whether using Docker or not.
 Be sure to also update the appropriate `appsettings.json` too.
@@ -93,6 +108,7 @@ Be sure to also update the appropriate `appsettings.json` too.
 In the `docker.development.secret.env` file created earlier, add the following line:
 ```
 ConnectionStrings__AzureAppConfiguration=<YOUR CONNECTION STRING HERE>
+ConnectionStrings__<ServiceName from Blob Config Item>=<YOUR CONNECTION STRING HERE>
 ```
 
 ### NON-DOCKER
@@ -100,4 +116,5 @@ ConnectionStrings__AzureAppConfiguration=<YOUR CONNECTION STRING HERE>
 Use the user secrets tool.
 ```
 dotnet user-secrets set "ConnectionStrings:AzureAppConfiguration" "<YOUR CONNECTION STRING HERE>"
+dotnet user-secrets set "ConnectionStrings:<ServiceName from Blob Config Item>" "<YOUR CONNECTION STRING HERE>"
 ```

@@ -19,11 +19,13 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BackendService } from '../services/backend.service';
 import { AuthService } from '../services/auth.service';
-import { Subscription, lastValueFrom, map, switchMap } from 'rxjs';
+import { Subscription, filter, lastValueFrom, map, switchMap, take, tap } from 'rxjs';
 import { Job } from '../models';
 import { ApplicantDataService } from '../services/applicant-data.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FileInput } from 'ngx-material-file-input';
+import { ConfigService } from '../services/config.service';
+import { HttpEventType } from '@angular/common/http';
 
 @Component({
   selector: 'app-apply-job-page',
@@ -38,6 +40,9 @@ export class ApplyJobPageComponent implements OnInit, OnDestroy {
   currentJob: Job | null = null;
 
   applyToJobForm: FormGroup;
+
+  uploadStarted = false;
+  uploadingMsg = 'Uploading...';
 
   constructor(
     private formBuilder: FormBuilder,
@@ -84,15 +89,32 @@ export class ApplyJobPageComponent implements OnInit, OnDestroy {
     }
 
     const fileControlData: FileInput = this.applyToJobForm.controls.resumeFile.value;
-    console.log(fileControlData.files);
+    const uploadData = new FormData();
+    uploadData.append('file', fileControlData.files[0]);
+    uploadData.append('fileName', fileControlData.fileNames.split(', ')[0]);
+    uploadData.append('jobUuid', this.currentJob?.uuid as string);
+    uploadData.append('applicantUuid', this.authService.currentUser?.applicantId as string);
 
-    this._subscription2 = this.applicantDataService.applyToJob(this.authService.currentUser?.applicantId as string, this.currentJob?.uuid as string).subscribe(async (response) => {
-      if (response.status === 200) {
-
-        const jobs = await lastValueFrom(this.applicantDataService.getOpenAndAppliedJobs(this.authService.currentUser?.applicantId as string));
-        this.applicantDataService.jobsListSubject.next(jobs);
-        this.currentJob = { ...this.currentJob, hasAppliedTo: true };
-      }
-    });
+    this.uploadStarted = true;
+    this._subscription2 = this.backendService.uploadResume(uploadData).pipe(
+      tap(response => {
+        if (response.type === HttpEventType.UploadProgress) {
+          const percentDone = Math.round(100 * response.loaded / (response.total ?? response.loaded));
+          this.uploadingMsg = `Uploading ${percentDone}%...`;
+        }
+      }),
+      filter(response => response.type === HttpEventType.Response),
+      take(1),
+      switchMap(() => this.applicantDataService.applyToJob(this.authService.currentUser?.applicantId as string, this.currentJob?.uuid as string))
+      ).subscribe(async (response) => {
+        this.uploadStarted = false;
+        this.uploadingMsg = 'Uploading...';
+        if (response.status === 200) {
+  
+          const jobs = await lastValueFrom(this.applicantDataService.getOpenAndAppliedJobs(this.authService.currentUser?.applicantId as string));
+          this.applicantDataService.jobsListSubject.next(jobs);
+          this.currentJob = { ...this.currentJob, hasAppliedTo: true };
+        }
+      });
   }
 }

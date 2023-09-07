@@ -21,6 +21,7 @@ using MapsterMapper;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Azure;
 using Neo4j.Driver;
 using matts.Configuration;
 using matts.Models;
@@ -35,6 +36,8 @@ using matts.Constants;
 var builder = WebApplication.CreateBuilder(args);
 
 var credential = new DefaultAzureCredential();
+
+// Setup Azure App Config Service
 
 bool useAzureAppConfig = builder.Configuration.GetSection("AzurePlatform").GetValue<bool?>("UseAzureAppConfiguration") ?? false;
 if (useAzureAppConfig)
@@ -69,7 +72,54 @@ if (useAzureAppConfig)
     builder.Services.AddAzureAppConfiguration();
 }
 
-// Add services to the container.
+// Setup other Azure services
+bool useAzureBlobService = builder.Configuration.GetSection("AzurePlatform").GetValue<bool?>("UseAzureBlobService") ?? false;
+
+builder.Services.AddAzureClients(clients => 
+{
+    if (useAzureBlobService)
+    {
+        var blobConfigs = builder.Configuration.GetSection("AzurePlatform")
+            .GetSection("AzureBlobConfigurations")
+            .Get<AzureBlobConfiguration[]>();
+        
+        if (blobConfigs == null)
+        {
+            throw new ApplicationException("MISSING REQUIRED CONFIG SECTION: AzureBlobConfigurations");
+        }
+
+        // Create blob clients and register their configs as well
+        int i = 0;
+        foreach (var config in blobConfigs)
+        {
+            if (config.ServiceName == null)
+            {
+                throw new ApplicationException("MISSING REQUIRED CONFIG VALUE: AzureBlobConfiguration[i]:ServiceName");
+            }
+
+            string? connectionString = builder.Configuration.GetConnectionString(config.ServiceName);
+            if (connectionString != null)
+            {
+                clients.AddBlobServiceClient(connectionString).WithName(config.ServiceName);
+            }
+            else if (config.PrimaryServiceUrl != null)
+            {
+                clients.AddBlobServiceClient(config.PrimaryServiceUrl);
+            }
+            else
+            {
+                throw new ApplicationException("MISSING REQUIRED CONFIG VALUES: Azure Blob ConnString OR Azure Blob URL");
+            }
+
+            builder.Services.Configure<AzureBlobConfiguration>(
+                config.ServiceName,
+                builder.Configuration.GetSection($"AzurePlatform:AzureBlobConfigurations:{i++}")
+            );
+        }
+    }
+});
+
+// Setup the remaining services
 
 builder.Services.AddAuthorization(options =>
 {
@@ -140,6 +190,7 @@ builder.Services.AddAuthentication("Bearer").AddJwtBearer(o =>
 builder.Services.Configure<AzurePlatformConfiguration>(builder.Configuration.GetSection("AzurePlatform"));
 builder.Services.Configure<Neo4JConfiguration>(builder.Configuration.GetSection("Neo4J"));
 builder.Services.Configure<JwtConfiguration>(builder.Configuration.GetSection("Jwt"));
+builder.Services.Configure<ClientAppConfiguration>(builder.Configuration.GetSection("ClientApp"));
 
 builder.Services.AddControllersWithViews();
 

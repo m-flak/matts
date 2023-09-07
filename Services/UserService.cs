@@ -51,7 +51,7 @@ public class UserService : IUserService
         // If user doesn't exist the Neo4j driver will throw
         try
         {
-            var userDb = await _repository.GetUserByName(user.UserName);
+            var userDb = await _repository.GetUserByName(user.UserName!);
             return (BCrypt.Verify(user.Password, userDb.Password) && userDb.Role == user.Role);
         }
         catch (InvalidOperationException)
@@ -67,7 +67,7 @@ public class UserService : IUserService
             return System.Guid.NewGuid().ToString();
         }
 
-        return await _repository.GetApplicantIdForUserByUserName(user.UserName);
+        return await _repository.GetApplicantIdForUserByUserName(user.UserName!);
     }
 
     public async Task<string> GetUserEmployerId(User user)
@@ -77,7 +77,7 @@ public class UserService : IUserService
             return System.Guid.NewGuid().ToString();
         }
 
-        return await _repository.GetEmployerIdForUserByUserName(user.UserName);
+        return await _repository.GetEmployerIdForUserByUserName(user.UserName!);
     }
 
     public async Task<bool> RegisterNewUser(UserRegistration user)

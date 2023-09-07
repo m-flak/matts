@@ -15,28 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-using Neo4j.Driver;
-using matts.Interfaces;
-using matts.Models.Db;
-using Mapster;
-using System.Text;
-using matts.Models;
-using matts.Utils;
-using matts.Constants;
 
-namespace matts.Daos;
-
-public class EmployerDao : DaoAbstractBase<EmployerDb>
-{
-    public EmployerDao(IDriver driver) : base(driver)
-    {
-    }
-
-    public override async Task<EmployerDb> CreateNew(EmployerDb createWhat)
-    {
-        EmployerDb createWhatCopy = new EmployerDb(createWhat);
-        createWhatCopy.Uuid = System.Guid.NewGuid().ToString();
-        return await this.CreateNewImpl(createWhatCopy);
-    }
-
+export interface Configuration {
+    externalApis: { [propName: string]: string; };
 }

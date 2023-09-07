@@ -5,10 +5,12 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "matts", "matts.csproj", "{13C9383C-BEDA-4425-9A5A-5CC22B8245AE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "matts.Tests", "matts.Tests\matts.Tests.csproj", "{76A2E3D7-DF69-4128-B475-CAEFDAC4E723}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "matts.Tests", "matts.Tests\matts.Tests.csproj", "{76A2E3D7-DF69-4128-B475-CAEFDAC4E723}"
 	ProjectSection(ProjectDependencies) = postProject
 		{13C9383C-BEDA-4425-9A5A-5CC22B8245AE} = {13C9383C-BEDA-4425-9A5A-5CC22B8245AE}
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "matts.AzFunctions", "matts.AzFunctions\matts.AzFunctions.csproj", "{F87316C3-3031-43E9-AB20-CB1FB27B8236}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,8 +26,15 @@ Global
 		{76A2E3D7-DF69-4128-B475-CAEFDAC4E723}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{76A2E3D7-DF69-4128-B475-CAEFDAC4E723}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{76A2E3D7-DF69-4128-B475-CAEFDAC4E723}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F87316C3-3031-43E9-AB20-CB1FB27B8236}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F87316C3-3031-43E9-AB20-CB1FB27B8236}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F87316C3-3031-43E9-AB20-CB1FB27B8236}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F87316C3-3031-43E9-AB20-CB1FB27B8236}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B4267655-4CBF-47B1-BA66-09FDF38D653A}
 	EndGlobalSection
 EndGlobal

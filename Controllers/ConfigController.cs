@@ -1,4 +1,4 @@
-/* matts
+﻿/* matts
  * "Matthew's ATS" - Portfolio Project
  * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
  * 
@@ -15,28 +15,28 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-using Neo4j.Driver;
-using matts.Interfaces;
-using matts.Models.Db;
-using Mapster;
-using System.Text;
-using matts.Models;
-using matts.Utils;
-using matts.Constants;
+using matts.Configuration;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
-namespace matts.Daos;
+namespace matts.Controllers;
 
-public class EmployerDao : DaoAbstractBase<EmployerDb>
+[ApiController]
+[Route("[controller]")]
+public class ConfigController : ControllerBase
 {
-    public EmployerDao(IDriver driver) : base(driver)
+    private readonly IOptions<ClientAppConfiguration> _configuration;
+
+    public ConfigController(IOptions<ClientAppConfiguration> configuration)
     {
+        _configuration = configuration;
     }
 
-    public override async Task<EmployerDb> CreateNew(EmployerDb createWhat)
+    [HttpGet]
+    [AllowAnonymous]
+    public ClientAppConfiguration Get()
     {
-        EmployerDb createWhatCopy = new EmployerDb(createWhat);
-        createWhatCopy.Uuid = System.Guid.NewGuid().ToString();
-        return await this.CreateNewImpl(createWhatCopy);
+        return _configuration.Value;
     }
-
 }

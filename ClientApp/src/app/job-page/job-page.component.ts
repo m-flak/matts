@@ -15,7 +15,8 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { Location } from "@angular/common";
+import { Component, EventEmitter, Inject, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { Applicant, Job } from '../models';
 import { catchError, filter, first, lastValueFrom, mergeMap, of, Subscription, switchMap, takeWhile, tap } from 'rxjs';
@@ -62,7 +63,14 @@ export class JobPageComponent implements OnInit, OnDestroy {
   @Input()
   currentApplicant: Applicant | null = null;
 
-  constructor(private activatedRoute: ActivatedRoute, private jobPageDataService: JobPageDataService, private modalService: NgbModal, private toastService: ToastService, private authService: AuthService) { }
+  constructor(
+    private activatedRoute: ActivatedRoute, 
+    private jobPageDataService: JobPageDataService, 
+    private modalService: NgbModal, 
+    private toastService: ToastService, 
+    private authService: AuthService,
+    @Inject('BASE_URL') private baseUrl: string
+  ) { }
 
   ngOnInit(): void {
     this.activeEmployerUuid = this.authService.currentUser?.employerId as string;
@@ -285,6 +293,10 @@ export class JobPageComponent implements OnInit, OnDestroy {
 
   _hasInterview(applicant: Applicant): boolean {
     return (applicant.interviewDate !== undefined && applicant.interviewDate !== null);
+  }
+
+  _makeResumeDownloadLink(): string {
+    return Location.joinWithSlash(this.baseUrl, `/sas/resume/${this.currentJob?.uuid}/${this.currentApplicant?.uuid}`);
   }
 
   private _mapInterviewDateToCalendarEvent(interviewDate: InterviewDate): CalendarEvent {

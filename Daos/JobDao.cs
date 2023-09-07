@@ -39,21 +39,6 @@ public class JobDao : DaoAbstractBase<JobDb>
         return await this.CreateNewImpl(createWhatCopy);
     }
 
-    public override async Task<bool> CreateRelationshipBetween(DbRelationship relationship, JobDb source, object other, Type typeOther)
-    {
-        return await this.CreateRelationshipBetweenImpl(relationship, source, other, typeof(JobDb), typeOther);
-    }
-
-    public override async Task<bool> UpdateRelationshipBetween(DbRelationship relationship, JobDb source, object other, Type typeOther)
-    {
-        return await this.UpdateRelationshipBetweenImpl(relationship, source, other, typeof(JobDb), typeOther);
-    }
-
-    public override async Task<bool> DeleteRelationshipBetween(DbRelationship relationship, JobDb? source, object? other, Type typeOther)
-    {
-        return await this.DeleteRelationshipBetweenImpl(relationship, source, other, typeof(JobDb), typeOther);
-    }
-
     public override async Task<List<JobDb>> GetAll()
     {
         using (var session = _driver.AsyncSession())
@@ -85,46 +70,31 @@ public class JobDao : DaoAbstractBase<JobDb>
         }
     }
 
-    public override async Task<List<JobDb>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties)
+    public override async Task<List<JobDb>> GetAllByRelationship(DbRelationship relationship, DbRelationship? optionalRelationship, string whomUuid)
     {
-        return await this.GetAllAndFilterByPropertiesImpl(typeof(JobDb), filterProperties, null);
-    }
+        if (optionalRelationship != null && !relationship.HasSameNodeTypes(optionalRelationship))
+        {
+            throw new NotSupportedException("Differing Node Types for relationship & optionalRelationship not supported at this time.");
+        }
 
-    public override async Task<List<JobDb>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid)
-    {
         // This relationship is applicant --> job, so use different node settings
-        if (relationship == RelationshipConstants.HAS_APPLIED_TO)
+        if (relationship.Name == RelationshipConstants.HAS_APPLIED_TO)
         {
             return await GetAllByRelationshipImpl(
-                typeof(ApplicantDb), 
-                typeof(JobDb),
+                relationship.LeftType, 
+                relationship.RightType, 
                 new GetAllByRelationshipConfig(
                     GetAllByRelationshipConfig.WhereNodeSelector.LEFT,
                     GetAllByRelationshipConfig.ReturnNodeSelector.RIGHT
                 ),
-                new DbRelationship(relationship, "r"),
-                (optionalRelationship != null) ? new DbRelationship(optionalRelationship, "r2") : null,
+                relationship,
+                optionalRelationship,
                 whomUuid,
                 null
             );
         }
 
-        throw new NotImplementedException();
-    }
-
-    public override async Task<JobDb> GetByUuid(string uuid)
-    {
-        return await this.GetByUuidImpl(typeof(JobDb), uuid);
-    }
-
-    public override async Task<List<P>> GetPropertyFromRelated<P>(string relationship, Type relatedNodeType, string propertyName)
-    {
-        return await this.GetPropertyFromRelatedImpl<P>(relationship, typeof(JobDb), relatedNodeType, propertyName, null);
-    }
-
-    public override async Task<bool> HasRelationshipBetween(DbRelationship relationship, JobDb source, object other, Type typeOther)
-    {
-        return await this.HasRelationshipBetweenImpl(relationship, source, other, typeof(JobDb), typeOther);
+        return await base.GetAllByRelationship(relationship, optionalRelationship, whomUuid);
     }
 
     public virtual async Task<string> UpdateJobStatus(string jobUuid, string newStatus)

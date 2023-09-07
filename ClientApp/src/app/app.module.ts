@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { Location } from "@angular/common";
-import { InjectionToken, NgModule } from '@angular/core';
+import { APP_INITIALIZER, InjectionToken, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
@@ -32,6 +32,8 @@ import { NewJobPageComponent } from './new-job-page/new-job-page.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
+import { ConfigService } from './services/config.service';
+import { PipesModule } from './pipes/pipes.module';
 
 
 export const BASE_URL = new InjectionToken<string>('BASE_URL');
@@ -61,6 +63,7 @@ export const BASE_URL = new InjectionToken<string>('BASE_URL');
     MatFormFieldModule,
     MaterialFileInputModule,
     ComponentsModule,
+    PipesModule,
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
     HttpClientModule,
     FormsModule,
@@ -130,6 +133,16 @@ export const BASE_URL = new InjectionToken<string>('BASE_URL');
     {
       provide: BASE_URL,
       useExisting: 'BASE_URL'
+    },
+    {
+      provide: APP_INITIALIZER,
+      multi: true,
+      deps: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+          return () => {
+              return configService.loadConfig();
+          };
+      }
     }
   ],
   bootstrap: [AppComponent]
@@ -147,7 +160,8 @@ export function jwtOptionsFactory(baseUrl: string) {
       baseUrl 
     ],
     disallowedRoutes: [
-      `${Location.joinWithSlash(baseUrl, 'auth')}/`
+      `${Location.joinWithSlash(baseUrl, 'auth')}/`,
+      `${Location.joinWithSlash(baseUrl, 'config')}/`
     ]
   };
 }

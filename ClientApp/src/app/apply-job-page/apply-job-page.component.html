@@ -25,7 +25,11 @@
                                 Please upload a copy of your resume...
                             </mat-error>
                         </mat-form-field>
-                        <button mat-flat-button color="accent" type="submit">Apply Now</button>
+                        <button mat-flat-button color="accent" type="submit">
+                            <ng-content *ngIf="uploadStarted; then uploading else not_uploading"></ng-content>
+                            <ng-template #uploading>{{ uploadingMsg }}</ng-template>
+                            <ng-template #not_uploading>Apply Now</ng-template>
+                        </button>
                     </form>
                 </ng-container>
                 <ng-container *ngIf="this.currentJob?.hasAppliedTo === true">

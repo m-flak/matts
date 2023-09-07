@@ -17,17 +17,18 @@
 **/
 
 import { Location } from "@angular/common";
-import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams, HttpResponse } from "@angular/common/http";
+import { HttpClient, HttpErrorResponse, HttpEvent, HttpHeaders, HttpParams, HttpResponse } from "@angular/common/http";
 import { Inject, Injectable } from "@angular/core";
 import { Observable, catchError, throwError, map, tap } from "rxjs";
 import { ApplyToJob, Job } from "../models";
 import { getDate } from "date-fns";
+import { ConfigService } from "./config.service";
 
 @Injectable({
     providedIn: 'root'
 })
 export class BackendService {
-    constructor(private http: HttpClient, @Inject('BASE_URL') private baseUrl: string) {}
+    constructor(private http: HttpClient, @Inject('BASE_URL') private baseUrl: string, private configService: ConfigService) {}
 
     getAllJobs() : Observable<Job[]> {
         const endpoint = '/jobs/getjobs';
@@ -126,5 +127,18 @@ export class BackendService {
                 }),
                 map(response => response.body as Blob)
             );
+    }
+
+    uploadResume(formData: FormData) : Observable<HttpEvent<any>> {
+        const endpoint = this.configService.config.externalApis.resumeUploadEndpoint;
+        const apiKey = this.configService.config.externalApis.resumeUploadApiKey;
+
+        const params = new HttpParams({
+            fromObject: {
+                code: apiKey
+            }
+        });
+
+        return this.http.post(endpoint, formData, { params: params, reportProgress: true, observe: 'events' });
     }
 }

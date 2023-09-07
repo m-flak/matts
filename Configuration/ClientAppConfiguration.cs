@@ -1,4 +1,4 @@
-/* matts
+﻿/* matts
  * "Matthew's ATS" - Portfolio Project
  * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
  * 
@@ -15,28 +15,16 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-using Neo4j.Driver;
-using matts.Interfaces;
-using matts.Models.Db;
-using Mapster;
-using System.Text;
-using matts.Models;
-using matts.Utils;
-using matts.Constants;
+namespace matts.Configuration;
 
-namespace matts.Daos;
-
-public class EmployerDao : DaoAbstractBase<EmployerDb>
+public sealed class ClientAppExternalApis
 {
-    public EmployerDao(IDriver driver) : base(driver)
-    {
-    }
+    public Uri? ResumeUploadEndpoint { get; set; }
 
-    public override async Task<EmployerDb> CreateNew(EmployerDb createWhat)
-    {
-        EmployerDb createWhatCopy = new EmployerDb(createWhat);
-        createWhatCopy.Uuid = System.Guid.NewGuid().ToString();
-        return await this.CreateNewImpl(createWhatCopy);
-    }
+    public string? ResumeUploadApiKey { get; set; }
+}
 
+public sealed class ClientAppConfiguration
+{
+    public ClientAppExternalApis? ExternalApis { get; set; }
 }

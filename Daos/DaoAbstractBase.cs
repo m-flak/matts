@@ -25,16 +25,46 @@ namespace matts.Daos;
 
 public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
 {
-    public abstract Task<T> CreateNew(T createWhat);
-    public abstract Task<bool> CreateRelationshipBetween(DbRelationship relationship, T source, object other, Type typeOther);
-    public abstract Task<bool> UpdateRelationshipBetween(DbRelationship relationship, T source, object other, Type typeOther);
-    public abstract Task<bool> DeleteRelationshipBetween(DbRelationship relationship, T? source, object? other, Type typeOther);
-    public abstract Task<List<T>> GetAll();
-    public abstract Task<List<T>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties);
-    public abstract Task<List<T>> GetAllByRelationship(string relationship, string? optionalRelationship, string whomUuid);
-    public abstract Task<T> GetByUuid(string uuid);
-    public abstract Task<List<P>> GetPropertyFromRelated<P>(string relationship, Type relatedNodeType, string propertyName);
-    public abstract Task<bool> HasRelationshipBetween(DbRelationship relationship, T source, object other, Type typeOther);
+    public virtual Task<T> CreateNew(T createWhat)
+        => this.CreateNewImpl(createWhat);
+    public virtual Task<bool> CreateRelationshipBetween(DbRelationship relationship, T source, object other, Type typeOther)
+        => this.CreateRelationshipBetweenImpl(relationship, source, other, typeof(T), typeOther);
+    public virtual Task<bool> UpdateRelationshipBetween(DbRelationship relationship, T source, object other, Type typeOther)
+        => this.UpdateRelationshipBetweenImpl(relationship, source, other, typeof(T), typeOther);
+    public virtual Task<bool> DeleteRelationshipBetween(DbRelationship relationship, T? source, object? other, Type typeOther)
+        => this.DeleteRelationshipBetweenImpl(relationship, source, other, typeof(T), typeOther);
+    public virtual Task<List<T>> GetAll()
+        => this.GetAllImpl(typeof(T), null);
+    public virtual Task<List<T>> GetAllAndFilterByProperties(IReadOnlyDictionary<string, object> filterProperties)
+        => this.GetAllAndFilterByPropertiesImpl(typeof(T), filterProperties, null);
+    
+    public virtual Task<List<T>> GetAllByRelationship(DbRelationship relationship, DbRelationship? optionalRelationship, string whomUuid)
+    {
+        if (optionalRelationship != null && !relationship.HasSameNodeTypes(optionalRelationship))
+        {
+            throw new NotSupportedException("Differing Node Types for relationship & optionalRelationship not supported at this time.");
+        }
+
+        return this.GetAllByRelationshipImpl(
+            relationship.LeftType, 
+            relationship.RightType, 
+            new GetAllByRelationshipConfig(
+                GetAllByRelationshipConfig.WhereNodeSelector.RIGHT, 
+                GetAllByRelationshipConfig.ReturnNodeSelector.LEFT
+            ), 
+            relationship, 
+            optionalRelationship, 
+            whomUuid,
+            null
+        );
+    }
+
+    public virtual Task<T> GetByUuid(string uuid)
+        => this.GetByUuidImpl(typeof(T), uuid);
+    public virtual Task<List<P>> GetPropertyFromRelated<P>(string relationship, Type relatedNodeType, string propertyName)
+        => this.GetPropertyFromRelatedImpl<P>(relationship, typeof(T), relatedNodeType, propertyName, null);
+    public virtual Task<bool> HasRelationshipBetween(DbRelationship relationship, T source, object other, Type typeOther)
+        => this.HasRelationshipBetweenImpl(relationship, source, other, typeof(T), typeOther);
 
     // ////////////////////////////////////////////////////////////////////////
 

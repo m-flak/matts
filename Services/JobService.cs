@@ -59,7 +59,7 @@ public partial class JobService : IJobService
     {
         if (_useDummyData)
         {
-            return _jobsDummyData;
+            return _jobsDummyData!;
         }
 
         return await _repository.GetAll();
@@ -69,7 +69,7 @@ public partial class JobService : IJobService
     {
         if (_useDummyData)
         {
-            return _jobsDummyData.Where(j => j.Status == JobConstants.STATUS_OPEN);
+            return _jobsDummyData!.Where(j => j.Status == JobConstants.STATUS_OPEN);
         }
 
         return await _repository.GetAllByStatus(JobConstants.STATUS_OPEN);
@@ -79,7 +79,7 @@ public partial class JobService : IJobService
     {
         if (_useDummyData)
         {
-            return _jobsDummyData.Where(j => j.Status == JobConstants.STATUS_OPEN).Take(1);
+            return _jobsDummyData!.Where(j => j.Status == JobConstants.STATUS_OPEN).Take(1);
         }
 
         return await _repository.GetAllAppliedByApplicantId(applicantId);
@@ -89,7 +89,7 @@ public partial class JobService : IJobService
     {
         if (_useDummyData)
         { 
-            Job job = _jobsDummyData
+            Job job = _jobsDummyData!
                 .Where(j => j.Uuid == uuid)
                 .First();
 
@@ -209,11 +209,11 @@ public partial class JobService : IJobService
     {
         if (_useDummyData) 
         {
-            Job job = _jobsDummyData
+            Job job = _jobsDummyData!
                 .Where(j => j.Uuid == juuid)
                 .First();
             
-            Applicant applicant = job.Applicants
+            Applicant applicant = job.Applicants!
                 .Where(a => a.Uuid == auuid)
                 .First();
 

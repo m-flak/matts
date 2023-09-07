@@ -6,6 +6,7 @@ using matts.Repositories;
 using matts.Tests.Fixture;
 using matts.Models;
 using matts.Constants;
+using matts.Utils;
 
 namespace matts.Tests.Repositories;
 
@@ -79,7 +80,7 @@ public class JobRepositoryTests
 
         _daoJob.Setup(dj => dj.GetByUuid(It.IsAny<string>()))
             .Returns(Task.FromResult(jobDb));
-        _daoApp.Setup(da => da.GetAllByRelationship(It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string>()))
+        _daoApp.Setup(da => da.GetAllByRelationship(It.IsAny<DbRelationship>(), It.IsAny<DbRelationship?>(), It.IsAny<string>()))
             .Returns(Task.FromResult(applicants));
         _daoApp.Setup(da => da.GetPropertyFromRelated<string>(It.IsAny<string>(), It.IsAny<Type>(), It.IsAny<string>()))
             .Returns(Task.FromResult(interviewingWiths));
@@ -100,7 +101,7 @@ public class JobRepositoryTests
     {
         var jobList = JobFixture.CreateJobList().Where(j => j.Status == JobConstants.STATUS_OPEN).ToList();
 
-        _daoJob.Setup(d => d.GetAllByRelationship(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+        _daoJob.Setup(d => d.GetAllByRelationship(It.IsAny<DbRelationship>(), It.IsAny<DbRelationship?>(), It.IsAny<string>()))
             .Returns(Task.FromResult(jobList));
 
         var sut = new JobRepository(_daoJob.Object, _daoApp.Object, new MapsterMapper.Mapper());

@@ -36,12 +36,17 @@ public class DbRelationship
     public Cardinality RelationshipCardinality { get; private set; }
     public IDictionary<string, object> Parameters { get; private set; }
 
+    public Type LeftType { get; protected set; }
+    public Type RightType { get; protected set; }
+
     public DbRelationship(string name)
     {
         Name = name;
         Selector = "";
         RelationshipCardinality = Cardinality.UNIDIRECTIONAL;
         Parameters = new Dictionary<string, object>();
+        LeftType = typeof(object);
+        RightType = typeof(object);
     }
 
     public DbRelationship(string name, string selector)
@@ -50,6 +55,8 @@ public class DbRelationship
         Selector = selector;
         RelationshipCardinality = Cardinality.UNIDIRECTIONAL;
         Parameters = new Dictionary<string, object>();
+        LeftType = typeof(object);
+        RightType = typeof(object);
     }
 
     public DbRelationship(string name, string selector, Cardinality cardinality)
@@ -58,6 +65,8 @@ public class DbRelationship
         Selector = selector;
         RelationshipCardinality = cardinality;
         Parameters = new Dictionary<string, object>();
+        LeftType = typeof(object);
+        RightType = typeof(object);
     }
 
     public DbRelationship(string name, Cardinality cardinality) : this(name, "", cardinality)
@@ -104,6 +113,11 @@ public class DbRelationship
         }
 
         return $"[{Selector}:{Name} ]";
+    }
+
+    public bool HasSameNodeTypes(DbRelationship other)
+    {
+        return ( other.LeftType == this.LeftType && other.RightType == this.RightType );
     }
 
     private string CreateParametersString()
@@ -153,5 +167,32 @@ public class DbRelationship
         builder.Append(" }");
 
         return builder.ToString();
+    }
+}
+
+public class DbRelationship<LEFT, RIGHT> : DbRelationship
+{
+    public DbRelationship(string name) : base(name)
+    {
+        LeftType = typeof(LEFT);
+        RightType = typeof(RIGHT);
+    }
+
+    public DbRelationship(string name, string selector) : base(name, selector)
+    {
+        LeftType = typeof(LEFT);
+        RightType = typeof(RIGHT);
+    }
+
+    public DbRelationship(string name, string selector, Cardinality cardinality) : base(name, selector, cardinality)
+    {
+        LeftType = typeof(LEFT);
+        RightType = typeof(RIGHT);
+    }
+
+    public DbRelationship(string name, Cardinality cardinality) : base(name, cardinality)
+    {
+        LeftType = typeof(LEFT);
+        RightType = typeof(RIGHT);
     }
 }
