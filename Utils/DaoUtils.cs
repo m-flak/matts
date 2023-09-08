@@ -215,7 +215,7 @@ internal sealed class DaoUtils
         {
             parameters.Add(
                 System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(prop.Name),
-                prop.GetValue(fromNode) ?? new object()
+                prop.GetValue(fromNode)!
             );
         }
 
