@@ -179,7 +179,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
         return;
       }
 
-      const formData = this.employerRegistrationForm.value;
+      const formData = this.applicantRegistrationForm.value;
       this._subscription2 = this.authService.registerUser({ ...formData as UserRegistration, role: UserRoleConstants.USER_ROLE_APPLICANT }).pipe(first()).subscribe({
         complete: () => {
           this.registrationSuccessful = true;
