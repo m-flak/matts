@@ -6,6 +6,9 @@ using Moq;
 using Neo4j.Driver;
 using Xunit;
 using matts.Utils;
+using System;
+using static System.Collections.Specialized.BitVector32;
+using System.Collections.Generic;
 
 namespace matts.Tests.Daos;
 
@@ -87,10 +90,39 @@ public class ApplicantDaoTests
 
         _session.Setup(s => s.ExecuteReadAsync(It.IsAny<Func<IAsyncQueryRunner, Task<ApplicantDb>>>(), It.IsAny<Action<TransactionConfigBuilder>>()))
             .Returns(Task.FromResult(applicant));
+
+        // Reproduce the scenario that will cause a create to fail
+        _tx.Setup(tx => tx.RunAsync(It.IsAny<string>(), It.IsAny<IDictionary<string, object>>()))
+            .Returns(async (string query, IDictionary<string, object> parameters) =>
+            {
+                foreach (var parameter in parameters)
+                {
+                    if (parameter.Value == null)
+                    {
+                        continue;
+                    }
+                    Type parameterType = parameter.Value.GetType();
+                    if (parameterType.FullName == typeof(object).FullName)
+                    {
+                        throw new ProtocolException("Cannot understand value with type System.Object");
+                    }
+                }
+
+                var cursor = new Mock<IResultCursor>();
+                cursor.Setup(c => c.ConsumeAsync())
+                    .ReturnsAsync(Mock.Of<IResultSummary>(r => r.Counters == Mock.Of<ICounters>(cnt => cnt.NodesCreated == 1)));
+                return cursor.Object;
+            });
+
         _session.Setup(s => s.ExecuteWriteAsync(It.IsAny<Func<IAsyncQueryRunner, Task<bool>>>(), It.IsAny<Action<TransactionConfigBuilder>>()))
-            .Returns(Task.FromResult(true));
+            .Returns(async (Func<IAsyncQueryRunner, Task<bool>> tx, Action<TransactionConfigBuilder> action) =>
+            {
+                return await tx(_tx.Object);
+            });
+
         _driver.Setup(d => d.AsyncSession())
             .Returns(_session.Object);
+
         var sut = new ApplicantDao(_driver.Object);
 
         var createdApplicant = await sut.CreateNew(applicant);
