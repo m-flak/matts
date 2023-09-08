@@ -54,7 +54,7 @@ FROM build AS publish
 ARG DotNetBuildConfiguration
 WORKDIR /src/matts
 COPY --from=build-node /ClientApp/dist ./ClientApp/dist
-RUN dotnet publish -c $DotNetBuildConfiguration -o out -p:IsDockerBuild=true
+RUN dotnet publish -c $DotNetBuildConfiguration -o out -p:IsDockerBuild=true ./matts.csproj
 
 FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS runtime
 WORKDIR /app
