@@ -104,7 +104,7 @@ builder.Services.AddAzureClients(clients =>
             }
             else if (config.PrimaryServiceUrl != null)
             {
-                clients.AddBlobServiceClient(config.PrimaryServiceUrl);
+                clients.AddBlobServiceClient(config.PrimaryServiceUrl).WithName(config.ServiceName);
             }
             else
             {
