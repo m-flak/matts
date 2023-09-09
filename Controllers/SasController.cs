@@ -39,7 +39,10 @@ public class SasController : ControllerBase
     private readonly BlobServiceClient _blobServiceClient;
 
     internal delegate Uri GenerateAccountSasUriStrat(BlobServiceClient client);
+    internal delegate BlobSasQueryParameters CreateSasQueryStrat(BlobSasBuilder builder, UserDelegationKey key, string acctName);
+    
     internal GenerateAccountSasUriStrat GenerateAccountSasUriStrategy {  get; set; }
+    internal CreateSasQueryStrat CreateSasQueryStrategy { get; set; }
 
     public SasController(ILogger<SasController> logger, IOptionsSnapshot<AzureBlobConfiguration> optionsFactory, IAzureClientFactory<BlobServiceClient> blobFactory)
     {
@@ -49,6 +52,7 @@ public class SasController : ControllerBase
 
         // Override when testing
         GenerateAccountSasUriStrategy = (client) => client.GenerateAccountSasUri(AccountSasPermissions.Read,DateTimeOffset.UtcNow.AddDays(7),AccountSasResourceTypes.Object);
+        CreateSasQueryStrategy = (builder, key, acctName) => builder.ToSasQueryParameters(key, acctName);
     }
 
     [AllowAnonymous]
@@ -99,10 +103,9 @@ public class SasController : ControllerBase
             };
             blobSasBuilder.SetPermissions(BlobSasPermissions.Read);
 
-            var storageSharedKeyCredential = new StorageSharedKeyCredential(_blobOptions.AccountName ?? _blobServiceClient.AccountName, key.Value);
             resumeUri = new UriBuilder(blobClient.Uri)
             {
-                Query = blobSasBuilder.ToSasQueryParameters(storageSharedKeyCredential).ToString()
+                Query = CreateSasQueryStrategy(blobSasBuilder, key, _blobOptions.AccountName ?? _blobServiceClient.AccountName).ToString()
             };
         }
         catch (RequestFailedException rfe)

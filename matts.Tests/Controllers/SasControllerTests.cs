@@ -10,6 +10,9 @@ using Moq;
 using Xunit;
 using matts.Controllers;
 using matts.Configuration;
+using Azure.Storage.Sas;
+using System.Web;
+using System.Runtime.Intrinsics.X86;
 
 namespace matts.Tests.Controllers;
 
@@ -50,6 +53,9 @@ public class SasControllerTests
     [Fact]
     public async void GetResume_ViaAzureAD_ReturnsRedirectToResume()
     {
+        var skoid = System.Guid.NewGuid().ToString();
+        var sktid = System.Guid.NewGuid().ToString();
+
         AsyncPageable<TaggedBlobItem> searchResults()
         {
             var page = Page<TaggedBlobItem>.FromValues(
@@ -66,14 +72,37 @@ public class SasControllerTests
         UserDelegationKey createKey(DateTimeOffset? d1, DateTimeOffset d2, CancellationToken ct)
         {
             return BlobsModelFactory.UserDelegationKey(
-                System.Guid.NewGuid().ToString(),
-                System.Guid.NewGuid().ToString(),
+                skoid,
+                sktid,
                 d1 ?? default,
                 d2,
                 "service",
                 "1.0",
                 Convert.ToBase64String(System.Guid.NewGuid().ToByteArray())
             );
+        }
+
+        // Paranoia. Using the StorageSharedKeyCredential overload didn't make the right string!
+        BlobSasQueryParameters assertQueryParams(BlobSasBuilder builder, UserDelegationKey key, string acctName)
+        {
+            var query = builder.ToSasQueryParameters(key, acctName);
+            var damnQueryString = HttpUtility.ParseQueryString(query.ToString());
+
+            Assert.Contains(
+                damnQueryString.AllKeys,
+                s => s == "skoid"
+                    || s == "sktid"
+                    || s == "skt"
+                    || s == "ske"
+                    || s == "skv"
+                );
+            Assert.Equal(damnQueryString["skoid"], skoid);
+            Assert.Equal(damnQueryString["sktid"], sktid);
+            Assert.Equal(damnQueryString["skt"], key.SignedStartsOn.ToString("yyyy-MM-dd'T'H:mm:ss'Z'"));
+            Assert.Equal(damnQueryString["ske"], key.SignedExpiresOn.ToString("yyyy-MM-dd'T'H:mm:ss'Z'"));
+            Assert.True(damnQueryString["skv"] != null && damnQueryString["skv"]!.Length > 0);
+
+            return query;
         }
 
         _blobContainerClient.Setup(bcc => bcc.FindBlobsByTagsAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -93,6 +122,7 @@ public class SasControllerTests
 
 
         var controller = new SasController(_logger, new FakeConfigFactory(), new FakeAzureClientFactory(_blobServiceClient.Object));
+        controller.CreateSasQueryStrategy = assertQueryParams;
         var result = await controller.GetResume("123", "123");
 
         Assert.IsType<RedirectResult>(result);
