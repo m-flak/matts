@@ -10,6 +10,8 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 $color-config:    mat.get-color-config(theming.$theme);
 $primary-palette: map.get($color-config, 'primary');
 $body-bg-color: mat.get-color-from-palette($primary-palette, main);
+$fg-palette: map.get($color-config, 'foreground');
+$dimmer-color: mat.get-color-from-palette($fg-palette, accent-text);
 
 @include mat.all-component-themes(theming.$theme);
 
@@ -57,4 +59,19 @@ button {
 
 ngx-loading-bar {
   @include theming.loading-bar-values;
+}
+
+#loading-dimmer, div.loading-dimmer {
+  z-index: 9001;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  opacity: 44%;
+  background: linear-gradient(180deg, theming.$loading-spinner, $dimmer-color 45%, transparent 100%);
+  pointer-events: none;
+
+  &__inactive {
+    display: none;
+  }
 }

@@ -5,8 +5,8 @@ $loading-spinner: #397367;
 $loading-spinner-10: lighten($loading-spinner, 10%);
 
 @mixin loading-bar-values {
-  --loading-spinner-color: $loading-spinner;
-  --loading-spinner-10-color: $loading-spinner-10;
+  --loading-spinner-color: #{$loading-spinner};
+  --loading-spinner-10-color: #{$loading-spinner-10};
 }
 
 // Light Theme Text

@@ -35,6 +35,11 @@ export class HomeApplicantComponent implements OnInit, OnDestroy {
 
   openJobs: Job[] = [];
 
+  showDetailCardMsg = true;
+  initialActivate = (_: any) => this.showDetailCardMsg = false;
+  // when clicking the home link, reshow the msg
+  deactivate = (_: any) => this.showDetailCardMsg = true;
+
   constructor(private applicantDataService: ApplicantDataService, private authService: AuthService, private router: Router, private route: ActivatedRoute) { }
 
   ngOnInit(): void {

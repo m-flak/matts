@@ -38,6 +38,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   jobs: Job[] = [];
 
   currentSelectedToolbarItem = this.ITEM_JOBLIST;
+  showDetailCardMsg = true;
+
+  initialActivate = (_: any) => this.showDetailCardMsg = false;
+  // when clicking the home link, reshow the msg
+  deactivate = (_: any) => this.showDetailCardMsg = true;
 
   constructor(private backendService: BackendService, private router: Router, private route: ActivatedRoute, private jobPageDataService: JobPageDataService) {
   }

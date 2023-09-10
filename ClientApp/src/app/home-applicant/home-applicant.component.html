@@ -7,7 +7,10 @@
     </mat-card>
     <mat-card [ngClass]="'details-card'" appearance="outlined">
         <mat-card-content>
-            <router-outlet></router-outlet>
+            <div *ngIf="this.showDetailCardMsg" class="d-flex align-items-center justify-content-center">
+                <span class="detail-card-msg">You haven't selected a job yet. <br> Select a job from the left to view details and apply.</span>
+            </div>
+            <router-outlet (activate)="initialActivate($event)" (deactivate)="deactivate($event)"></router-outlet>
         </mat-card-content>
     </mat-card>
 </div>

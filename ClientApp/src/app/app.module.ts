@@ -34,7 +34,8 @@ import { TextFieldModule } from '@angular/cdk/text-field';
 import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
 import { ConfigService } from './services/config.service';
 import { PipesModule } from './pipes/pipes.module';
-import { LoadingBarModule } from '@ngx-loading-bar/core';
+import { LOADING_BAR_CONFIG, LoadingBarModule } from '@ngx-loading-bar/core';
+import { LoadingBarHttpClientModule } from '@ngx-loading-bar/http-client';
 
 
 export const BASE_URL = new InjectionToken<string>('BASE_URL');
@@ -129,7 +130,8 @@ export const BASE_URL = new InjectionToken<string>('BASE_URL');
         useFactory: jwtOptionsFactory
       }
     }),
-    LoadingBarModule
+    LoadingBarModule,
+    LoadingBarHttpClientModule
   ],
   providers: [ 
     {
@@ -145,7 +147,8 @@ export const BASE_URL = new InjectionToken<string>('BASE_URL');
               return configService.loadConfig();
           };
       }
-    }
+    },
+    { provide: LOADING_BAR_CONFIG, useValue: { latencyThreshold: 125 } },
   ],
   bootstrap: [AppComponent]
 })
