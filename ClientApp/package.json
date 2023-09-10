@@ -10,7 +10,7 @@
     "build": "ng build",
     "build:ssr": "ng run matts:server:dev",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test",
+    "test": "ng test --browsers=ChromeHeadless",
     "test-ci": "ng test --watch=false --browsers=ChromeHeadlessCI"
   },
   "private": true,
