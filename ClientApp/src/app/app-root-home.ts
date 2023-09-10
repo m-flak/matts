@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { LoadingBarService } from '@ngx-loading-bar/core';
 
 @Component({
   selector: 'app-root-home',
@@ -6,4 +7,7 @@ import { Component } from '@angular/core';
 })
 export class AppRootHomeComponent {
   title = 'app';
+
+  loader = this.loadingBar.useRef();
+  constructor(private loadingBar: LoadingBarService) {}
 }

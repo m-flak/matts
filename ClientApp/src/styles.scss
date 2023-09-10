@@ -54,3 +54,7 @@ button {
     text-transform: uppercase !important;
   }
 }
+
+ngx-loading-bar {
+  @include theming.loading-bar-values;
+}

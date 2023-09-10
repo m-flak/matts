@@ -34,6 +34,7 @@ import { TextFieldModule } from '@angular/cdk/text-field';
 import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
 import { ConfigService } from './services/config.service';
 import { PipesModule } from './pipes/pipes.module';
+import { LoadingBarModule } from '@ngx-loading-bar/core';
 
 
 export const BASE_URL = new InjectionToken<string>('BASE_URL');
@@ -127,7 +128,8 @@ export const BASE_URL = new InjectionToken<string>('BASE_URL');
         deps: [ BASE_URL ],
         useFactory: jwtOptionsFactory
       }
-    })
+    }),
+    LoadingBarModule
   ],
   providers: [ 
     {

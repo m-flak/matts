@@ -1,6 +1,14 @@
 @use '@angular/material' as mat;
 // Ty ty ty!!!: https://materialtheme.arcsine.dev/
 
+$loading-spinner: #397367;
+$loading-spinner-10: lighten($loading-spinner, 10%);
+
+@mixin loading-bar-values {
+  --loading-spinner-color: $loading-spinner;
+  --loading-spinner-10-color: $loading-spinner-10;
+}
+
 // Light Theme Text
 $dark-text: #000000;
 $dark-primary-text: rgba($dark-text, 0.87);
@@ -193,3 +201,4 @@ $altTheme: (
   foreground: $mat-dark-theme-foreground,
   background: $mat-dark-theme-background,
 );
+
