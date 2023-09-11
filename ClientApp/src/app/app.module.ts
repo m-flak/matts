@@ -36,6 +36,7 @@ import { ConfigService } from './services/config.service';
 import { PipesModule } from './pipes/pipes.module';
 import { LOADING_BAR_CONFIG, LoadingBarModule } from '@ngx-loading-bar/core';
 import { LoadingBarHttpClientModule } from '@ngx-loading-bar/http-client';
+import { LoadingBarRouterModule } from '@ngx-loading-bar/router';
 
 
 export const BASE_URL = new InjectionToken<string>('BASE_URL');
@@ -131,7 +132,8 @@ export const BASE_URL = new InjectionToken<string>('BASE_URL');
       }
     }),
     LoadingBarModule,
-    LoadingBarHttpClientModule
+    LoadingBarHttpClientModule,
+    LoadingBarRouterModule
   ],
   providers: [ 
     {
