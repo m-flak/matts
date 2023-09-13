@@ -50,14 +50,17 @@ describe('MonitorService', () => {
         });
 
         it('can send successes', (done) => {
-            mceStarted.success$.subscribe((result: MonitorWhatResult) => {
-                expect(result.type).toBe(MonitorWhatResultType.Success);
-                expect(result.id).toEqual(MW_ID);
-                expect(result.data).toEqual(123);
-
-                const running: InitiatedMonitorWhat | undefined = monitorService.getRunning(MW_ID);
-                expect(running).toBeUndefined();
-                done();
+            mceStarted.success$.subscribe({
+                next: (result: MonitorWhatResult) => {
+                    expect(result.type).toBe(MonitorWhatResultType.Success);
+                    expect(result.id).toEqual(MW_ID);
+                    expect(result.data).toEqual(123);
+                },
+                complete: () => {
+                    const running: InitiatedMonitorWhat | undefined = monitorService.getRunning(MW_ID);
+                    expect(running).toBeUndefined();
+                    done();
+                }
             });
 
             const running: InitiatedMonitorWhat | undefined = monitorService.getRunning(MW_ID);
@@ -67,14 +70,17 @@ describe('MonitorService', () => {
         });
 
         it('can send failures', (done) => {
-            mceStarted.failure$.subscribe((result: MonitorWhatResult) => {
-                expect(result.type).toBe(MonitorWhatResultType.Failure);
-                expect(result.id).toEqual(MW_ID);
-                expect(result.data).toEqual(123);
-
-                const running: InitiatedMonitorWhat | undefined = monitorService.getRunning(MW_ID);
-                expect(running).toBeUndefined();
-                done();
+            mceStarted.failure$.subscribe({
+                next: (result: MonitorWhatResult) => {
+                    expect(result.type).toBe(MonitorWhatResultType.Failure);
+                    expect(result.id).toEqual(MW_ID);
+                    expect(result.data).toEqual(123);
+                },
+                complete: () => {
+                    const running: InitiatedMonitorWhat | undefined = monitorService.getRunning(MW_ID);
+                    expect(running).toBeUndefined();
+                    done();
+                }
             });
 
             const running: InitiatedMonitorWhat | undefined = monitorService.getRunning(MW_ID);
@@ -83,21 +89,27 @@ describe('MonitorService', () => {
             monitorService.sendFailure( mceContract );
         });
 
+        it('will not allow two monitorings at once', () => {
+            expect(() => monitorService.startMonitor( mceContract )).toThrowError(`Monitor Error: '${mceContract.id}' is currently being monitored.`);
+        })
+
         it('stores last results', async () => {
+            monitorService.archiveData = false;
             monitorService.sendFailure( mceContract );
             await lastValueFrom( mceStarted.failure$ );
 
-            const result: MonitorWhatResult | undefined = monitorService.getLastResult(MW_ID, false);
+            const result: MonitorWhatResult | undefined = monitorService.getLastResult(MW_ID);
             expect(result).toBeDefined();
             expect(result?.data).toBeUndefined();
             expect(result?.type).toBe(MonitorWhatResultType.Failure);
         });
 
         it('stores last results with data when instructed', async () => {
+            monitorService.archiveData = true;
             monitorService.sendSuccess( mceContract );
             await lastValueFrom( mceStarted.success$ );
 
-            const result: MonitorWhatResult | undefined = monitorService.getLastResult(MW_ID, true);
+            const result: MonitorWhatResult | undefined = monitorService.getLastResult(MW_ID);
             expect(result).toBeDefined();
             expect(result?.data).toEqual(mceContract.data);
             expect(result?.type).toBe(MonitorWhatResultType.Success);
@@ -108,16 +120,16 @@ describe('MonitorService', () => {
         const mceContract: MonitorWhat = { id: MW_ID, data: 123 };
 
         it('gracefully does nothing if sending a success', () => {
-            expect(monitorService.sendSuccess( mceContract )).not.toThrow();
+            expect(() => monitorService.sendSuccess( mceContract )).not.toThrow();
         });
 
         it('gracefully does nothing if sending a failure', () => {
-            expect(monitorService.sendFailure( mceContract )).not.toThrow();
+            expect(() => monitorService.sendFailure( mceContract )).not.toThrow();
         });
 
         it('should return undefined when calling the get methods', () => {
             const running: InitiatedMonitorWhat | undefined = monitorService.getRunning(MW_ID);
-            const result: MonitorWhatResult | undefined = monitorService.getLastResult(MW_ID, true);
+            const result: MonitorWhatResult | undefined = monitorService.getLastResult(MW_ID);
 
             expect(running).toBeUndefined();
             expect(result).toBeUndefined();
