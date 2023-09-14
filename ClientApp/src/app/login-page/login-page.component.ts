@@ -24,6 +24,7 @@ import { User, UserRegistration } from '../models';
 import { Subscription, first } from 'rxjs';
 import { MatExpansionPanel } from '@angular/material/expansion';
 import { MonitorService } from '../services/monitor.service';
+import { LoadingBarService } from '@ngx-loading-bar/core';
 
 @Component({
   selector: 'app-login-page',
@@ -39,6 +40,10 @@ export class LoginPageComponent implements OnInit, OnDestroy {
 
   private _subscription: Subscription | null = null;
   private _subscription2: Subscription | null = null;
+  private _subscription3: Subscription | null = null;
+
+  loader = this.loadingBar.useRef();
+  displayDimmer = false;
 
   loginFailure = false;
   registrationSuccessful = false;
@@ -59,7 +64,13 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   @ViewChild('registrationPanel')
   registrationPanel?: MatExpansionPanel;
 
-  constructor(private formBuilder: FormBuilder, private router: Router, private authService: AuthService, private monitorService: MonitorService) { 
+  constructor(
+    private formBuilder: FormBuilder, 
+    private router: Router, 
+    private authService: AuthService, 
+    private monitorService: MonitorService,
+    private loadingBar: LoadingBarService
+  ) { 
     this.employerLoginForm = new FormGroup([]);
     this.applicantLoginForm = new FormGroup([]);
     this.applicantRegistrationForm = new FormGroup([]);
@@ -93,6 +104,15 @@ export class LoginPageComponent implements OnInit, OnDestroy {
       userName: ['', Validators.required],
       password: ['', Validators.required]
     });
+
+    this._subscription3 = this.loader.value$.subscribe({
+      next: _ => {
+        this.displayDimmer = true;
+      },
+      complete: () => {
+        this.displayDimmer = false;
+      }
+    })
   }
 
   ngOnDestroy(): void {
@@ -101,6 +121,9 @@ export class LoginPageComponent implements OnInit, OnDestroy {
     }
     if (this._subscription2 !== null) {
       this._subscription2.unsubscribe();
+    }
+    if (this._subscription3 !== null) {
+      this._subscription3.unsubscribe();
     }
   }
 
@@ -120,6 +143,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
         password: formData.password,
         role: UserRoleConstants.USER_ROLE_EMPLOYER
       };
+      this.displayDimmer = true;
       this._subscription = this.authService.loginUser(user).pipe(first()).subscribe({
         complete: () => {
           this.monitorService.sendSuccess({ id: 'login' });
@@ -144,6 +168,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
         password: formData.password,
         role: UserRoleConstants.USER_ROLE_APPLICANT
       };
+      this.displayDimmer = true;
       this._subscription = this.authService.loginUser(user).pipe(first()).subscribe({
         complete: () => {
           this.monitorService.sendSuccess({ id: 'login' });
@@ -166,7 +191,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
       }
 
       const formData = this.employerRegistrationForm.value;
-      this.monitorService.startMonitor({ id: 'registration' });
+      this.displayDimmer = true;
       this._subscription2 = this.authService.registerUser({ ...formData as UserRegistration, role: UserRoleConstants.USER_ROLE_EMPLOYER }).pipe(first()).subscribe({
         complete: () => {
           this.monitorService.sendSuccess({ id: 'registration' });
@@ -191,7 +216,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
       }
 
       const formData = this.applicantRegistrationForm.value;
-      this.monitorService.startMonitor({ id: 'registration' });
+      this.displayDimmer = true;
       this._subscription2 = this.authService.registerUser({ ...formData as UserRegistration, role: UserRoleConstants.USER_ROLE_APPLICANT }).pipe(first()).subscribe({
         complete: () => {
           this.monitorService.sendSuccess({ id: 'registration' });

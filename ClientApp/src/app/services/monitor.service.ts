@@ -77,11 +77,17 @@ export class MonitorService {
             ...monitorWhat,
             success$: eventStream.pipe(
                 filter(event => event.type === MonitorWhatResultType.Success),
-                tap({ complete: () => this._initMap.delete(monitorWhat.id) })
+                tap({ complete: () => {
+                    this._initMap.delete(monitorWhat.id);
+                    this._monitorMap.delete(monitorWhat.id);
+                }})
             ),
             failure$: eventStream.pipe(
                 filter(event => event.type === MonitorWhatResultType.Failure),
-                tap({ complete: () => this._initMap.delete(monitorWhat.id) })
+                tap({ complete: () => {
+                    this._initMap.delete(monitorWhat.id);
+                    this._monitorMap.delete(monitorWhat.id);
+                }})
             )
         };
 
