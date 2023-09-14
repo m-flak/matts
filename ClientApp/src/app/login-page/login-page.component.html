@@ -25,7 +25,7 @@
                     <input type="password" matInput formControlName="password" />
                     <mat-hint *ngIf="!this.employerLoginForm.controls.password.valid"><span class="require-text">*Required</span></mat-hint>
                 </mat-form-field>
-                <button mat-flat-button color="accent" class="align-self-center" type="submit">Login</button>
+                <button mat-flat-button monitored-mat-button monitorWhatId="login" color="accent" class="align-self-center" type="submit">Login</button>
             </form>
         </mat-expansion-panel>
         <mat-expansion-panel #applicantPanel id="ApplicantLoginPanel">
@@ -43,7 +43,7 @@
                     <input type="password" matInput formControlName="password" />
                     <mat-hint *ngIf="!this.applicantLoginForm.controls.password.valid"><span class="require-text">*Required</span></mat-hint>
                 </mat-form-field>
-                <button mat-flat-button color="accent" class="align-self-center" type="submit">Login</button>
+                <button mat-flat-button monitored-mat-button monitorWhatId="login" color="accent" class="align-self-center" type="submit">Login</button>
             </form>
         </mat-expansion-panel>
         <mat-expansion-panel #registrationPanel id="NewUserRegistrationPanel">
@@ -84,7 +84,7 @@
                             <input type="password" matInput formControlName="password" />
                             <mat-hint *ngIf="!this.employerRegistrationForm.controls.password.valid"><span class="require-text">*Required</span></mat-hint>
                         </mat-form-field>
-                        <button mat-flat-button color="accent" class="align-self-center" type="submit">Register</button>
+                        <button mat-flat-button monitored-mat-button monitorWhatId="registration" color="accent" class="align-self-center" type="submit">Register</button>
                     </form>
                 </section>
                 <section *ngSwitchCase="REGISTRATION_TYPE_APPLICANT">
@@ -116,7 +116,7 @@
                             <input type="password" matInput formControlName="password" />
                             <mat-hint *ngIf="!this.applicantRegistrationForm.controls.password.valid"><span class="require-text">*Required</span></mat-hint>
                         </mat-form-field>
-                        <button mat-flat-button color="accent" class="align-self-center" type="submit">Register</button>
+                        <button mat-flat-button monitored-mat-button monitorWhatId="registration" color="accent" class="align-self-center" type="submit">Register</button>
                     </form>
                 </section>
                 <section *ngSwitchDefault>

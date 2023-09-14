@@ -28,6 +28,8 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BackendService } from '../services/backend.service';
 import { TextFieldModule } from '@angular/cdk/text-field';
+import { ComponentsModule } from '../components/components.module';
+import { MonitorService } from '../services/monitor.service';
 
 describe('NewJobPageComponent', () => {
   let component: NewJobPageComponent;
@@ -43,7 +45,8 @@ describe('NewJobPageComponent', () => {
         TextFieldModule,
         MatCardModule,
         HttpClientModule, 
-        HttpClientTestingModule
+        HttpClientTestingModule,
+        ComponentsModule
       ],
       declarations: [ NewJobPageComponent ],
       providers: [
@@ -52,7 +55,8 @@ describe('NewJobPageComponent', () => {
           provide: 'BASE_URL', 
           useValue: 'https://localhost/' 
         },
-        BackendService
+        BackendService,
+        MonitorService
       ]
     })
     .compileComponents();

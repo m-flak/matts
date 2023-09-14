@@ -14,6 +14,8 @@ import { User } from '../models';
 import { of } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { AppModule } from '../app.module';
+import { ComponentsModule } from '../components/components.module';
+import { MonitorService } from '../services/monitor.service';
 
 const FakeAuthService = {
   loginUser: (user?: User) => of('yay!')
@@ -36,12 +38,14 @@ describe('LoginPageComponent', () => {
         MatExpansionModule,
         MatInputModule,
         NgbAlertModule,
-        RouterTestingModule.withRoutes([])
+        RouterTestingModule.withRoutes([]),
+        ComponentsModule
       ],
       providers: [
         { provide: 'BASE_URL', useValue: '' },
         { provide: AuthService, useValue: FakeAuthService },
-        FormBuilder
+        FormBuilder,
+        MonitorService
       ],
       declarations: [LoginPageComponent]
     })
