@@ -2,7 +2,7 @@
     <mat-card [ngClass]="'new-job-card'" appearance="outlined">
         <mat-card-header><h1>Post a New Job:</h1></mat-card-header>
         <mat-card-content>
-            <form [formGroup]="newJobForm" class="d-flex flex-column" (ngSubmit)="submitNewJob()">
+            <form [formGroup]="newJobForm" class="d-flex flex-column" (ngSubmit)="postNewJobBut.kickoff(); submitNewJob()">
                 <mat-form-field>
                     <mat-label>Job Title:</mat-label>
                     <input matInput placeholder="Ex: Software Developer" formControlName="jobTitle" />
@@ -13,7 +13,18 @@
                     <textarea matInput cdkTextareaAutosize #autosize="cdkTextareaAutosize" placeholder="Ex: John Doe Corporation is looking for a talented..." formControlName="jobDescription"></textarea>
                     <mat-hint *ngIf="!this.newJobForm.controls.jobDescription.valid"><span class="require-text">*Required</span></mat-hint>
                 </mat-form-field>
-                <button mat-flat-button monitored-mat-button monitorWhatId="postJob" [disabled]="this.newJobForm.invalid" color="accent" class="align-self-center" type="submit">Post New Job</button>
+                <button 
+                    mat-flat-button 
+                    monitored-mat-button 
+                    monitorWhatId="postJob" 
+                    [disabled]="this.newJobForm.invalid" 
+                    color="accent" 
+                    class="align-self-center" 
+                    type="submit"
+                    #postNewJobBut="monitoredMatButton"
+                >
+                    Post New Job
+                </button>
             </form>
         </mat-card-content>
     </mat-card>
