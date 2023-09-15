@@ -12,6 +12,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { EmployerToolbarComponent } from '../components/employer-toolbar/employer-toolbar.component';
 import { ToastsContainerComponent } from './toasts-container/toasts-container.component';
 import { MatIconLinkDirective } from './mat-icon-link/mat-icon-link.directive';
+import { MonitoredMatButtonDirective } from './monitored-component/monitored-mat-button.directive';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { MatIconLinkDirective } from './mat-icon-link/mat-icon-link.directive';
     JobListComponent,
     EmployerToolbarComponent,
     ToastsContainerComponent,
-    MatIconLinkDirective
+    MatIconLinkDirective,
+    MonitoredMatButtonDirective
   ],
   imports: [
     CommonModule,
@@ -35,7 +37,8 @@ import { MatIconLinkDirective } from './mat-icon-link/mat-icon-link.directive';
     JobListComponent,
     EmployerToolbarComponent,
     ToastsContainerComponent,
-    MatIconLinkDirective
+    MatIconLinkDirective,
+    MonitoredMatButtonDirective
   ]
 })
 export class ComponentsModule { 

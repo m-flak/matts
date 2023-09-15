@@ -1,6 +1,19 @@
 <body>
   <app-nav-menu></app-nav-menu>
   <cmp-toasts-container aria-live="status" aria-atomic="true"></cmp-toasts-container>
+  <ngx-loading-bar
+    color="var(--loading-spinner-10-color)"
+    height="8px"
+    diameter="42px"
+    >
+  </ngx-loading-bar>
+  <div 
+    id="loading-dimmer" 
+    class="loading-dimmer" 
+    [ngClass]="{'loading-dimmer__inactive': this.displayDimmer}"
+    title="Loading..."
+    >
+  </div>
   <main class="container app-root-home">
     <router-outlet></router-outlet>
   </main>

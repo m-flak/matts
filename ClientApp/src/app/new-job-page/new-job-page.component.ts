@@ -23,6 +23,7 @@ import { Subscription, first } from 'rxjs';
 import { BackendService } from '../services/backend.service';
 import { Router } from '@angular/router';
 import { ToastService } from '../services/toast.service';
+import { MonitorService } from '../services/monitor.service';
 
 @Component({
   selector: 'app-new-job-page',
@@ -37,7 +38,12 @@ export class NewJobPageComponent implements OnInit, OnDestroy {
 
   private _subscription: Subscription | null = null;
   
-  constructor(private formBuilder: FormBuilder, private backendService: BackendService, private toastService: ToastService) { 
+  constructor(
+    private formBuilder: FormBuilder, 
+    private backendService: BackendService, 
+    private toastService: ToastService,
+    private monitorService: MonitorService
+  ) { 
     this.newJobForm = new FormGroup([]);
   }
 
@@ -62,8 +68,12 @@ export class NewJobPageComponent implements OnInit, OnDestroy {
     const formData = this.newJobForm.value;
     this._subscription = this.backendService.postNewJob(this._mapFormToJob(formData)).pipe(first()).subscribe({
       complete: () => {
+        this.monitorService.sendSuccess({ id: 'postJob' });
         this.toastService.show(`Successfully Posted Job: ${formData.jobTitle}`, { classname: 'bg-success text-light', delay: 10000 });
         this.jobCreated.emit();
+      },
+      error: (_) => {
+        this.monitorService.sendFailure({ id: 'postJob' });
       }
     });
   }

@@ -14,6 +14,9 @@ import { User } from '../models';
 import { of } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { AppModule } from '../app.module';
+import { ComponentsModule } from '../components/components.module';
+import { MonitorService } from '../services/monitor.service';
+import { LoadingBarModule, LoadingBarService } from '@ngx-loading-bar/core';
 
 const FakeAuthService = {
   loginUser: (user?: User) => of('yay!')
@@ -36,12 +39,16 @@ describe('LoginPageComponent', () => {
         MatExpansionModule,
         MatInputModule,
         NgbAlertModule,
-        RouterTestingModule.withRoutes([])
+        RouterTestingModule.withRoutes([]),
+        ComponentsModule,
+        LoadingBarModule
       ],
       providers: [
         { provide: 'BASE_URL', useValue: '' },
         { provide: AuthService, useValue: FakeAuthService },
-        FormBuilder
+        FormBuilder,
+        MonitorService,
+        LoadingBarService
       ],
       declarations: [LoginPageComponent]
     })

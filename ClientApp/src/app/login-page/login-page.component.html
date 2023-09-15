@@ -1,4 +1,17 @@
 <app-nav-menu [hideNavItems]="true"></app-nav-menu>
+<ngx-loading-bar
+    color="var(--loading-spinner-10-color)"
+    height="8px"
+    diameter="42px"
+    >  
+</ngx-loading-bar>
+<div 
+    id="loading-dimmer" 
+    class="loading-dimmer" 
+    [ngClass]="{'loading-dimmer__inactive': this.displayDimmer}"
+    title="Loading..."
+    >
+</div>
 <div class="container login-container login-bg pt-5">
     <ngb-alert *ngIf="loginFailure" type="danger" [dismissible]="false">
         <p>Invalid credentials. Unable to login.</p>
@@ -14,7 +27,7 @@
             <mat-expansion-panel-header>
                 <mat-panel-title>EMPLOYER LOGIN</mat-panel-title>
             </mat-expansion-panel-header>
-            <form [formGroup]="employerLoginForm" class="d-flex flex-column" (ngSubmit)="performLogin(LOGIN_TYPE_EMPLOYER)">
+            <form [formGroup]="employerLoginForm" class="d-flex flex-column" (ngSubmit)="empLoginBut.kickoff(); performLogin(LOGIN_TYPE_EMPLOYER)">
                 <mat-form-field>
                     <mat-label>User Name</mat-label>
                     <input type="text" matInput formControlName="userName" />
@@ -25,14 +38,24 @@
                     <input type="password" matInput formControlName="password" />
                     <mat-hint *ngIf="!this.employerLoginForm.controls.password.valid"><span class="require-text">*Required</span></mat-hint>
                 </mat-form-field>
-                <button mat-flat-button color="accent" class="align-self-center" type="submit">Login</button>
+                <button 
+                    mat-flat-button 
+                    monitored-mat-button 
+                    monitorWhatId="login" 
+                    color="accent" 
+                    class="align-self-center" 
+                    type="submit"
+                    #empLoginBut="monitoredMatButton"
+                >
+                    Login
+                </button>
             </form>
         </mat-expansion-panel>
         <mat-expansion-panel #applicantPanel id="ApplicantLoginPanel">
             <mat-expansion-panel-header>
                 <mat-panel-title>APPLICANT LOGIN</mat-panel-title>
             </mat-expansion-panel-header>
-            <form [formGroup]="applicantLoginForm" class="d-flex flex-column" (ngSubmit)="performLogin(LOGIN_TYPE_APPLICANT)">
+            <form [formGroup]="applicantLoginForm" class="d-flex flex-column" (ngSubmit)="appLoginBut.kickoff(); performLogin(LOGIN_TYPE_APPLICANT)">
                 <mat-form-field>
                     <mat-label>User Name</mat-label>
                     <input type="text" matInput formControlName="userName" />
@@ -43,7 +66,17 @@
                     <input type="password" matInput formControlName="password" />
                     <mat-hint *ngIf="!this.applicantLoginForm.controls.password.valid"><span class="require-text">*Required</span></mat-hint>
                 </mat-form-field>
-                <button mat-flat-button color="accent" class="align-self-center" type="submit">Login</button>
+                <button 
+                    mat-flat-button 
+                    monitored-mat-button
+                    monitorWhatId="login" 
+                    color="accent" 
+                    class="align-self-center" 
+                    type="submit"
+                    #appLoginBut="monitoredMatButton"
+                >
+                    Login
+                </button>
             </form>
         </mat-expansion-panel>
         <mat-expansion-panel #registrationPanel id="NewUserRegistrationPanel">
@@ -54,7 +87,7 @@
                 <section *ngSwitchCase="REGISTRATION_TYPE_EMPLOYER">
                     <h3 class="registration-section-header">Employers:</h3>
                     <a mat-flat-button color="primary" (click)="setRegistrationMode(-1)">&#x21FD; Back</a>
-                    <form [formGroup]="employerRegistrationForm" class="d-flex flex-column" (ngSubmit)="performRegistration(REGISTRATION_TYPE_EMPLOYER)">
+                    <form [formGroup]="employerRegistrationForm" class="d-flex flex-column" (ngSubmit)="regEmpBut.kickoff(); performRegistration(REGISTRATION_TYPE_EMPLOYER)">
                         <mat-form-field>
                             <mat-label>Company Name</mat-label>
                             <input type="text" matInput formControlName="companyName" [readonly]="true" />
@@ -84,13 +117,23 @@
                             <input type="password" matInput formControlName="password" />
                             <mat-hint *ngIf="!this.employerRegistrationForm.controls.password.valid"><span class="require-text">*Required</span></mat-hint>
                         </mat-form-field>
-                        <button mat-flat-button color="accent" class="align-self-center" type="submit">Register</button>
+                        <button 
+                            mat-flat-button 
+                            monitored-mat-button 
+                            monitorWhatId="registration"
+                            color="accent"
+                            class="align-self-center"
+                            type="submit"
+                            #regEmpBut="monitoredMatButton"
+                        >
+                            Register
+                        </button>
                     </form>
                 </section>
                 <section *ngSwitchCase="REGISTRATION_TYPE_APPLICANT">
                     <h3 class="registration-section-header">Applicants:</h3>
                     <a mat-flat-button color="primary" (click)="setRegistrationMode(-1)">&#x21FD; Back</a>
-                    <form [formGroup]="applicantRegistrationForm" class="d-flex flex-column" (ngSubmit)="performRegistration(REGISTRATION_TYPE_APPLICANT)">
+                    <form [formGroup]="applicantRegistrationForm" class="d-flex flex-column" (ngSubmit)="regAppBut.kickoff(); performRegistration(REGISTRATION_TYPE_APPLICANT)">
                         <mat-form-field>
                             <mat-label>Full Name</mat-label>
                             <input type="text" matInput formControlName="fullName" />
@@ -116,7 +159,17 @@
                             <input type="password" matInput formControlName="password" />
                             <mat-hint *ngIf="!this.applicantRegistrationForm.controls.password.valid"><span class="require-text">*Required</span></mat-hint>
                         </mat-form-field>
-                        <button mat-flat-button color="accent" class="align-self-center" type="submit">Register</button>
+                        <button 
+                            mat-flat-button 
+                            monitored-mat-button 
+                            monitorWhatId="registration" 
+                            color="accent" 
+                            class="align-self-center" 
+                            type="submit"
+                            #regAppBut="monitoredMatButton"
+                        >
+                                Register
+                        </button>
                     </form>
                 </section>
                 <section *ngSwitchDefault>
