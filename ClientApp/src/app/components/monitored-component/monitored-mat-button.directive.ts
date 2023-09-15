@@ -23,7 +23,8 @@ import { MatButton } from "@angular/material/button";
 import { ToastService } from "src/app/services/toast.service";
 
 @Directive({
-    selector: '[monitored-mat-button]'
+    selector: '[monitored-mat-button]',
+    exportAs: 'monitoredMatButton'
 })
 export class MonitoredMatButtonDirective extends MonitoredComponent<MatButton> {
     oldText = '';
