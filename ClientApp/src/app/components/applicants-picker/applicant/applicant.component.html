@@ -1,12 +1,19 @@
 <div class="applicant" (click)="onClick()">
-    <div class="applicant-wrapper">
-        <img *ngIf="isRejected" class="rejected-applicant" src="assets/rejection.svg" />
-        <img *ngIf="applicant.interviewDate !== null && applicant.interviewDate !== undefined" 
-            src="assets/blue-calendar-icon.png" 
-            [ngClass]="{'interviewing-applicant': applicant.interviewingWith === activeEmployerUuid, 'interviewing-applicant__other': applicant.interviewingWith !== activeEmployerUuid}" 
-            [title]="applicant.interviewingWith === activeEmployerUuid ? 'You have scheduled an interview' : 'Someone else has scheduled an interview'" 
-            alt="Has Interview" />
-        <img class="applicant-photo" src="assets/abstract-user-flat-1.svg" [alt]="applicant.name" [title]="applicant.name" />
-    </div>
-    <span class="applicant-name">{{ applicant.name }}</span>
+  <div class="applicant-wrapper">
+    <img *ngIf="isRejected" class="rejected-applicant" src="assets/rejection.svg" />
+    <img
+      *ngIf="applicant.interviewDate !== null && applicant.interviewDate !== undefined"
+      src="assets/blue-calendar-icon.png"
+      [ngClass]="{'interviewing-applicant': applicant.interviewingWith === activeEmployerUuid, 'interviewing-applicant__other': applicant.interviewingWith !== activeEmployerUuid}"
+      [title]="applicant.interviewingWith === activeEmployerUuid ? 'You have scheduled an interview' : 'Someone else has scheduled an interview'"
+      alt="Has Interview"
+    />
+    <img
+      class="applicant-photo"
+      src="assets/abstract-user-flat-1.svg"
+      [alt]="applicant.name"
+      [title]="applicant.name"
+    />
+  </div>
+  <span class="applicant-name">{{ applicant.name }}</span>
 </div>

@@ -1,190 +1,239 @@
 <app-nav-menu [hideNavItems]="true"></app-nav-menu>
-<ngx-loading-bar
-    color="var(--loading-spinner-10-color)"
-    height="8px"
-    diameter="42px"
-    >  
-</ngx-loading-bar>
-<div 
-    id="loading-dimmer" 
-    class="loading-dimmer" 
-    [ngClass]="{'loading-dimmer__inactive': this.displayDimmer}"
-    title="Loading..."
-    >
-</div>
+<ngx-loading-bar color="var(--loading-spinner-10-color)" height="8px" diameter="42px"> </ngx-loading-bar>
+<div
+  id="loading-dimmer"
+  class="loading-dimmer"
+  [ngClass]="{'loading-dimmer__inactive': this.displayDimmer}"
+  title="Loading..."
+></div>
 <div class="container login-container login-bg pt-5">
-    <ngb-alert *ngIf="loginFailure" type="danger" [dismissible]="false">
-        <p>Invalid credentials. Unable to login.</p>
-    </ngb-alert>
-    <ngb-alert *ngIf="registrationSuccessful" type="success" [dismissible]="false">
-        <p>Registration Successful! You may now login with your account through <span class="emphasis">{{this.registrationTypeMessage}} Login</span>.</p>
-    </ngb-alert>
-    <div class="text-center">
-        <h1>Welcome</h1>
-    </div>
-    <mat-accordion [ngClass]="'text-center'" id="LoginAccordion">
-        <mat-expansion-panel #employerPanel id="EmployerLoginPanel" [expanded]="true">
-            <mat-expansion-panel-header>
-                <mat-panel-title>EMPLOYER LOGIN</mat-panel-title>
-            </mat-expansion-panel-header>
-            <form [formGroup]="employerLoginForm" class="d-flex flex-column" (ngSubmit)="empLoginBut.kickoff(); performLogin(LOGIN_TYPE_EMPLOYER)">
-                <mat-form-field>
-                    <mat-label>User Name</mat-label>
-                    <input type="text" matInput formControlName="userName" />
-                    <mat-hint *ngIf="!this.employerLoginForm.controls.password.valid"><span class="require-text">*Required</span></mat-hint>
-                </mat-form-field>
-                <mat-form-field>
-                    <mat-label>Password</mat-label>
-                    <input type="password" matInput formControlName="password" />
-                    <mat-hint *ngIf="!this.employerLoginForm.controls.password.valid"><span class="require-text">*Required</span></mat-hint>
-                </mat-form-field>
-                <button 
-                    mat-flat-button 
-                    monitored-mat-button 
-                    monitorWhatId="login" 
-                    color="accent" 
-                    class="align-self-center" 
-                    type="submit"
-                    #empLoginBut="monitoredMatButton"
-                >
-                    Login
-                </button>
-            </form>
-        </mat-expansion-panel>
-        <mat-expansion-panel #applicantPanel id="ApplicantLoginPanel">
-            <mat-expansion-panel-header>
-                <mat-panel-title>APPLICANT LOGIN</mat-panel-title>
-            </mat-expansion-panel-header>
-            <form [formGroup]="applicantLoginForm" class="d-flex flex-column" (ngSubmit)="appLoginBut.kickoff(); performLogin(LOGIN_TYPE_APPLICANT)">
-                <mat-form-field>
-                    <mat-label>User Name</mat-label>
-                    <input type="text" matInput formControlName="userName" />
-                    <mat-hint *ngIf="!this.applicantLoginForm.controls.userName.valid"><span class="require-text">*Required</span></mat-hint>
-                </mat-form-field>
-                <mat-form-field>
-                    <mat-label>Password</mat-label>
-                    <input type="password" matInput formControlName="password" />
-                    <mat-hint *ngIf="!this.applicantLoginForm.controls.password.valid"><span class="require-text">*Required</span></mat-hint>
-                </mat-form-field>
-                <button 
-                    mat-flat-button 
-                    monitored-mat-button
-                    monitorWhatId="login" 
-                    color="accent" 
-                    class="align-self-center" 
-                    type="submit"
-                    #appLoginBut="monitoredMatButton"
-                >
-                    Login
-                </button>
-            </form>
-        </mat-expansion-panel>
-        <mat-expansion-panel #registrationPanel id="NewUserRegistrationPanel">
-            <mat-expansion-panel-header>
-                <mat-panel-title>NEW USER REGISTRATION</mat-panel-title>
-            </mat-expansion-panel-header>
-            <ng-container [ngSwitch]="registrationMode">
-                <section *ngSwitchCase="REGISTRATION_TYPE_EMPLOYER">
-                    <h3 class="registration-section-header">Employers:</h3>
-                    <a mat-flat-button color="primary" (click)="setRegistrationMode(-1)">&#x21FD; Back</a>
-                    <form [formGroup]="employerRegistrationForm" class="d-flex flex-column" (ngSubmit)="regEmpBut.kickoff(); performRegistration(REGISTRATION_TYPE_EMPLOYER)">
-                        <mat-form-field>
-                            <mat-label>Company Name</mat-label>
-                            <input type="text" matInput formControlName="companyName" [readonly]="true" />
-                        </mat-form-field>
-                        <mat-form-field>
-                            <mat-label>Full Name</mat-label>
-                            <input type="text" matInput formControlName="fullName" />
-                            <mat-hint *ngIf="!this.employerRegistrationForm.controls.fullName.valid"><span class="require-text">*Required</span></mat-hint>
-                        </mat-form-field>
-                        <mat-form-field>
-                            <mat-label>Email</mat-label>
-                            <input type="email" matInput formControlName="email" />
-                            <mat-hint *ngIf="!this.employerRegistrationForm.controls.email.valid"><span class="require-text">*Required</span></mat-hint>
-                        </mat-form-field>
-                        <mat-form-field>
-                            <mat-label>Phone Number</mat-label>
-                            <input type="tel" matInput formControlName="phoneNumber" />
-                            <mat-hint *ngIf="!this.employerRegistrationForm.controls.phoneNumber.valid"><span class="require-text">*Required</span></mat-hint>
-                        </mat-form-field>
-                        <mat-form-field>
-                            <mat-label>User Name</mat-label>
-                            <input type="text" matInput formControlName="userName" />
-                            <mat-hint *ngIf="!this.employerRegistrationForm.controls.userName.valid"><span class="require-text">*Required</span></mat-hint>
-                        </mat-form-field>
-                        <mat-form-field>
-                            <mat-label>Password</mat-label>
-                            <input type="password" matInput formControlName="password" />
-                            <mat-hint *ngIf="!this.employerRegistrationForm.controls.password.valid"><span class="require-text">*Required</span></mat-hint>
-                        </mat-form-field>
-                        <button 
-                            mat-flat-button 
-                            monitored-mat-button 
-                            monitorWhatId="registration"
-                            color="accent"
-                            class="align-self-center"
-                            type="submit"
-                            #regEmpBut="monitoredMatButton"
-                        >
-                            Register
-                        </button>
-                    </form>
-                </section>
-                <section *ngSwitchCase="REGISTRATION_TYPE_APPLICANT">
-                    <h3 class="registration-section-header">Applicants:</h3>
-                    <a mat-flat-button color="primary" (click)="setRegistrationMode(-1)">&#x21FD; Back</a>
-                    <form [formGroup]="applicantRegistrationForm" class="d-flex flex-column" (ngSubmit)="regAppBut.kickoff(); performRegistration(REGISTRATION_TYPE_APPLICANT)">
-                        <mat-form-field>
-                            <mat-label>Full Name</mat-label>
-                            <input type="text" matInput formControlName="fullName" />
-                            <mat-hint *ngIf="!this.applicantRegistrationForm.controls.fullName.valid"><span class="require-text">*Required</span></mat-hint>
-                        </mat-form-field>
-                        <mat-form-field>
-                            <mat-label>Email</mat-label>
-                            <input type="email" matInput formControlName="email" />
-                            <mat-hint *ngIf="!this.applicantRegistrationForm.controls.email.valid"><span class="require-text">*Required</span></mat-hint>
-                        </mat-form-field>
-                        <mat-form-field>
-                            <mat-label>Phone Number</mat-label>
-                            <input type="tel" matInput formControlName="phoneNumber" />
-                            <mat-hint *ngIf="!this.applicantRegistrationForm.controls.phoneNumber.valid"><span class="require-text">*Required</span></mat-hint>
-                        </mat-form-field>
-                        <mat-form-field>
-                            <mat-label>User Name</mat-label>
-                            <input type="text" matInput formControlName="userName" />
-                            <mat-hint *ngIf="!this.applicantRegistrationForm.controls.userName.valid"><span class="require-text">*Required</span></mat-hint>
-                        </mat-form-field>
-                        <mat-form-field>
-                            <mat-label>Password</mat-label>
-                            <input type="password" matInput formControlName="password" />
-                            <mat-hint *ngIf="!this.applicantRegistrationForm.controls.password.valid"><span class="require-text">*Required</span></mat-hint>
-                        </mat-form-field>
-                        <button 
-                            mat-flat-button 
-                            monitored-mat-button 
-                            monitorWhatId="registration" 
-                            color="accent" 
-                            class="align-self-center" 
-                            type="submit"
-                            #regAppBut="monitoredMatButton"
-                        >
-                                Register
-                        </button>
-                    </form>
-                </section>
-                <section *ngSwitchDefault>
-                    <div class="d-flex flex-row justify-content-around">
-                        <a class="registration-mode__applicant" (click)="setRegistrationMode(REGISTRATION_TYPE_APPLICANT)">
-                            <h2>New Applicant</h2>
-                            <img src="assets/registration-applicant.png" title="Register a New Applicant User" alt="Applicant Registration" />
-                        </a>
-                        <a class="registration-mode__employer" (click)="setRegistrationMode(REGISTRATION_TYPE_EMPLOYER)">
-                            <h2>New Employer</h2>
-                            <img src="assets/registration-employer.png" title="Register a New Employer User" alt="Employer Registration" />
-                        </a>
-                    </div>
-                </section>
-            </ng-container>
-        </mat-expansion-panel>
-    </mat-accordion>
+  <ngb-alert *ngIf="loginFailure" type="danger" [dismissible]="false">
+    <p>Invalid credentials. Unable to login.</p>
+  </ngb-alert>
+  <ngb-alert *ngIf="registrationSuccessful" type="success" [dismissible]="false">
+    <p>
+      Registration Successful! You may now login with your account through
+      <span class="emphasis">{{this.registrationTypeMessage}} Login</span>.
+    </p>
+  </ngb-alert>
+  <div class="text-center">
+    <h1>Welcome</h1>
+  </div>
+  <mat-accordion [ngClass]="'text-center'" id="LoginAccordion">
+    <mat-expansion-panel #employerPanel id="EmployerLoginPanel" [expanded]="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title>EMPLOYER LOGIN</mat-panel-title>
+      </mat-expansion-panel-header>
+      <form
+        [formGroup]="employerLoginForm"
+        class="d-flex flex-column"
+        (ngSubmit)="empLoginBut.kickoff(); performLogin(LOGIN_TYPE_EMPLOYER)"
+      >
+        <mat-form-field>
+          <mat-label>User Name</mat-label>
+          <input type="text" matInput formControlName="userName" />
+          <mat-hint *ngIf="!this.employerLoginForm.controls.password.valid"
+            ><span class="require-text">*Required</span></mat-hint
+          >
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Password</mat-label>
+          <input type="password" matInput formControlName="password" />
+          <mat-hint *ngIf="!this.employerLoginForm.controls.password.valid"
+            ><span class="require-text">*Required</span></mat-hint
+          >
+        </mat-form-field>
+        <button
+          mat-flat-button
+          monitored-mat-button
+          monitorWhatId="login"
+          color="accent"
+          class="align-self-center"
+          type="submit"
+          #empLoginBut="monitoredMatButton"
+        >
+          Login
+        </button>
+      </form>
+    </mat-expansion-panel>
+    <mat-expansion-panel #applicantPanel id="ApplicantLoginPanel">
+      <mat-expansion-panel-header>
+        <mat-panel-title>APPLICANT LOGIN</mat-panel-title>
+      </mat-expansion-panel-header>
+      <form
+        [formGroup]="applicantLoginForm"
+        class="d-flex flex-column"
+        (ngSubmit)="appLoginBut.kickoff(); performLogin(LOGIN_TYPE_APPLICANT)"
+      >
+        <mat-form-field>
+          <mat-label>User Name</mat-label>
+          <input type="text" matInput formControlName="userName" />
+          <mat-hint *ngIf="!this.applicantLoginForm.controls.userName.valid"
+            ><span class="require-text">*Required</span></mat-hint
+          >
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Password</mat-label>
+          <input type="password" matInput formControlName="password" />
+          <mat-hint *ngIf="!this.applicantLoginForm.controls.password.valid"
+            ><span class="require-text">*Required</span></mat-hint
+          >
+        </mat-form-field>
+        <button
+          mat-flat-button
+          monitored-mat-button
+          monitorWhatId="login"
+          color="accent"
+          class="align-self-center"
+          type="submit"
+          #appLoginBut="monitoredMatButton"
+        >
+          Login
+        </button>
+      </form>
+    </mat-expansion-panel>
+    <mat-expansion-panel #registrationPanel id="NewUserRegistrationPanel">
+      <mat-expansion-panel-header>
+        <mat-panel-title>NEW USER REGISTRATION</mat-panel-title>
+      </mat-expansion-panel-header>
+      <ng-container [ngSwitch]="registrationMode">
+        <section *ngSwitchCase="REGISTRATION_TYPE_EMPLOYER">
+          <h3 class="registration-section-header">Employers:</h3>
+          <a mat-flat-button color="primary" (click)="setRegistrationMode(-1)">&#x21FD; Back</a>
+          <form
+            [formGroup]="employerRegistrationForm"
+            class="d-flex flex-column"
+            (ngSubmit)="regEmpBut.kickoff(); performRegistration(REGISTRATION_TYPE_EMPLOYER)"
+          >
+            <mat-form-field>
+              <mat-label>Company Name</mat-label>
+              <input type="text" matInput formControlName="companyName" [readonly]="true" />
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Full Name</mat-label>
+              <input type="text" matInput formControlName="fullName" />
+              <mat-hint *ngIf="!this.employerRegistrationForm.controls.fullName.valid"
+                ><span class="require-text">*Required</span></mat-hint
+              >
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Email</mat-label>
+              <input type="email" matInput formControlName="email" />
+              <mat-hint *ngIf="!this.employerRegistrationForm.controls.email.valid"
+                ><span class="require-text">*Required</span></mat-hint
+              >
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Phone Number</mat-label>
+              <input type="tel" matInput formControlName="phoneNumber" />
+              <mat-hint *ngIf="!this.employerRegistrationForm.controls.phoneNumber.valid"
+                ><span class="require-text">*Required</span></mat-hint
+              >
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>User Name</mat-label>
+              <input type="text" matInput formControlName="userName" />
+              <mat-hint *ngIf="!this.employerRegistrationForm.controls.userName.valid"
+                ><span class="require-text">*Required</span></mat-hint
+              >
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Password</mat-label>
+              <input type="password" matInput formControlName="password" />
+              <mat-hint *ngIf="!this.employerRegistrationForm.controls.password.valid"
+                ><span class="require-text">*Required</span></mat-hint
+              >
+            </mat-form-field>
+            <button
+              mat-flat-button
+              monitored-mat-button
+              monitorWhatId="registration"
+              color="accent"
+              class="align-self-center"
+              type="submit"
+              #regEmpBut="monitoredMatButton"
+            >
+              Register
+            </button>
+          </form>
+        </section>
+        <section *ngSwitchCase="REGISTRATION_TYPE_APPLICANT">
+          <h3 class="registration-section-header">Applicants:</h3>
+          <a mat-flat-button color="primary" (click)="setRegistrationMode(-1)">&#x21FD; Back</a>
+          <form
+            [formGroup]="applicantRegistrationForm"
+            class="d-flex flex-column"
+            (ngSubmit)="regAppBut.kickoff(); performRegistration(REGISTRATION_TYPE_APPLICANT)"
+          >
+            <mat-form-field>
+              <mat-label>Full Name</mat-label>
+              <input type="text" matInput formControlName="fullName" />
+              <mat-hint *ngIf="!this.applicantRegistrationForm.controls.fullName.valid"
+                ><span class="require-text">*Required</span></mat-hint
+              >
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Email</mat-label>
+              <input type="email" matInput formControlName="email" />
+              <mat-hint *ngIf="!this.applicantRegistrationForm.controls.email.valid"
+                ><span class="require-text">*Required</span></mat-hint
+              >
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Phone Number</mat-label>
+              <input type="tel" matInput formControlName="phoneNumber" />
+              <mat-hint *ngIf="!this.applicantRegistrationForm.controls.phoneNumber.valid"
+                ><span class="require-text">*Required</span></mat-hint
+              >
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>User Name</mat-label>
+              <input type="text" matInput formControlName="userName" />
+              <mat-hint *ngIf="!this.applicantRegistrationForm.controls.userName.valid"
+                ><span class="require-text">*Required</span></mat-hint
+              >
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Password</mat-label>
+              <input type="password" matInput formControlName="password" />
+              <mat-hint *ngIf="!this.applicantRegistrationForm.controls.password.valid"
+                ><span class="require-text">*Required</span></mat-hint
+              >
+            </mat-form-field>
+            <button
+              mat-flat-button
+              monitored-mat-button
+              monitorWhatId="registration"
+              color="accent"
+              class="align-self-center"
+              type="submit"
+              #regAppBut="monitoredMatButton"
+            >
+              Register
+            </button>
+          </form>
+        </section>
+        <section *ngSwitchDefault>
+          <div class="d-flex flex-row justify-content-around">
+            <a class="registration-mode__applicant" (click)="setRegistrationMode(REGISTRATION_TYPE_APPLICANT)">
+              <h2>New Applicant</h2>
+              <img
+                src="assets/registration-applicant.png"
+                title="Register a New Applicant User"
+                alt="Applicant Registration"
+              />
+            </a>
+            <a class="registration-mode__employer" (click)="setRegistrationMode(REGISTRATION_TYPE_EMPLOYER)">
+              <h2>New Employer</h2>
+              <img
+                src="assets/registration-employer.png"
+                title="Register a New Employer User"
+                alt="Employer Registration"
+              />
+            </a>
+          </div>
+        </section>
+      </ng-container>
+    </mat-expansion-panel>
+  </mat-accordion>
 </div>

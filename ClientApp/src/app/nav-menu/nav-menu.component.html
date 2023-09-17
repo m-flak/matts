@@ -3,7 +3,10 @@
     class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light mat-app-background border-bottom box-shadow mb-3"
   >
     <div class="container">
-      <a class="navbar-brand" [routerLink]="['/']">matts</a>
+      <cmp-branding-container configEntry="navBrandingImage">
+        <a class="navbar-brand" branding-none-default [routerLink]="['/']">Matthew's ATS</a>
+        <img class="navbar-brand" branding-with-brand [routerLink]="['/']" title="Powered by Matthew's ATS" />
+      </cmp-branding-container>
       <button
         class="navbar-toggler"
         type="button"
@@ -21,17 +24,15 @@
         [ngClass]="{ show: isExpanded, 'nav-items__hide': hideNavItems }"
       >
         <ul class="navbar-nav flex-grow">
-          <li
-            class="nav-item"
-            [routerLinkActive]="['link-active']"
-            [routerLinkActiveOptions]="{ exact: true }"
-          >
-            <a class="nav-link text-dark" [routerLink]="['/']"><span class="emphasis">Home &#124; {{this.homeTitle | titlecase }}</span></a>
+          <li class="nav-item" [routerLinkActive]="['link-active']" [routerLinkActiveOptions]="{ exact: true }">
+            <a class="nav-link text-dark" [routerLink]="['/']"
+              ><span class="emphasis">Home &#124; {{this.homeTitle | titlecase }}</span></a
+            >
           </li>
-          <li
-            class="nav-item"
-          >
-            <a class="nav-link text-dark" (click)="performLogout()"><span class="emphasis">Log Out, {{this.homeUser}}</span></a>
+          <li class="nav-item">
+            <a class="nav-link text-dark" (click)="performLogout()"
+              ><span class="emphasis">Log Out, {{this.homeUser}}</span></a
+            >
           </li>
         </ul>
       </div>

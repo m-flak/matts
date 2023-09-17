@@ -2,12 +2,9 @@
 @use '@angular/material' as mat;
 @use 'theming.scss';
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
-
 @include mat.core();
 
-$color-config:    mat.get-color-config(theming.$theme);
+$color-config: mat.get-color-config(theming.$theme);
 $primary-palette: map.get($color-config, 'primary');
 $body-bg-color: mat.get-color-from-palette($primary-palette, main);
 $fg-palette: map.get($color-config, 'foreground');
@@ -15,7 +12,7 @@ $dimmer-color: mat.get-color-from-palette($fg-palette, accent-text);
 
 @include mat.all-component-themes(theming.$theme);
 
-@import "../node_modules/angular-calendar/css/angular-calendar.css";
+@import '../node_modules/angular-calendar/css/angular-calendar.css';
 /* You can add global styles to this file, and also import other style files */
 
 /* Provide sufficient contrast against white background */
@@ -23,8 +20,14 @@ a {
   color: #0366d6;
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+  box-shadow:
+    0 0 0 0.1rem white,
+    0 0 0 0.25rem #258cfb;
 }
 
 code {
@@ -37,12 +40,44 @@ code {
   border-color: #1861ac;
 }
 
+html {
+  overflow: scroll;
+}
+
+html,
+body {
+  height: 100%;
+  position: relative;
+  margin: 0;
+  padding: 0;
+}
+
 body {
   @include theming.body-theme-values;
   background-color: $body-bg-color;
+
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+  overflow: visible;
 }
 
-h1, h2, h3, h4, .mat-expansion-panel-header-title {
+footer.copyright-footer {
+  position: relative;
+  width: 100%;
+  bottom: 0;
+  background-color: theming.$light-background;
+  border: 1px theming.$light-background solid;
+
+  p {
+    text-align: center;
+    font-size: xx-small;
+  }
+}
+
+h1,
+h2,
+h3,
+h4,
+.mat-expansion-panel-header-title {
   font-family: GTAmericaBlack !important;
   text-transform: uppercase !important;
 }
@@ -61,7 +96,8 @@ ngx-loading-bar {
   @include theming.loading-bar-values;
 }
 
-#loading-dimmer, div.loading-dimmer {
+#loading-dimmer,
+div.loading-dimmer {
   z-index: 9001;
   position: absolute;
   width: 100%;
@@ -73,5 +109,44 @@ ngx-loading-bar {
 
   &__inactive {
     display: none;
+  }
+}
+
+// Spinner that shows before Angular app is bootstrapped
+#preLoadSpinner {
+  @include theming.loading-bar-values;
+
+  animation: 2s linear infinite svg-animation;
+  max-width: 100px;
+
+  circle {
+    animation: 1.4s ease-in-out infinite both circle-animation;
+    display: block;
+    fill: transparent;
+    stroke: var(--loading-spinner-10-color);
+    stroke-linecap: round;
+    stroke-dasharray: 283;
+    stroke-dashoffset: 280;
+    stroke-width: 10px;
+    transform-origin: 50% 50%;
+  }
+}
+
+@keyframes svg-animation {
+  0% {
+    transform: rotateZ(0deg);
+  }
+  100% {
+    transform: rotateZ(360deg);
+  }
+}
+
+@keyframes circle-animation {
+  0% {
+    stroke-dashoffset: 75;
+  }
+
+  50% {
+    stroke-dashoffset: 280;
   }
 }

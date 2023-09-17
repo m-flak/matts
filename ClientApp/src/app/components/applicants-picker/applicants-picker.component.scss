@@ -2,28 +2,28 @@
 @use '@angular/material' as mat;
 @use '../../../theming.scss' as theme;
 
-$color-config:    mat.get-color-config(theme.$theme);
+$color-config: mat.get-color-config(theme.$theme);
 $primary-palette: map.get($color-config, 'primary');
 $picker-border-color: mat.get-color-from-palette($primary-palette, main);
 $applicant-hover-color: mat.get-color-from-palette($primary-palette, lighter);
 
 .applicant-container {
-    max-width: 9.375em;
+  max-width: 9.375em;
 }
 
 .applicants-picker {
-    width: fit-content;
-    padding: 0.5rem;
-    border: 3px $picker-border-color solid;
-    border-radius: 1rem;
+  width: fit-content;
+  padding: 0.5rem;
+  border: 3px $picker-border-color solid;
+  border-radius: 1rem;
 }
 
 .no-applicants-msg {
-    white-space: nowrap;
-    margin: 2px;
-    font-size: smaller;
+  white-space: nowrap;
+  margin: 2px;
+  font-size: smaller;
 }
 
 cmp-applicant {
-    cursor: pointer;
+  cursor: pointer;
 }

@@ -5,15 +5,15 @@
 
 // this block copied from: https://github.com/angular/components/blob/main/src/material/button/_icon-button-theme.scss
 @mixin _ripple-color($color) {
-    --mat-mdc-button-persistent-ripple-color: #{$color};
-    --mat-mdc-button-ripple-color: #{rgba($color, 0.1)};
+  --mat-mdc-button-persistent-ripple-color: #{$color};
+  --mat-mdc-button-ripple-color: #{rgba($color, 0.1)};
 }
 @function _variable-safe-contrast-tone($value, $is-dark) {
-    @if ($value == 'dark' or $value == 'light' or type-of($value) == 'color') {
-        @return mdc-theme-color.contrast-tone($value);
-    }
+  @if ($value == 'dark' or $value == 'light' or type-of($value) == 'color') {
+    @return mdc-theme-color.contrast-tone($value);
+  }
 
-    @return if($is-dark, 'light', 'dark');
+  @return if($is-dark, 'light', 'dark');
 }
 $config: mat.get-color-config(theming.$theme);
 $background-palette: map.get($config, background);
@@ -25,12 +25,12 @@ $primary-palette: map.get($config, 'primary');
 $hover-color: mat.get-color-from-palette($primary-palette, lighter);
 
 button {
-    &:not(.mat-button-disabled):hover {
-        background-color: $hover-color;
-    }
+  &:not(.mat-button-disabled):hover {
+    background-color: $hover-color;
+  }
 
-    &.mat-button-disabled {
-        @include _ripple-color($on-surface);
-        background-color: var(--mat-mdc-button-ripple-color);
-    }
+  &.mat-button-disabled {
+    @include _ripple-color($on-surface);
+    background-color: var(--mat-mdc-button-ripple-color);
+  }
 }

@@ -1,20 +1,20 @@
 /* matts
  * "Matthew's ATS" - Portfolio Project
  * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-**/
+ **/
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { HomeApplicantComponent } from './home-applicant.component';
@@ -32,33 +32,36 @@ import { Job } from '../models';
 
 const allJobs: Job[] = [
   {
-      "id": 1,
-      "uuid": "4b4d7c64-ef5d-4379-add3-a3f6adc42f01",
-      "name": "Full Stack Software Developer",
-      "status": "OPEN",
-      "description": "John Doe Corporation is looking for a talented Full Stack Software Developer professional to work in a fast-paced, exciting environment!",
+    'id': 1,
+    'uuid': '4b4d7c64-ef5d-4379-add3-a3f6adc42f01',
+    'name': 'Full Stack Software Developer',
+    'status': 'OPEN',
+    'description':
+      'John Doe Corporation is looking for a talented Full Stack Software Developer professional to work in a fast-paced, exciting environment!',
   },
   {
-      "id": 2,
-      "uuid": "eab3e2e8-f5a1-41c1-aa1d-1ad7eb6f3a96",
-      "name": "Junior HR",
-      "status": "OPEN",
-      "description": "John Doe Corporation is looking for a talented Junior HR professional to work in a fast-paced, exciting environment!",
-  }
+    'id': 2,
+    'uuid': 'eab3e2e8-f5a1-41c1-aa1d-1ad7eb6f3a96',
+    'name': 'Junior HR',
+    'status': 'OPEN',
+    'description':
+      'John Doe Corporation is looking for a talented Junior HR professional to work in a fast-paced, exciting environment!',
+  },
 ];
 const appliedJobs: Job[] = [
   {
-      "id": 1,
-      "uuid": "4b4d7c64-ef5d-4379-add3-a3f6adc42f01",
-      "name": "Full Stack Software Developer",
-      "status": "OPEN",
-      "description": "John Doe Corporation is looking for a talented Full Stack Software Developer professional to work in a fast-paced, exciting environment!",
-  }
+    'id': 1,
+    'uuid': '4b4d7c64-ef5d-4379-add3-a3f6adc42f01',
+    'name': 'Full Stack Software Developer',
+    'status': 'OPEN',
+    'description':
+      'John Doe Corporation is looking for a talented Full Stack Software Developer professional to work in a fast-paced, exciting environment!',
+  },
 ];
 
 const FakeBackendService = {
   getAllAppliedJobs: (applicantId: string) => of(appliedJobs),
-  getAllJobs: () => of(allJobs)
+  getAllJobs: () => of(allJobs),
 };
 
 describe('HomeApplicantComponent', () => {
@@ -68,22 +71,27 @@ describe('HomeApplicantComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ HttpClientModule, HttpClientTestingModule, ComponentsModule, MatCardModule, RouterTestingModule.withRoutes([]) ],
-      declarations: [ HomeApplicantComponent ],
+      imports: [
+        HttpClientModule,
+        HttpClientTestingModule,
+        ComponentsModule,
+        MatCardModule,
+        RouterTestingModule.withRoutes([]),
+      ],
+      declarations: [HomeApplicantComponent],
       providers: [
-        { 
-          provide: 'BASE_URL', 
-          useValue: 'https://localhost/' 
+        {
+          provide: 'BASE_URL',
+          useValue: 'https://localhost/',
         },
         { provide: BackendService, useValue: FakeBackendService },
         {
           provide: JWT_OPTIONS,
-          useValue: jwtOptionsFactory('https://localhost/')
+          useValue: jwtOptionsFactory('https://localhost/'),
         },
-        JwtHelperService
-      ]
-    })
-    .compileComponents();
+        JwtHelperService,
+      ],
+    }).compileComponents();
 
     service = TestBed.inject(BackendService);
 

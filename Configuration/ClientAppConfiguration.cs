@@ -24,7 +24,23 @@ public sealed class ClientAppExternalApis
     public string? ResumeUploadApiKey { get; set; }
 }
 
+public sealed class ClientAppBranding
+{
+    public Uri? NavBrandingImage { get; set; }
+}
+
+public sealed class ClientAppResumeUploader
+{
+    public long? MaxFileSize { get; set; }
+    // Controls the uploader
+    public string? AllowedFileTypes { get; set; }
+    // Controls what the user sees. Purely informational.
+    public string? AllowedFileExtensions { get; set; }
+}
+
 public sealed class ClientAppConfiguration
 {
     public ClientAppExternalApis? ExternalApis { get; set; }
+    public ClientAppBranding? Branding { get; set; }
+    public ClientAppResumeUploader? ResumeUploader  { get; set; }
 }

@@ -3,70 +3,73 @@
 @use '../../../styles/layouts.scss';
 @use '../../../../theming.scss' as theme;
 
-$color-config:    mat.get-color-config(theme.$theme);
+$color-config: mat.get-color-config(theme.$theme);
 $primary-palette: map.get($color-config, 'primary');
 $applicant-name-color: mat.get-color-from-palette($primary-palette, main);
 $applicant-hover-color: mat.get-color-from-palette($primary-palette, lighter);
 
 .applicant {
-    @include layouts.flex(true);
+  @include layouts.flex(true);
 
-    .applicant-name, .applicant-photo {
-        align-self: center;
-    }
+  .applicant-name,
+  .applicant-photo {
+    align-self: center;
+  }
 
-    &:hover {
-        background-color: $applicant-hover-color;
-    }
+  &:hover {
+    background-color: $applicant-hover-color;
+  }
 
-    height: 100%;
+  height: 100%;
 }
 
-.applicant-photo, .rejected-applicant {
-    width: 4.0em;
-    height: 4.0em;
-    border-radius: 50%;
+.applicant-photo,
+.rejected-applicant {
+  width: 4em;
+  height: 4em;
+  border-radius: 50%;
 }
 
 .applicant-wrapper {
-    position: relative;
-    flex-grow: 0.8;
-    height: 4.0em;
-    width: 4.0em;
+  position: relative;
+  flex-grow: 0.8;
+  height: 4em;
+  width: 4em;
 }
 
 .applicant-photo {
-    border: 3px $applicant-name-color double;
-    z-index: 50;
+  border: 3px $applicant-name-color double;
+  z-index: 50;
 }
 
 .rejected-applicant {
-    z-index: 100;
+  z-index: 100;
 
-    &, & ~ .applicant-photo {
-        position: absolute;
-        top: 0;
-        left: 0;
-    }
+  &,
+  & ~ .applicant-photo {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
 }
 
 .interviewing-applicant {
-    position: absolute;
-    z-index: 100;
-    top: 1px;
-    right: 0;
+  position: absolute;
+  z-index: 100;
+  top: 1px;
+  right: 0;
 
-    width: 1.5em;
-    height: 1.5em;
+  width: 1.5em;
+  height: 1.5em;
 
-    &__other {
-        @extend .interviewing-applicant;
-        filter: hue-rotate(-222deg) invert(99%);
-    }
+  &__other {
+    @extend .interviewing-applicant;
+    filter: hue-rotate(-222deg) invert(99%);
+  }
 }
 
 span.applicant-name {
-    font-family: GTAmericaRegular !important;
-    color: $applicant-name-color;
-    text-align: center;
+  font-family: GTAmericaRegular !important;
+  color: $applicant-name-color;
+  text-align: center;
 }

@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-nav-menu',
   templateUrl: './nav-menu.component.html',
-  styleUrls: ['./nav-menu.component.scss']
+  styleUrls: ['./nav-menu.component.scss'],
 })
 export class NavMenuComponent implements OnInit {
   homeTitle: string = '';
@@ -15,7 +15,10 @@ export class NavMenuComponent implements OnInit {
   @Input()
   hideNavItems = false;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+  ) {}
 
   ngOnInit(): void {
     this.homeTitle = this.authService.currentUser?.role ?? '';

@@ -2,31 +2,46 @@ import { Component, Injectable, OnDestroy, OnInit } from '@angular/core';
 import { BackendService } from '../services/backend.service';
 import { Job } from '../models';
 import { catchError, Observable, of, Subscription, throwError } from 'rxjs';
-import { ActivatedRoute, ActivatedRouteSnapshot, NavigationBehaviorOptions, Resolve, Router, RouterStateSnapshot, UrlSegment } from '@angular/router';
+import {
+  ActivatedRoute,
+  ActivatedRouteSnapshot,
+  NavigationBehaviorOptions,
+  Resolve,
+  Router,
+  RouterStateSnapshot,
+  UrlSegment,
+} from '@angular/router';
 import { ToastService } from '../services/toast.service';
 import { JobPageDataService } from '../services/job-page-data.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class HomeComponentResolver implements Resolve<Observable<Job[]>> {
-  constructor(private backendService: BackendService, private toastService: ToastService) {}
+  constructor(
+    private backendService: BackendService,
+    private toastService: ToastService,
+  ) {}
 
   resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<Job[]> {
     return this.backendService.getAllJobs().pipe(
       catchError((e: Error) => {
         console.error(e?.message);
-        this.toastService.show('An error ocurred, or the system might be unavailable. Please try again.', { classname: 'bg-danger text-light', delay: 15000, ariaLive: 'assertive' });
+        this.toastService.show('An error ocurred, or the system might be unavailable. Please try again.', {
+          classname: 'bg-danger text-light',
+          delay: 15000,
+          ariaLive: 'assertive',
+        });
         return of([] as Job[]);
-      })
-    )
+      }),
+    );
   }
 }
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss']
+  styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent implements OnInit, OnDestroy {
   readonly ITEM_JOBLIST = 'joblist';
@@ -40,12 +55,16 @@ export class HomeComponent implements OnInit, OnDestroy {
   currentSelectedToolbarItem = this.ITEM_JOBLIST;
   showDetailCardMsg = true;
 
-  initialActivate = (_: any) => this.showDetailCardMsg = false;
+  initialActivate = (_: any) => (this.showDetailCardMsg = false);
   // when clicking the home link, reshow the msg
-  deactivate = (_: any) => this.showDetailCardMsg = true;
+  deactivate = (_: any) => (this.showDetailCardMsg = true);
 
-  constructor(private backendService: BackendService, private router: Router, private route: ActivatedRoute, private jobPageDataService: JobPageDataService) {
-  }
+  constructor(
+    private backendService: BackendService,
+    private router: Router,
+    private route: ActivatedRoute,
+    private jobPageDataService: JobPageDataService,
+  ) {}
 
   ngOnDestroy(): void {
     if (this._jobSubscription !== null) {
@@ -57,7 +76,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.jobs = [ ...this.route.snapshot.data.jobList ];
+    this.jobs = [...this.route.snapshot.data.jobList];
     this._jobSubscription2 = this.jobPageDataService.jobUpdatedSubject.subscribe(() => {
       this.onJobUpdated();
     });
@@ -69,10 +88,10 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   onJobCreated(): void {
     if (this.router.url.includes('/viewJob/')) {
-      this.router.navigateByUrl('/', { skipLocationChange: true })
-        .then(() => this.router.navigate(['employer'], { relativeTo: this.route.root, }));
-    }
-    else {
+      this.router
+        .navigateByUrl('/', { skipLocationChange: true })
+        .then(() => this.router.navigate(['employer'], { relativeTo: this.route.root }));
+    } else {
       this.currentSelectedToolbarItem = this.ITEM_JOBLIST;
     }
   }

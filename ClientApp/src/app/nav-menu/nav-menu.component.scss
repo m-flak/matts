@@ -15,6 +15,11 @@ a.navbar-brand {
   word-break: break-all;
 }
 
+img.navbar-brand {
+  max-height: 50px;
+  cursor: pointer;
+}
+
 html {
   font-size: 14px;
 }
@@ -25,7 +30,7 @@ html {
 }
 
 .box-shadow {
-  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05);
 }
 
 header {
@@ -41,11 +46,13 @@ li.nav-item {
   }
 }
 
-a.navbar-brand, a.nav-link {
+a.navbar-brand,
+a.nav-link {
   font-family: GTAmericaMedium !important;
 }
 
-div.nav-items, button.nav-items {
+div.nav-items,
+button.nav-items {
   &__hide {
     display: none !important;
   }

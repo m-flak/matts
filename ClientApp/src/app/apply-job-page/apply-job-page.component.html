@@ -1,47 +1,60 @@
 <article class="selected-job">
-    <ng-container *ngIf="this.currentJob !== null; else loading">
-        <div class="d-flex justify-content-between job-page-header">
-            <h1>{{ this.currentJob.name }}</h1>
-        </div>
-        <div class="d-flex flex-column">
-            <div class="job-description-body">
-                <h3>Job Description:</h3>
-                <p>{{ this.currentJob.description }}</p>
-            </div>
-            <div class="apply-to-job-section">
-                <h3>Apply to this job:</h3>
-                <ng-container *ngIf="this.currentJob?.hasAppliedTo !== true">
-                    <p class="have-not-applied">Click <span class="emphasis">Apply Now</span> to apply for this position. Your account information will be used to generate your application to the employer.</p>
-                    <form [formGroup]="applyToJobForm" class="d-flex flex-column justify-content-center" (ngSubmit)="applyToJob()">
-                        <mat-form-field>
-                            <ngx-mat-file-input 
-                                formControlName="resumeFile" 
-                                placeholder="Upload a copy of your resume..." 
-                                valuePlaceholder="No file selected" 
-                                required>
-                            </ngx-mat-file-input>
-                            <mat-icon matSuffix>folder</mat-icon>
-                            <mat-error *ngIf="applyToJobForm.get('resumeFile')?.hasError('required')">
-                                Please upload a copy of your resume...
-                            </mat-error>
-                        </mat-form-field>
-                        <button mat-flat-button color="accent" type="submit">
-                            <ng-content *ngIf="uploadStarted; then uploading else not_uploading"></ng-content>
-                            <ng-template #uploading>{{ uploadingMsg }}</ng-template>
-                            <ng-template #not_uploading>Apply Now</ng-template>
-                        </button>
-                    </form>
-                </ng-container>
-                <ng-container *ngIf="this.currentJob?.hasAppliedTo === true">
-                    <p class="have-applied">You have already applied to this job.</p>
-                    <div class="d-flex flex-column justify-content-center">
-                        <button mat-flat-button color="accent" [disabled]="true">Apply Now</button>
-                    </div>
-                </ng-container>
-            </div>
-        </div>
-    </ng-container>
-    <ng-template #loading>
-        <h1>Loading...</h1>
-    </ng-template>
+  <ng-container *ngIf="this.currentJob !== null; else loading">
+    <div class="d-flex justify-content-between job-page-header">
+      <h1>{{ this.currentJob.name }}</h1>
+    </div>
+    <div class="d-flex flex-column">
+      <div class="job-description-body">
+        <h3>Job Description:</h3>
+        <p>{{ this.currentJob.description }}</p>
+      </div>
+      <div class="apply-to-job-section">
+        <h3>Apply to this job:</h3>
+        <ng-container *ngIf="this.currentJob?.hasAppliedTo !== true">
+          <p class="have-not-applied">
+            Click <span class="emphasis">Apply Now</span> to apply for this position. Your account information will be
+            used to generate your application to the employer.
+          </p>
+          <form
+            [formGroup]="applyToJobForm"
+            class="d-flex flex-column justify-content-center"
+            (ngSubmit)="applyToJob()"
+          >
+            <h4>Your Resume:</h4>
+            <mat-form-field>
+              <ngx-mat-file-input
+                formControlName="resumeFile"
+                placeholder="Upload a copy of your resume..."
+                valuePlaceholder="No file selected"
+                [accept]="this.allowedFileTypes"
+                required
+              >
+              </ngx-mat-file-input>
+              <mat-icon matSuffix>folder</mat-icon>
+              <mat-error *ngIf="applyToJobForm.get('resumeFile')?.hasError('required')">
+                Please upload a copy of your resume...
+              </mat-error>
+              <mat-hint>
+                File Size Limit: {{ this.maxFileSize | byteFormat }}, Allowed Types: {{ this.allowedFileExtensions }}
+              </mat-hint>
+            </mat-form-field>
+            <button mat-flat-button color="accent" type="submit">
+              <ng-content *ngIf="uploadStarted; then uploading else not_uploading"></ng-content>
+              <ng-template #uploading>{{ uploadingMsg }}</ng-template>
+              <ng-template #not_uploading>Apply Now</ng-template>
+            </button>
+          </form>
+        </ng-container>
+        <ng-container *ngIf="this.currentJob?.hasAppliedTo === true">
+          <p class="have-applied">You have already applied to this job.</p>
+          <div class="d-flex flex-column justify-content-center">
+            <button mat-flat-button color="accent" [disabled]="true">Apply Now</button>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </ng-container>
+  <ng-template #loading>
+    <h1>Loading...</h1>
+  </ng-template>
 </article>

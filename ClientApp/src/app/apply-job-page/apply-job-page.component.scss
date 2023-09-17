@@ -9,3 +9,7 @@
 @include job.job-page-header;
 @include job.job-page-footer;
 @include job.job-desc-body;
+
+form * {
+  margin: 0.5em 0 0.5em 0;
+}
