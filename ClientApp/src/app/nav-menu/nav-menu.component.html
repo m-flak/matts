@@ -3,7 +3,10 @@
     class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light mat-app-background border-bottom box-shadow mb-3"
   >
     <div class="container">
-      <a class="navbar-brand" [routerLink]="['/']">matts</a>
+      <cmp-branding-container configEntry="navBrandingImage">
+        <a class="navbar-brand" branding-none-default [routerLink]="['/']">Matthew's ATS</a>
+        <img class="navbar-brand" branding-with-brand [routerLink]="['/']" title="Powered by Matthew's ATS" />
+      </cmp-branding-container>
       <button
         class="navbar-toggler"
         type="button"

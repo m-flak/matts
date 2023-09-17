@@ -13,6 +13,8 @@ import { EmployerToolbarComponent } from '../components/employer-toolbar/employe
 import { ToastsContainerComponent } from './toasts-container/toasts-container.component';
 import { MatIconLinkDirective } from './mat-icon-link/mat-icon-link.directive';
 import { MonitoredMatButtonDirective } from './monitored-component/monitored-mat-button.directive';
+import { BrandingContainerComponent } from '../components/branding-container/branding-container.component';
+import { BrandingNoneDefaultDirective, BrandingWithBrandDirective } from './branding-container/branding.directives';
 
 @NgModule({
   declarations: [
@@ -22,7 +24,10 @@ import { MonitoredMatButtonDirective } from './monitored-component/monitored-mat
     EmployerToolbarComponent,
     ToastsContainerComponent,
     MatIconLinkDirective,
-    MonitoredMatButtonDirective
+    MonitoredMatButtonDirective,
+    BrandingContainerComponent,
+    BrandingWithBrandDirective,
+    BrandingNoneDefaultDirective
   ],
   imports: [
     CommonModule,
@@ -38,7 +43,10 @@ import { MonitoredMatButtonDirective } from './monitored-component/monitored-mat
     EmployerToolbarComponent,
     ToastsContainerComponent,
     MatIconLinkDirective,
-    MonitoredMatButtonDirective
+    MonitoredMatButtonDirective,
+    BrandingContainerComponent,
+    BrandingWithBrandDirective,
+    BrandingNoneDefaultDirective
   ]
 })
 export class ComponentsModule { 

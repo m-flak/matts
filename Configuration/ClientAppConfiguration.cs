@@ -24,7 +24,13 @@ public sealed class ClientAppExternalApis
     public string? ResumeUploadApiKey { get; set; }
 }
 
+public sealed class ClientAppBranding
+{
+    public Uri? NavBrandingImage { get; set; }
+}
+
 public sealed class ClientAppConfiguration
 {
     public ClientAppExternalApis? ExternalApis { get; set; }
+    public ClientAppBranding? Branding { get; set; }
 }

@@ -16,7 +16,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 
-export interface Configuration {
-    externalApis: { [propName: string]: string; };
-    branding: { [propName: string]: string; };
+import { Directive, ElementRef, Inject } from "@angular/core";
+
+@Directive({
+    selector: '[branding-with-brand]'
+})
+export class BrandingWithBrandDirective {
+    constructor(
+        @Inject(ElementRef) private element: ElementRef
+    ) {}
+
+    setupBrand(value: string) {
+        let tag: string = this.element.nativeElement.tagName ?? '';
+        tag = tag.toLowerCase();
+
+        if (tag.length > 0) {
+            if (tag === 'img') {
+                this.element.nativeElement.setAttribute('src', value);
+            }
+            else {
+                this.element.nativeElement.innerText = value;
+            }
+        }
+    }
+}
+
+@Directive({
+    selector: '[branding-none-default]'
+})
+export class BrandingNoneDefaultDirective {
+    constructor() {}
 }
