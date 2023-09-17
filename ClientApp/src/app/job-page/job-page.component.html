@@ -1,155 +1,242 @@
 <ng-template #confirmationModal let-modal>
-	<div class="modal-header">
-		<h4 class="modal-title" id="modal-basic-title">Confirm Interview</h4>
-		<button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('cancel')"></button>
-	</div>
-	<div class="modal-body">
-        <p>Please pick a time for the interview with <span class="emphasis">{{ this.currentApplicant?.name }}</span> on <span class="emphasis">{{ viewDate | date:'longDate' }}</span>.</p>
-        <br/>
-        <ngx-timepicker-field [controlOnly]="true" (timeChanged)="this.chosenInterviewTimeString = $event"></ngx-timepicker-field>
-    </div>
-    <div class="modal-footer">
-        <button type="button" class="btn btn-outline-dark" (click)="modal.close('no')">Cancel</button>
-        <button 
-            type="button" 
-            [ngClass]="{ 'btn': true, 'btn-success': this.chosenInterviewTimeString !== '', 'btn-outline-secondary': this.chosenInterviewTimeString === '' }" 
-            (click)="modal.close('yes')" 
-            [disabled]="this.chosenInterviewTimeString === ''">
-                Schedule
-        </button>
-    </div>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Confirm Interview</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('cancel')"></button>
+  </div>
+  <div class="modal-body">
+    <p>
+      Please pick a time for the interview with <span class="emphasis">{{ this.currentApplicant?.name }}</span> on
+      <span class="emphasis">{{ viewDate | date:'longDate' }}</span
+      >.
+    </p>
+    <br />
+    <ngx-timepicker-field
+      [controlOnly]="true"
+      (timeChanged)="this.chosenInterviewTimeString = $event"
+    ></ngx-timepicker-field>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="modal.close('no')">Cancel</button>
+    <button
+      type="button"
+      [ngClass]="{ 'btn': true, 'btn-success': this.chosenInterviewTimeString !== '', 'btn-outline-secondary': this.chosenInterviewTimeString === '' }"
+      (click)="modal.close('yes')"
+      [disabled]="this.chosenInterviewTimeString === ''"
+    >
+      Schedule
+    </button>
+  </div>
 </ng-template>
 <article class="selected-job">
-    <ng-container *ngIf="this.currentJob !== null; else loading">
-        <ngb-alert *ngIf="changesMadeToJob === true" type="warning" [dismissible]="false">
-            <div class="d-flex justify-content-between">
-                <span class="emphasis italicized">Changes to this job won't be saved until clicking SAVE.</span><button (click)="persistChanges()" mat-stroked-button>Save</button>
+  <ng-container *ngIf="this.currentJob !== null; else loading">
+    <ngb-alert *ngIf="changesMadeToJob === true" type="warning" [dismissible]="false">
+      <div class="d-flex justify-content-between">
+        <span class="emphasis italicized">Changes to this job won't be saved until clicking SAVE.</span
+        ><button (click)="persistChanges()" mat-stroked-button>Save</button>
+      </div>
+    </ngb-alert>
+    <div class="d-flex justify-content-between job-page-header">
+      <h1>{{ this.currentJob.name }}</h1>
+      <span [ngClass]="['job-status', this.currentJob.status?.toLowerCase()]">{{ this.currentJob.status }}</span>
+      <ng-container *ngIf="this.currentApplicant !== null">
+        <button
+          mat-mini-fab
+          color="accent"
+          aria-label="Go back to job description"
+          title="Go back to job description"
+          (click)="clearCurrentApplicant(); setMode(MODE_JOB_DETAILS)"
+        >
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+      </ng-container>
+    </div>
+    <div class="d-flex flex-column job-page-body">
+      <div class="job-page-body-contents">
+        <ng-container *ngIf="this.mode === MODE_JOB_DETAILS">
+          <cmp-applicants-picker
+            [activeEmployerUuid]="this.activeEmployerUuid"
+            [applicants]="this.currentJob.applicants ?? []"
+            (applicantPicked)="onPickApplicant($event)"
+          >
+          </cmp-applicants-picker>
+          <div *ngIf="this.currentApplicant === null" class="job-description-body">
+            <h3>Job Description:</h3>
+            <p>{{ this.currentJob.description }}</p>
+          </div>
+          <div
+            *ngIf="this.currentApplicant !== null && _hasInterview(this.currentApplicant) === false"
+            class="selected-job-applicant-details"
+          >
+            <h2>{{ this.currentApplicant.name }}</h2>
+            <div class="applicant-info-container">
+              <mat-form-field>
+                <mat-label>Email</mat-label>
+                <input
+                  type="email"
+                  matInput
+                  [readonly]="true"
+                  [value]="this.currentApplicant.email"
+                  #email="matInput"
+                />
+                <mat-icon matSuffix [cmpMatIconLink]="email.type" [inputRef]="email"></mat-icon>
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Phone Number</mat-label>
+                <input
+                  type="tel"
+                  matInput
+                  [readonly]="true"
+                  [value]="this.currentApplicant.phoneNumber"
+                  #telephone="matInput"
+                />
+                <mat-icon matSuffix [cmpMatIconLink]="telephone.type" [inputRef]="telephone"></mat-icon>
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Resume</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  [readonly]="true"
+                  value="{{this.currentApplicant.name | resumeName}}"
+                  #resume="matInput"
+                />
+                <mat-icon
+                  matSuffix
+                  cmpMatIconLink="resume"
+                  [resumeDownloadHref]="_makeResumeDownloadLink()"
+                  [inputRef]="resume"
+                ></mat-icon>
+              </mat-form-field>
             </div>
-        </ngb-alert>
-        <div class="d-flex justify-content-between job-page-header">
-            <h1>{{ this.currentJob.name }}</h1>
-            <span [ngClass]="['job-status', this.currentJob.status?.toLowerCase()]">{{ this.currentJob.status }}</span>
-            <ng-container *ngIf="this.currentApplicant !== null">
-                <button mat-mini-fab color="accent" aria-label="Go back to job description" title="Go back to job description" (click)="clearCurrentApplicant(); setMode(MODE_JOB_DETAILS)">
-                    <mat-icon>arrow_back</mat-icon>
-                </button>
-            </ng-container>
+            <div class="btn-group action-buttons">
+              <button mat-flat-button color="accent" (click)="setMode(MODE_INTERVIEW)">Schedule Interview</button>
+              <button
+                *ngIf="this.currentApplicant?.rejected !== true"
+                mat-flat-button
+                color="warn"
+                (click)="rejectApplicant(this.currentApplicant)"
+              >
+                Reject
+              </button>
+              <button
+                *ngIf="this.currentApplicant?.rejected === true"
+                mat-stroked-button
+                color="warn"
+                (click)="unrejectApplicant(this.currentApplicant)"
+              >
+                Don't Reject
+              </button>
+            </div>
+          </div>
+          <div
+            *ngIf="this.currentApplicant !== null && _hasInterview(this.currentApplicant) === true"
+            class="selected-job-applicant-details-with-interview"
+          >
+            <h2>{{ this.currentApplicant.name }}</h2>
+            <p>
+              <span class="emphasis">{{ this.currentApplicant.name }}</span> has an interview on
+              <span class="emphasis">{{ this.currentApplicant.interviewDate | date:'longDate' }}</span
+              >.
+            </p>
+            <div class="applicant-info-container">
+              <mat-form-field>
+                <mat-label>Email</mat-label>
+                <input
+                  type="email"
+                  matInput
+                  [readonly]="true"
+                  [value]="this.currentApplicant.email"
+                  #email2="matInput"
+                />
+                <mat-icon matSuffix [cmpMatIconLink]="email2.type" [inputRef]="email2"></mat-icon>
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Phone Number</mat-label>
+                <input
+                  type="tel"
+                  matInput
+                  [readonly]="true"
+                  [value]="this.currentApplicant.phoneNumber"
+                  #telephone2="matInput"
+                />
+                <mat-icon matSuffix [cmpMatIconLink]="telephone2.type" [inputRef]="telephone2"></mat-icon>
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Resume</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  [readonly]="true"
+                  value="{{this.currentApplicant.name | resumeName}}"
+                  #resume2="matInput"
+                />
+                <mat-icon
+                  matSuffix
+                  cmpMatIconLink="resume"
+                  [resumeDownloadHref]="_makeResumeDownloadLink()"
+                  [inputRef]="resume2"
+                ></mat-icon>
+              </mat-form-field>
+            </div>
+            <div class="btn-group action-buttons">
+              <button mat-flat-button color="accent" (click)="onDownloadICS()">Download ICS</button>
+              <button mat-flat-button color="warn" (click)="cancelInterview(this.currentApplicant)">
+                Cancel Interview
+              </button>
+            </div>
+          </div>
+        </ng-container>
+        <ng-container *ngIf="this.mode == MODE_INTERVIEW">
+          <h2>Schedule Interview: {{ this.currentApplicant?.name }}</h2>
+          <div class="calendar-container">
+            <div class="row text-center">
+              <div class="col">
+                <h3>{{ viewDate | date:'longDate' }}</h3>
+              </div>
+            </div>
+            <mwl-calendar-month-view [viewDate]="viewDate" [events]="events" (dayClicked)="onDayClicked($event)">
+            </mwl-calendar-month-view>
+          </div>
+          <div class="btn-group action-buttons">
+            <button mat-flat-button color="accent" (click)="confirmInterview()">Schedule Interview</button>
+            <button mat-flat-button color="primary" (click)="setMode(MODE_JOB_DETAILS)">Back</button>
+          </div>
+        </ng-container>
+      </div>
+      <div class="job-page-body-footer">
+        <div class="btn-group action-buttons">
+          <button
+            type="button"
+            [ngClass]="{'btn': true, 'btn-info': this.currentJob.status !== _jobStatusConstants.STATUS_FILLED, 'btn-outline-info': this.currentJob.status === _jobStatusConstants.STATUS_FILLED }"
+            [disabled]="this.currentJob.status === _jobStatusConstants.STATUS_FILLED"
+            (click)="setCurrentJobStatus(_jobStatusConstants.STATUS_FILLED)"
+            title="Update the current job's status to FILLED."
+          >
+            Fill Job
+          </button>
+          <button
+            type="button"
+            [ngClass]="{'btn': true, 'btn-success': this.currentJob.status !== _jobStatusConstants.STATUS_OPEN, 'btn-outline-success': this.currentJob.status === _jobStatusConstants.STATUS_OPEN }"
+            [disabled]="this.currentJob.status === _jobStatusConstants.STATUS_OPEN"
+            (click)="setCurrentJobStatus(_jobStatusConstants.STATUS_OPEN)"
+            title="Update the current job's status to OPEN."
+          >
+            Open Job
+          </button>
+          <button
+            type="button"
+            [ngClass]="{'btn': true, 'btn-danger': this.currentJob.status !== _jobStatusConstants.STATUS_CLOSED, 'btn-outline-danger': this.currentJob.status === _jobStatusConstants.STATUS_CLOSED }"
+            [disabled]="this.currentJob.status === _jobStatusConstants.STATUS_CLOSED"
+            (click)="setCurrentJobStatus(_jobStatusConstants.STATUS_CLOSED)"
+            title="Update the current job's status to CLOSED."
+          >
+            Close Job
+          </button>
         </div>
-        <div class="d-flex flex-column job-page-body">
-            <div class="job-page-body-contents">
-                <ng-container *ngIf="this.mode === MODE_JOB_DETAILS">
-                    <cmp-applicants-picker
-                        [activeEmployerUuid]="this.activeEmployerUuid"
-                        [applicants]="this.currentJob.applicants ?? []" 
-                        (applicantPicked)="onPickApplicant($event)">
-                    </cmp-applicants-picker>
-                    <div *ngIf="this.currentApplicant === null" class="job-description-body">
-                        <h3>Job Description:</h3>
-                        <p>{{ this.currentJob.description }}</p>
-                    </div>
-                    <div *ngIf="this.currentApplicant !== null && _hasInterview(this.currentApplicant) === false" class="selected-job-applicant-details">
-                        <h2>{{ this.currentApplicant.name }}</h2>
-                        <div class="applicant-info-container">
-                            <mat-form-field>
-                                <mat-label>Email</mat-label>
-                                <input type="email" matInput [readonly]="true" [value]="this.currentApplicant.email" #email="matInput" />
-                                <mat-icon matSuffix [cmpMatIconLink]="email.type" [inputRef]="email"></mat-icon>
-                            </mat-form-field>
-                            <mat-form-field>
-                                <mat-label>Phone Number</mat-label>
-                                <input type="tel" matInput [readonly]="true" [value]="this.currentApplicant.phoneNumber" #telephone="matInput" />
-                                <mat-icon matSuffix [cmpMatIconLink]="telephone.type" [inputRef]="telephone"></mat-icon>
-                            </mat-form-field>
-                            <mat-form-field>
-                                <mat-label>Resume</mat-label>
-                                <input type="text" matInput [readonly]="true" value="{{this.currentApplicant.name | resumeName}}" #resume="matInput"/>
-                                <mat-icon matSuffix cmpMatIconLink="resume" [resumeDownloadHref]="_makeResumeDownloadLink()" [inputRef]="resume"></mat-icon>
-                            </mat-form-field>
-                        </div>
-                        <div class="btn-group action-buttons">
-                            <button mat-flat-button color="accent" (click)="setMode(MODE_INTERVIEW)">Schedule Interview</button>
-                            <button *ngIf="this.currentApplicant?.rejected !== true" mat-flat-button color="warn" (click)="rejectApplicant(this.currentApplicant)">Reject</button>
-                            <button *ngIf="this.currentApplicant?.rejected === true" mat-stroked-button color="warn" (click)="unrejectApplicant(this.currentApplicant)">Don't Reject</button>
-                        </div>
-                    </div>
-                    <div *ngIf="this.currentApplicant !== null && _hasInterview(this.currentApplicant) === true" class="selected-job-applicant-details-with-interview">
-                        <h2>{{ this.currentApplicant.name }}</h2>
-                        <p><span class="emphasis">{{ this.currentApplicant.name }}</span> has an interview on <span class="emphasis">{{ this.currentApplicant.interviewDate | date:'longDate' }}</span>.</p>
-                        <div class="applicant-info-container">
-                            <mat-form-field>
-                                <mat-label>Email</mat-label>
-                                <input type="email" matInput [readonly]="true" [value]="this.currentApplicant.email" #email2="matInput" />
-                                <mat-icon matSuffix [cmpMatIconLink]="email2.type" [inputRef]="email2"></mat-icon>
-                            </mat-form-field>
-                            <mat-form-field>
-                                <mat-label>Phone Number</mat-label>
-                                <input type="tel" matInput [readonly]="true" [value]="this.currentApplicant.phoneNumber" #telephone2="matInput" />
-                                <mat-icon matSuffix [cmpMatIconLink]="telephone2.type" [inputRef]="telephone2"></mat-icon>
-                            </mat-form-field>
-                            <mat-form-field>
-                                <mat-label>Resume</mat-label>
-                                <input type="text" matInput [readonly]="true" value="{{this.currentApplicant.name | resumeName}}" #resume2="matInput"/>
-                                <mat-icon matSuffix cmpMatIconLink="resume" [resumeDownloadHref]="_makeResumeDownloadLink()" [inputRef]="resume2"></mat-icon>
-                            </mat-form-field>
-                        </div>
-                        <div class="btn-group action-buttons">
-                            <button mat-flat-button color="accent" (click)="onDownloadICS()">Download ICS</button>
-                            <button mat-flat-button color="warn" (click)="cancelInterview(this.currentApplicant)">Cancel Interview</button>
-                        </div>
-                    </div>
-                </ng-container>
-                <ng-container *ngIf="this.mode == MODE_INTERVIEW">
-                    <h2>Schedule Interview: {{ this.currentApplicant?.name }}</h2>
-                    <div class="calendar-container">
-                        <div class="row text-center">
-                            <div class="col">
-                                <h3>{{ viewDate | date:'longDate' }}</h3>
-                            </div>
-                        </div>
-                        <mwl-calendar-month-view
-                            [viewDate]="viewDate"
-                            [events]="events"
-                            (dayClicked)="onDayClicked($event)"
-                        >
-                        </mwl-calendar-month-view>
-                    </div>
-                    <div class="btn-group action-buttons">
-                        <button mat-flat-button color="accent" (click)="confirmInterview()">Schedule Interview</button>
-                        <button mat-flat-button color="primary" (click)="setMode(MODE_JOB_DETAILS)">Back</button>
-                    </div>
-                </ng-container>
-            </div>
-            <div class="job-page-body-footer">
-                <div class="btn-group action-buttons">
-                    <button
-                        type="button" 
-                        [ngClass]="{'btn': true, 'btn-info': this.currentJob.status !== _jobStatusConstants.STATUS_FILLED, 'btn-outline-info': this.currentJob.status === _jobStatusConstants.STATUS_FILLED }"
-                        [disabled]="this.currentJob.status === _jobStatusConstants.STATUS_FILLED"
-                        (click)="setCurrentJobStatus(_jobStatusConstants.STATUS_FILLED)"
-                        title="Update the current job's status to FILLED.">
-                        Fill Job
-                    </button>
-                    <button 
-                        type="button"
-                        [ngClass]="{'btn': true, 'btn-success': this.currentJob.status !== _jobStatusConstants.STATUS_OPEN, 'btn-outline-success': this.currentJob.status === _jobStatusConstants.STATUS_OPEN }"
-                        [disabled]="this.currentJob.status === _jobStatusConstants.STATUS_OPEN"
-                        (click)="setCurrentJobStatus(_jobStatusConstants.STATUS_OPEN)"
-                        title="Update the current job's status to OPEN.">
-                        Open Job
-                    </button>
-                    <button 
-                        type="button" 
-                        [ngClass]="{'btn': true, 'btn-danger': this.currentJob.status !== _jobStatusConstants.STATUS_CLOSED, 'btn-outline-danger': this.currentJob.status === _jobStatusConstants.STATUS_CLOSED }"
-                        [disabled]="this.currentJob.status === _jobStatusConstants.STATUS_CLOSED"
-                        (click)="setCurrentJobStatus(_jobStatusConstants.STATUS_CLOSED)"
-                        title="Update the current job's status to CLOSED.">
-                        Close Job
-                    </button>
-                </div>
-            </div>
-        </div>
-    </ng-container>
-    <ng-template #loading>
-        <h1>Loading...</h1>
-    </ng-template>
+      </div>
+    </div>
+  </ng-container>
+  <ng-template #loading>
+    <h1>Loading...</h1>
+  </ng-template>
 </article>

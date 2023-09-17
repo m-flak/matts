@@ -1,16 +1,17 @@
 <div class="container applicants-picker">
-    <div class="row">
-        <div class="col applicant-container" *ngFor="let applicant of applicants; index as i">
-            <cmp-applicant 
-                [activeEmployerUuid]="activeEmployerUuid"
-                [isRejected]="applicant.rejected ?? false" 
-                [pickerIndex]="i" 
-                [applicant]="applicant" 
-                (applicantPicked)="onPickApplicant($event)">
-            </cmp-applicant>
-        </div>
-        <div class="col applicant-container" *ngIf="applicants.length === 0">
-            <p class="no-applicants-msg">No applicants found.</p>
-        </div>
+  <div class="row">
+    <div class="col applicant-container" *ngFor="let applicant of applicants; index as i">
+      <cmp-applicant
+        [activeEmployerUuid]="activeEmployerUuid"
+        [isRejected]="applicant.rejected ?? false"
+        [pickerIndex]="i"
+        [applicant]="applicant"
+        (applicantPicked)="onPickApplicant($event)"
+      >
+      </cmp-applicant>
     </div>
+    <div class="col applicant-container" *ngIf="applicants.length === 0">
+      <p class="no-applicants-msg">No applicants found.</p>
+    </div>
+  </div>
 </div>

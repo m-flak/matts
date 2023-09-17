@@ -24,17 +24,15 @@
         [ngClass]="{ show: isExpanded, 'nav-items__hide': hideNavItems }"
       >
         <ul class="navbar-nav flex-grow">
-          <li
-            class="nav-item"
-            [routerLinkActive]="['link-active']"
-            [routerLinkActiveOptions]="{ exact: true }"
-          >
-            <a class="nav-link text-dark" [routerLink]="['/']"><span class="emphasis">Home &#124; {{this.homeTitle | titlecase }}</span></a>
+          <li class="nav-item" [routerLinkActive]="['link-active']" [routerLinkActiveOptions]="{ exact: true }">
+            <a class="nav-link text-dark" [routerLink]="['/']"
+              ><span class="emphasis">Home &#124; {{this.homeTitle | titlecase }}</span></a
+            >
           </li>
-          <li
-            class="nav-item"
-          >
-            <a class="nav-link text-dark" (click)="performLogout()"><span class="emphasis">Log Out, {{this.homeUser}}</span></a>
+          <li class="nav-item">
+            <a class="nav-link text-dark" (click)="performLogout()"
+              ><span class="emphasis">Log Out, {{this.homeUser}}</span></a
+            >
           </li>
         </ul>
       </div>

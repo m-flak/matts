@@ -10,51 +10,52 @@ $primary-palette: map.get($config, 'primary');
 $hover-color: mat.get-color-from-palette($primary-palette, lighter);
 
 matListItemTitle {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 .job-list-item-icon {
-    width: 3em;
-    height: 2.5em;
-    padding: 0.1em;
-    border: 2px black solid;
-    border-radius: 50%;
+  width: 3em;
+  height: 2.5em;
+  padding: 0.1em;
+  border: 2px black solid;
+  border-radius: 50%;
 }
 
 .job-list-item {
-    margin-top: 2rem;
+  margin-top: 2rem;
 
-    div {
-        margin-left: 0.5rem;
-        display: inline-flex;
-        flex-direction: column;
+  div {
+    margin-left: 0.5rem;
+    display: inline-flex;
+    flex-direction: column;
 
-        span.job-list-item-title {
-            font-weight: bold;
-            font-family: GTAmericaBlack !important;
-            text-transform: uppercase;
-        }
-        
-        span:not(.job-list-item-title) {
-            font-size: smaller;
-            font-family: GTAmericaRegular !important;
-        }
+    span.job-list-item-title {
+      font-weight: bold;
+      font-family: GTAmericaBlack !important;
+      text-transform: uppercase;
     }
+
+    span:not(.job-list-item-title) {
+      font-size: smaller;
+      font-family: GTAmericaRegular !important;
+    }
+  }
 }
 
 mat-list-item {
-    &:hover {
-        background-color: $hover-color;
-    }
-    &:hover, span:hover {
-        cursor: pointer;
-    }
+  &:hover {
+    background-color: $hover-color;
+  }
+  &:hover,
+  span:hover {
+    cursor: pointer;
+  }
 }
 
 .applied-to-checkmark {
-    position: absolute;
-    top: 0.25rem;
-    right: 0.25rem;
-    width: 2em;
-    height: 2em;
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  width: 2em;
+  height: 2em;
 }

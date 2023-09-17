@@ -1,8 +1,8 @@
-import { User } from "./user.model";
+import { User } from './user.model';
 
 export interface UserRegistration extends User {
-    fullName: string;
-    companyName: string | null;
-    email: string;
-    phoneNumber: string;
+  fullName: string;
+  companyName: string | null;
+  email: string;
+  phoneNumber: string;
 }

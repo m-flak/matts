@@ -4,7 +4,7 @@ import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-root-home',
-  templateUrl: './app-root-home.component.html'
+  templateUrl: './app-root-home.component.html',
 })
 export class AppRootHomeComponent implements OnInit, OnDestroy {
   title = 'app';
@@ -14,7 +14,7 @@ export class AppRootHomeComponent implements OnInit, OnDestroy {
   displayDimmer = false;
 
   constructor(private loadingBar: LoadingBarService) {}
-  
+
   ngOnInit(): void {
     this.subscription = this.loader.value$.subscribe({
       next: _ => {
@@ -22,8 +22,8 @@ export class AppRootHomeComponent implements OnInit, OnDestroy {
       },
       complete: () => {
         this.displayDimmer = false;
-      }
-    })
+      },
+    });
   }
 
   ngOnDestroy(): void {

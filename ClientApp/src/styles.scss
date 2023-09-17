@@ -2,12 +2,18 @@
 @use '@angular/material' as mat;
 @use 'theming.scss';
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
 
 @include mat.core();
 
-$color-config:    mat.get-color-config(theming.$theme);
+$color-config: mat.get-color-config(theming.$theme);
 $primary-palette: map.get($color-config, 'primary');
 $body-bg-color: mat.get-color-from-palette($primary-palette, main);
 $fg-palette: map.get($color-config, 'foreground');
@@ -15,7 +21,7 @@ $dimmer-color: mat.get-color-from-palette($fg-palette, accent-text);
 
 @include mat.all-component-themes(theming.$theme);
 
-@import "../node_modules/angular-calendar/css/angular-calendar.css";
+@import '../node_modules/angular-calendar/css/angular-calendar.css';
 /* You can add global styles to this file, and also import other style files */
 
 /* Provide sufficient contrast against white background */
@@ -23,8 +29,14 @@ a {
   color: #0366d6;
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+  box-shadow:
+    0 0 0 0.1rem white,
+    0 0 0 0.25rem #258cfb;
 }
 
 code {
@@ -42,7 +54,11 @@ body {
   background-color: $body-bg-color;
 }
 
-h1, h2, h3, h4, .mat-expansion-panel-header-title {
+h1,
+h2,
+h3,
+h4,
+.mat-expansion-panel-header-title {
   font-family: GTAmericaBlack !important;
   text-transform: uppercase !important;
 }
@@ -61,7 +77,8 @@ ngx-loading-bar {
   @include theming.loading-bar-values;
 }
 
-#loading-dimmer, div.loading-dimmer {
+#loading-dimmer,
+div.loading-dimmer {
   z-index: 9001;
   position: absolute;
   width: 100%;

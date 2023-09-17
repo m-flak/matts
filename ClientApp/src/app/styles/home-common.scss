@@ -1,37 +1,38 @@
 @use 'layouts.scss';
 
-@mixin home-container { 
-    .home-container {
-        @include layouts.flex(false);
-        
-        min-height: 100%;
-        height: 100%;
-        padding-bottom: 4em;
-    }
+@mixin home-container {
+  .home-container {
+    @include layouts.flex(false);
+
+    min-height: 100%;
+    height: 100%;
+    padding-bottom: 4em;
+  }
 }
 
 @mixin cards {
-    .positions-card, .details-card {
-        min-width: 48%;
-    }
-    .positions-card + .details-card {
-        margin-left: 2rem;
-    }
+  .positions-card,
+  .details-card {
+    min-width: 48%;
+  }
+  .positions-card + .details-card {
+    margin-left: 2rem;
+  }
 
-    .details-card mat-card-content {
-        height: 100%;
-    }
+  .details-card mat-card-content {
+    height: 100%;
+  }
 }
 
 @mixin under-toolbar {
-    .under-toolbar {
-        margin-top: 0.5rem;
-    }
+  .under-toolbar {
+    margin-top: 0.5rem;
+  }
 }
 
 @mixin detail-card-msg {
-    .detail-card-msg {
-        text-align: center;
-        margin-top: 16%;
-    }
+  .detail-card-msg {
+    text-align: center;
+    margin-top: 16%;
+  }
 }

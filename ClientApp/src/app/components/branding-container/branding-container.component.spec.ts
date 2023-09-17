@@ -1,20 +1,20 @@
 /* matts
  * "Matthew's ATS" - Portfolio Project
  * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-**/
+ **/
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
@@ -27,18 +27,17 @@ import { Configuration } from 'src/app/models';
 
 @Component({
   selector: 'test-component',
-  template: `<cmp-branding-container configEntry="coolBranding"><a [branding-none-default] href="_blank">Default</a><img [branding-with-brand] /></cmp-branding-container>`
+  template: `<cmp-branding-container configEntry="coolBranding"><a [branding-none-default] href="_blank">Default</a><img [branding-with-brand] /></cmp-branding-container>`,
 })
-class TestComponent {
-}
+class TestComponent {}
 
 const config: Configuration = {
   externalApis: {},
-  branding: {}
+  branding: {},
 };
 
 const FakeConfigService = {
-  config: config
+  config: config,
 };
 
 describe('BrandingContainerComponent', () => {
@@ -50,14 +49,11 @@ describe('BrandingContainerComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ ComponentsModule ],
-      declarations: [ TestComponent ],
-      providers: [ 
-        { provide: ConfigService, useValue: FakeConfigService }
-      ],
-      teardown: { destroyAfterEach: false }
-    })
-    .compileComponents();
+      imports: [ComponentsModule],
+      declarations: [TestComponent],
+      providers: [{ provide: ConfigService, useValue: FakeConfigService }],
+      teardown: { destroyAfterEach: false },
+    }).compileComponents();
 
     fixture = TestBed.createComponent(TestComponent);
     componentHost = fixture.debugElement.query(By.directive(BrandingContainerComponent));
@@ -98,7 +94,7 @@ describe('BrandingContainerComponent', () => {
 
     expect(a.length).toEqual(0);
     expect(img.length).toEqual(1);
-    
+
     expect(img[0].nativeElement.getAttribute('src')).toEqual('https://site.com/brand.png');
   });
 });

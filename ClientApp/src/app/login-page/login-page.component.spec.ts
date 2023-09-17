@@ -4,7 +4,7 @@ import { LoginPageComponent } from './login-page.component';
 import { RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MatExpansionModule } from '@angular/material/expansion';
-import {MatInputModule} from '@angular/material/input';
+import { MatInputModule } from '@angular/material/input';
 import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
@@ -19,8 +19,8 @@ import { MonitorService } from '../services/monitor.service';
 import { LoadingBarModule, LoadingBarService } from '@ngx-loading-bar/core';
 
 const FakeAuthService = {
-  loginUser: (user?: User) => of('yay!')
-}
+  loginUser: (user?: User) => of('yay!'),
+};
 
 describe('LoginPageComponent', () => {
   let component: LoginPageComponent;
@@ -30,7 +30,7 @@ describe('LoginPageComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         AppModule,
-        HttpClientModule, 
+        HttpClientModule,
         HttpClientTestingModule,
         BrowserAnimationsModule,
         FormsModule,
@@ -41,18 +41,17 @@ describe('LoginPageComponent', () => {
         NgbAlertModule,
         RouterTestingModule.withRoutes([]),
         ComponentsModule,
-        LoadingBarModule
+        LoadingBarModule,
       ],
       providers: [
         { provide: 'BASE_URL', useValue: '' },
         { provide: AuthService, useValue: FakeAuthService },
         FormBuilder,
         MonitorService,
-        LoadingBarService
+        LoadingBarService,
       ],
-      declarations: [LoginPageComponent]
-    })
-    .compileComponents();
+      declarations: [LoginPageComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(LoginPageComponent);
     component = fixture.componentInstance;

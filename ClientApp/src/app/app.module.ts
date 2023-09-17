@@ -1,14 +1,14 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { Location } from "@angular/common";
+import { Location } from '@angular/common';
 import { APP_INITIALIZER, InjectionToken, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
-import {MatCardModule} from '@angular/material/card';
-import {MatButtonModule} from '@angular/material/button';
-import {MatIconModule} from '@angular/material/icon';
-import {MatExpansionModule} from '@angular/material/expansion';
-import {MatInputModule} from '@angular/material/input';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatInputModule } from '@angular/material/input';
 
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
@@ -17,7 +17,7 @@ import { ComponentsModule } from './components/components.module';
 import { JobPageComponent } from './job-page/job-page.component';
 import { CalendarModule, DateAdapter } from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
-import {NgbAlertModule, NgbModule} from '@ng-bootstrap/ng-bootstrap';
+import { NgbAlertModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialFileInputModule } from 'ngx-material-file-input';
 import { JWT_OPTIONS, JwtModule } from '@auth0/angular-jwt';
@@ -38,7 +38,6 @@ import { LOADING_BAR_CONFIG, LoadingBarModule } from '@ngx-loading-bar/core';
 import { LoadingBarHttpClientModule } from '@ngx-loading-bar/http-client';
 import { LoadingBarRouterModule } from '@ngx-loading-bar/router';
 
-
 export const BASE_URL = new InjectionToken<string>('BASE_URL');
 
 @NgModule({
@@ -51,7 +50,7 @@ export const BASE_URL = new InjectionToken<string>('BASE_URL');
     JobPageComponent,
     LoginPageComponent,
     ApplyJobPageComponent,
-    NewJobPageComponent
+    NewJobPageComponent,
   ],
   imports: [
     NgxMaterialTimepickerModule,
@@ -77,47 +76,47 @@ export const BASE_URL = new InjectionToken<string>('BASE_URL');
         component: AppRootHomeComponent,
         children: [
           {
-            path: "",
-            pathMatch: "full",
+            path: '',
+            pathMatch: 'full',
             children: [], // Children lets us have an empty component.
-            canActivate: [ AuthGuard, HomeGuard ],
+            canActivate: [AuthGuard, HomeGuard],
           },
-          { 
-            path: 'employer', 
+          {
+            path: 'employer',
             component: HomeComponent,
             resolve: { jobList: HomeComponentResolver },
             data: { role: UserRoleConstants.USER_ROLE_EMPLOYER },
-            canActivate: [ AuthGuard, HomeGuard ],
+            canActivate: [AuthGuard, HomeGuard],
             children: [
-              { 
-                path: 'viewJob/:id', 
-                component: JobPageComponent 
-              }
-            ] 
+              {
+                path: 'viewJob/:id',
+                component: JobPageComponent,
+              },
+            ],
           },
-          { 
-            path: 'applicant', 
+          {
+            path: 'applicant',
             component: HomeApplicantComponent,
             data: { role: UserRoleConstants.USER_ROLE_APPLICANT },
-            canActivate: [ AuthGuard, HomeGuard ],
+            canActivate: [AuthGuard, HomeGuard],
             children: [
-              { 
-                path: 'applyToJob/:id', 
-                component: ApplyJobPageComponent 
-              }
-            ] 
-          }
-        ]
+              {
+                path: 'applyToJob/:id',
+                component: ApplyJobPageComponent,
+              },
+            ],
+          },
+        ],
       },
       {
         path: 'welcome',
         children: [
           {
             path: 'login',
-            component: LoginPageComponent
-          }
-        ]
-      }
+            component: LoginPageComponent,
+          },
+        ],
+      },
     ]),
     BrowserAnimationsModule,
     CalendarModule.forRoot({
@@ -127,48 +126,43 @@ export const BASE_URL = new InjectionToken<string>('BASE_URL');
     JwtModule.forRoot({
       jwtOptionsProvider: {
         provide: JWT_OPTIONS,
-        deps: [ BASE_URL ],
-        useFactory: jwtOptionsFactory
-      }
+        deps: [BASE_URL],
+        useFactory: jwtOptionsFactory,
+      },
     }),
     LoadingBarModule,
     LoadingBarHttpClientModule,
-    LoadingBarRouterModule
+    LoadingBarRouterModule,
   ],
-  providers: [ 
+  providers: [
     {
       provide: BASE_URL,
-      useExisting: 'BASE_URL'
+      useExisting: 'BASE_URL',
     },
     {
       provide: APP_INITIALIZER,
       multi: true,
       deps: [ConfigService],
       useFactory: (configService: ConfigService) => {
-          return () => {
-              return configService.loadConfig();
-          };
-      }
+        return () => {
+          return configService.loadConfig();
+        };
+      },
     },
     { provide: LOADING_BAR_CONFIG, useValue: { latencyThreshold: 125 } },
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}
 
 export function tokenGetter() {
-  return localStorage.getItem("access_token");
+  return localStorage.getItem('access_token');
 }
 
 export function jwtOptionsFactory(baseUrl: string) {
   return {
     tokenGetter: tokenGetter,
-    allowedDomains: [ 
-      baseUrl 
-    ],
-    disallowedRoutes: [
-      `${Location.joinWithSlash(baseUrl, 'auth')}/`,
-      `${Location.joinWithSlash(baseUrl, 'config')}/`
-    ]
+    allowedDomains: [baseUrl],
+    disallowedRoutes: [`${Location.joinWithSlash(baseUrl, 'auth')}/`, `${Location.joinWithSlash(baseUrl, 'config')}/`],
   };
 }

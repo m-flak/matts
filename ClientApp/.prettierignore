@@ -1,0 +1,23 @@
+# Generated angular cache files
+.angular/*
+
+# ClientApp Project code/config files
+.prettierrc
+angular.json
+aspnetcore-https.js
+karma.conf.js
+package-lock.json
+package.json
+proxy.conf.js
+README.md
+tsconfig.app.json
+tsconfig.json
+tsconfig.spec.json
+
+# Angular App code/config files
+src/app/app.server.module.ts
+src/environments/*
+src/index.html
+src/main.ts
+src/polyfills.ts
+src/test.ts

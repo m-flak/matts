@@ -1,16 +1,23 @@
 <div class="container home-container">
-    <mat-card [ngClass]="'positions-card'" appearance="outlined">
-        <mat-card-header><h1>Open Positions:</h1></mat-card-header>
-        <mat-card-content>
-            <cmp-job-list [jobs]="this.openJobs" [hideApplicantCount]="true" (selectedJob)="onSelectJob($event)"></cmp-job-list>
-        </mat-card-content>
-    </mat-card>
-    <mat-card [ngClass]="'details-card'" appearance="outlined">
-        <mat-card-content>
-            <div *ngIf="this.showDetailCardMsg" class="d-flex align-items-center justify-content-center">
-                <span class="detail-card-msg">You haven't selected a job yet. <br> Select a job from the left to view details and apply.</span>
-            </div>
-            <router-outlet (activate)="initialActivate($event)" (deactivate)="deactivate($event)"></router-outlet>
-        </mat-card-content>
-    </mat-card>
+  <mat-card [ngClass]="'positions-card'" appearance="outlined">
+    <mat-card-header><h1>Open Positions:</h1></mat-card-header>
+    <mat-card-content>
+      <cmp-job-list
+        [jobs]="this.openJobs"
+        [hideApplicantCount]="true"
+        (selectedJob)="onSelectJob($event)"
+      ></cmp-job-list>
+    </mat-card-content>
+  </mat-card>
+  <mat-card [ngClass]="'details-card'" appearance="outlined">
+    <mat-card-content>
+      <div *ngIf="this.showDetailCardMsg" class="d-flex align-items-center justify-content-center">
+        <span class="detail-card-msg"
+          >You haven't selected a job yet. <br />
+          Select a job from the left to view details and apply.</span
+        >
+      </div>
+      <router-outlet (activate)="initialActivate($event)" (deactivate)="deactivate($event)"></router-outlet>
+    </mat-card-content>
+  </mat-card>
 </div>
