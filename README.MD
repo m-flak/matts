@@ -33,9 +33,11 @@ For the nitty-gritty on the container setup, see the `.azure/template.json` file
 Each volume for a container will need to be assigned an Azure File Share. It's share per volume, apparently.
 
 These settings need to be in the configuration store. The application will filter by its prefix and the build environment that it was built against.
-![app config keys](https://github.com/m-flak/matts/assets/35634280/2904018e-d511-4c71-b9d3-db577de4db6b)
+![app config keys](https://github.com/m-flak/matts/assets/35634280/d265b90f-e239-4f49-9cf0-f6782e8707b9)
 
 The service endpoint of the App Config itself will need to be placed within the appropriate `appsettings.json` file.
+
+__NOTE: *This screenshot may not contain everything. Refer to the C# classes within the `Configuration` folder as well as the json configuration files.*__
 
 __For HTTPS,__ currently the application utilizes a self-signed certificate. Place a PFX certificate file within the root of the `apphttps` file share. The DnsName of the cert needs to match the deployment url, which will remain the same after the container group is created, even if the group needs to be deleted due to certain prop changes. If you create one first in Azure Portal, be sure to add together the values for memory and cpu of both containers, so you don't have to delete it before a deployment.
 
