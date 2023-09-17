@@ -50,7 +50,10 @@ describe('LoginPageComponent', () => {
         FormBuilder,
         MonitorService,
         LoadingBarService,
-        { provide: ConfigService, useValue: { config: configurationFixure, loadConfig: () => Promise.resolve(configurationFixure) } }
+        {
+          provide: ConfigService,
+          useValue: { config: configurationFixure, loadConfig: () => Promise.resolve(configurationFixure) },
+        },
       ],
       declarations: [LoginPageComponent],
     }).compileComponents();

@@ -54,7 +54,7 @@ export class ApplyJobPageComponent implements OnInit, OnDestroy {
     private applicantDataService: ApplicantDataService,
     private backendService: BackendService,
     private authService: AuthService,
-    private configService: ConfigService
+    private configService: ConfigService,
   ) {
     this.applyToJobForm = new FormGroup([]);
   }

@@ -104,16 +104,14 @@ export class JobPageDataService {
   }
 
   changeJobData(job: Job): Observable<any> {
-    return this.backendService
-      .updateJob(job)
-      .pipe(
-        tap(() =>
-          this._jobMap.set(job.uuid as string, {
-            ...(this._jobMap.get(job.uuid as string) as JobMapValue),
-            isDirty: true,
-          }),
-        ),
-      );
+    return this.backendService.updateJob(job).pipe(
+      tap(() =>
+        this._jobMap.set(job.uuid as string, {
+          ...(this._jobMap.get(job.uuid as string) as JobMapValue),
+          isDirty: true,
+        }),
+      ),
+    );
   }
 
   getJobByUuid(jobUuid: string): Observable<Job> {

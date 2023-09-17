@@ -29,7 +29,7 @@ const config: Configuration = {
   externalApis: {
     resumeUploadEndpoint: 'http://localhost:7274/api/resumes/upload',
     resumeUploadApiKey: '123',
-  }
+  },
 };
 
 const FakeConfigService = {

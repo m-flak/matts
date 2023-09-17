@@ -137,7 +137,7 @@ div.loading-dimmer {
     transform: rotateZ(0deg);
   }
   100% {
-    transform: rotateZ(360deg)
+    transform: rotateZ(360deg);
   }
 }
 
@@ -145,7 +145,7 @@ div.loading-dimmer {
   0% {
     stroke-dashoffset: 75;
   }
-  
+
   50% {
     stroke-dashoffset: 280;
   }

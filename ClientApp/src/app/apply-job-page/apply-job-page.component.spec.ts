@@ -105,11 +105,11 @@ const FakeConfigService = {
     resumeUploader: {
       maxFileSize: 1048576,
       allowedFileTypes: 'text/plain',
-      allowedFileExtensions: '*.txt'
-    }
+      allowedFileExtensions: '*.txt',
+    },
   },
-  loadConfig: () => configurationFixure
-}
+  loadConfig: () => configurationFixure,
+};
 
 describe('ApplyJobPageComponent', () => {
   let component: ApplyJobPageComponent;
@@ -149,7 +149,7 @@ describe('ApplyJobPageComponent', () => {
           },
         },
         ApplicantDataService,
-        { provide: ConfigService, useValue: FakeConfigService }
+        { provide: ConfigService, useValue: FakeConfigService },
       ],
     }).compileComponents();
 

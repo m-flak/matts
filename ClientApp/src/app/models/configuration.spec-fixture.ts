@@ -16,10 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-import { Configuration } from "./configuration.model";
+import { Configuration } from './configuration.model';
 
 export const configurationFixure: Configuration = {
-    externalApis: {},
-    branding: {},
-    resumeUploader: {}
+  externalApis: {},
+  branding: {},
+  resumeUploader: {},
 };
