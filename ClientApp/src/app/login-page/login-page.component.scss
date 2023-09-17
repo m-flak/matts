@@ -25,7 +25,7 @@ $registration-buttons-color2: mat.get-color-from-palette($accent-palette, darker
 
 .login-bg {
   background-size: cover;
-  background-image: linear-gradient(to bottom, $top-gradient, $bottom-gradient);
+  //background-image: linear-gradient(to bottom, $top-gradient, $bottom-gradient);
 }
 
 .registration-section-header {

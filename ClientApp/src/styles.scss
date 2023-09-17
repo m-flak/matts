@@ -2,15 +2,6 @@
 @use '@angular/material' as mat;
 @use 'theming.scss';
 
-html,
-body {
-  height: 100%;
-}
-body {
-  margin: 0;
-  font-family: Roboto, 'Helvetica Neue', sans-serif;
-}
-
 @include mat.core();
 
 $color-config: mat.get-color-config(theming.$theme);
@@ -49,9 +40,37 @@ code {
   border-color: #1861ac;
 }
 
+html {
+  overflow: scroll;
+}
+
+html,
+body {
+  height: 100%;
+  position: relative;
+  margin: 0;
+  padding: 0;
+}
+
 body {
   @include theming.body-theme-values;
   background-color: $body-bg-color;
+
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+  overflow: visible;
+}
+
+footer.copyright-footer {
+  position: relative;
+  width: 100%;
+  bottom: 0;
+  background-color: theming.$light-background;
+  border: 1px theming.$light-background solid;
+
+  p {
+    text-align: center;
+    font-size: xx-small;
+  }
 }
 
 h1,
@@ -90,5 +109,44 @@ div.loading-dimmer {
 
   &__inactive {
     display: none;
+  }
+}
+
+// Spinner that shows before Angular app is bootstrapped
+#preLoadSpinner {
+  @include theming.loading-bar-values;
+
+  animation: 2s linear infinite svg-animation;
+  max-width: 100px;
+
+  circle {
+    animation: 1.4s ease-in-out infinite both circle-animation;
+    display: block;
+    fill: transparent;
+    stroke: var(--loading-spinner-10-color);
+    stroke-linecap: round;
+    stroke-dasharray: 283;
+    stroke-dashoffset: 280;
+    stroke-width: 10px;
+    transform-origin: 50% 50%;
+  }
+}
+
+@keyframes svg-animation {
+  0% {
+    transform: rotateZ(0deg);
+  }
+  100% {
+    transform: rotateZ(360deg)
+  }
+}
+
+@keyframes circle-animation {
+  0% {
+    stroke-dashoffset: 75;
+  }
+  
+  50% {
+    stroke-dashoffset: 280;
   }
 }
