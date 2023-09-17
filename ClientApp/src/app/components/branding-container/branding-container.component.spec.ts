@@ -32,7 +32,7 @@ import { Configuration, configurationFixure } from 'src/app/models';
 class TestComponent {}
 
 const FakeConfigService = {
-  config: configurationFixure,
+  config: { ...configurationFixure },
 };
 
 describe('BrandingContainerComponent', () => {
@@ -40,7 +40,7 @@ describe('BrandingContainerComponent', () => {
   let component: BrandingContainerComponent;
   let fixture: ComponentFixture<TestComponent>;
 
-  let origConfiguration: Configuration = { ...configurationFixure };
+  let cfgService: ConfigService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -53,13 +53,18 @@ describe('BrandingContainerComponent', () => {
     fixture = TestBed.createComponent(TestComponent);
     componentHost = fixture.debugElement.query(By.directive(BrandingContainerComponent));
     component = componentHost.injector.get(BrandingContainerComponent);
+
+    cfgService = TestBed.inject(ConfigService);
+
     fixture.detectChanges();
     component.ngOnInit();
     fixture.detectChanges();
   });
 
   beforeEach(() => {
-    FakeConfigService.config = { ...origConfiguration };
+    cfgService.config = { ...configurationFixure };
+    component.hasBranding = false;
+    fixture.detectChanges();
   });
 
   it('should create', () => {
@@ -77,7 +82,7 @@ describe('BrandingContainerComponent', () => {
   });
 
   it('should show the image instead when branding is present', () => {
-    FakeConfigService.config.branding.coolBranding = 'https://site.com/brand.png';
+    cfgService.config.branding.coolBranding = 'https://site.com/brand.png';
     component.ngOnInit();
     component.ngAfterContentInit();
     fixture.detectChanges();
