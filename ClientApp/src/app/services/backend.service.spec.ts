@@ -20,16 +20,16 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { HttpClientModule, HttpEventType, HttpUploadProgressEvent } from '@angular/common/http';
 import { BackendService } from './backend.service';
 import { JobConstants } from '../constants';
-import { ApplyToJob, Configuration, Job } from '../models';
+import { ApplyToJob, Configuration, Job, configurationFixure } from '../models';
 import { getDate } from 'date-fns';
 import { ConfigService } from './config.service';
 
 const config: Configuration = {
+  ...configurationFixure,
   externalApis: {
     resumeUploadEndpoint: 'http://localhost:7274/api/resumes/upload',
     resumeUploadApiKey: '123',
-  },
-  branding: {},
+  }
 };
 
 const FakeConfigService = {

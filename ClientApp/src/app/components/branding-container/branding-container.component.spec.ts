@@ -23,7 +23,7 @@ import { ComponentsModule } from '../components.module';
 import { Component, DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { ConfigService } from 'src/app/services/config.service';
-import { Configuration } from 'src/app/models';
+import { Configuration, configurationFixure } from 'src/app/models';
 
 @Component({
   selector: 'test-component',
@@ -31,13 +31,8 @@ import { Configuration } from 'src/app/models';
 })
 class TestComponent {}
 
-const config: Configuration = {
-  externalApis: {},
-  branding: {},
-};
-
 const FakeConfigService = {
-  config: config,
+  config: configurationFixure,
 };
 
 describe('BrandingContainerComponent', () => {
@@ -45,7 +40,7 @@ describe('BrandingContainerComponent', () => {
   let component: BrandingContainerComponent;
   let fixture: ComponentFixture<TestComponent>;
 
-  let origConfiguration: Configuration = { ...config };
+  let origConfiguration: Configuration = { ...configurationFixure };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({

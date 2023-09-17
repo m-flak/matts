@@ -10,13 +10,14 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClientModule } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { User } from '../models';
+import { User, configurationFixure } from '../models';
 import { of } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { AppModule } from '../app.module';
 import { ComponentsModule } from '../components/components.module';
 import { MonitorService } from '../services/monitor.service';
 import { LoadingBarModule, LoadingBarService } from '@ngx-loading-bar/core';
+import { ConfigService } from '../services/config.service';
 
 const FakeAuthService = {
   loginUser: (user?: User) => of('yay!'),
@@ -49,6 +50,7 @@ describe('LoginPageComponent', () => {
         FormBuilder,
         MonitorService,
         LoadingBarService,
+        { provide: ConfigService, useValue: { config: configurationFixure, loadConfig: () => Promise.resolve(configurationFixure) } }
       ],
       declarations: [LoginPageComponent],
     }).compileComponents();
