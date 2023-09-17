@@ -20,11 +20,13 @@
             class="d-flex flex-column justify-content-center"
             (ngSubmit)="applyToJob()"
           >
+            <h4>Your Resume:</h4>
             <mat-form-field>
               <ngx-mat-file-input
                 formControlName="resumeFile"
                 placeholder="Upload a copy of your resume..."
                 valuePlaceholder="No file selected"
+                [accept]="this.allowedFileTypes"
                 required
               >
               </ngx-mat-file-input>
@@ -32,6 +34,9 @@
               <mat-error *ngIf="applyToJobForm.get('resumeFile')?.hasError('required')">
                 Please upload a copy of your resume...
               </mat-error>
+              <mat-hint>
+                File Size Limit: {{ this.maxFileSize | byteFormat }}, Allowed Types: {{ this.allowedFileExtensions }}
+              </mat-hint>
             </mat-form-field>
             <button mat-flat-button color="accent" type="submit">
               <ng-content *ngIf="uploadStarted; then uploading else not_uploading"></ng-content>

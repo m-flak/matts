@@ -20,7 +20,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { ApplyJobPageComponent } from './apply-job-page.component';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { from, of } from 'rxjs';
-import { Job } from '../models';
+import { Job, configurationFixure } from '../models';
 import { BackendService } from '../services/backend.service';
 import { AuthService, CurrentUser } from '../services/auth.service';
 import { UserRoleConstants } from '../constants';
@@ -99,6 +99,18 @@ const FakeAuthService = {
   } as CurrentUser,
 };
 
+const FakeConfigService = {
+  config: {
+    ...configurationFixure,
+    resumeUploader: {
+      maxFileSize: 1048576,
+      allowedFileTypes: 'text/plain',
+      allowedFileExtensions: '*.txt'
+    }
+  },
+  loadConfig: () => configurationFixure
+}
+
 describe('ApplyJobPageComponent', () => {
   let component: ApplyJobPageComponent;
   let fixture: ComponentFixture<ApplyJobPageComponent>;
@@ -137,6 +149,7 @@ describe('ApplyJobPageComponent', () => {
           },
         },
         ApplicantDataService,
+        { provide: ConfigService, useValue: FakeConfigService }
       ],
     }).compileComponents();
 
@@ -150,6 +163,15 @@ describe('ApplyJobPageComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should load requirements for the uploader', () => {
+    component.ngOnInit();
+    fixture.detectChanges();
+
+    expect(component.maxFileSize).toEqual(FakeConfigService.config.resumeUploader.maxFileSize);
+    expect(component.allowedFileTypes).toEqual(FakeConfigService.config.resumeUploader.allowedFileTypes);
+    expect(component.allowedFileExtensions).toEqual(FakeConfigService.config.resumeUploader.allowedFileExtensions);
   });
 
   it('should disallow an application if the job is applied for', fakeAsync(async () => {

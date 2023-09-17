@@ -20,5 +20,6 @@ import { Configuration } from "./configuration.model";
 
 export const configurationFixure: Configuration = {
     externalApis: {},
-    branding: {}
+    branding: {},
+    resumeUploader: {}
 };

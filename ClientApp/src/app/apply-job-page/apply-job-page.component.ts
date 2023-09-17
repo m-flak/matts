@@ -23,7 +23,7 @@ import { Subscription, filter, lastValueFrom, map, switchMap, take, tap } from '
 import { Job } from '../models';
 import { ApplicantDataService } from '../services/applicant-data.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { FileInput } from 'ngx-material-file-input';
+import { FileInput, FileValidator } from 'ngx-material-file-input';
 import { ConfigService } from '../services/config.service';
 import { HttpEventType } from '@angular/common/http';
 
@@ -44,12 +44,17 @@ export class ApplyJobPageComponent implements OnInit, OnDestroy {
   uploadStarted = false;
   uploadingMsg = 'Uploading...';
 
+  maxFileSize!: number;
+  allowedFileTypes!: string;
+  allowedFileExtensions!: string;
+
   constructor(
     private formBuilder: FormBuilder,
     private activatedRoute: ActivatedRoute,
     private applicantDataService: ApplicantDataService,
     private backendService: BackendService,
     private authService: AuthService,
+    private configService: ConfigService
   ) {
     this.applyToJobForm = new FormGroup([]);
   }
@@ -70,8 +75,12 @@ export class ApplyJobPageComponent implements OnInit, OnDestroy {
         this.currentJob = data;
       });
 
+    this.maxFileSize = this.configService.config.resumeUploader.maxFileSize as number;
+    this.allowedFileTypes = this.configService.config.resumeUploader.allowedFileTypes as string;
+    this.allowedFileExtensions = this.configService.config.resumeUploader.allowedFileExtensions as string;
+
     this.applyToJobForm = this.formBuilder.group({
-      resumeFile: [undefined, [Validators.required]],
+      resumeFile: [undefined, [Validators.required, FileValidator.maxContentSize(this.maxFileSize)]],
     });
   }
 
