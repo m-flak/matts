@@ -1,5 +1,15 @@
-
 # matts - "Matthew's ATS"
+
+__Matthew's ATS__ is a functional, single-tenant, and cloud-native web application serving as an Applicant Tracking System. 
+
+As an employer:
+- Post new jobs, fill them, or close them!
+- Schedule interviews with prospective candidates and download the interview to your calendar!
+- View and download every applicant's resume with the click of a button!
+
+As a job seeker:
+- View all open, unfilled positions!
+- Apply to jobs with your resume and put your best foot forward!
 
 ### Azure Setup
 This project consists of two Azure components. 
@@ -84,7 +94,7 @@ docker-compose --env-file ./docker.development.env -f docker-compose.yml -f dock
 This is all that's required once the initial secrets setup & cert generation has been performed.
 
 ```powershell
-$certsFolder = "$(If ($env:HOME -ne $null) {$env:HOME} Else {$env:USERPROFILE})\.devcerts"
+$certsFolder = "$(If ($env:HOME -ne $null) {$env:HOME}/.devcerts Else {$env:USERPROFILE})\.devcerts"
 $env:MATTS_DEVCERT_FOLDER = $certsFolder
 docker-compose --env-file ./docker.development.env -f docker-compose.yml -f docker-compose.development.yml up --build matts
 ```
