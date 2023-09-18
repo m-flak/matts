@@ -7,7 +7,9 @@
     "start": "run-script-os",
     "start:windows": "ng serve --port 44475 --ssl --ssl-cert \"%APPDATA%\\ASP.NET\\https\\%npm_package_name%.pem\" --ssl-key \"%APPDATA%\\ASP.NET\\https\\%npm_package_name%.key\"",
     "start:default": "ng serve --port 44475 --ssl --ssl-cert \"$HOME/.aspnet/https/${npm_package_name}.pem\" --ssl-key \"$HOME/.aspnet/https/${npm_package_name}.key\"",
+    "analyze": "webpack-bundle-analyzer ./dist/stats.json",
     "build": "ng build",
+    "build-analyze": "ng build --stats-json && analyze", 
     "build:ssr": "ng run matts:server:dev",
     "watch": "ng build --watch --configuration development",
     "test": "ng test --browsers=ChromeHeadless",
@@ -65,7 +67,8 @@
     "karma-jasmine-html-reporter": "^2.0.0",
     "karma-junit-reporter": "^2.0.1",
     "object-hash": "^3.0.0",
-    "typescript": "~4.7.4"
+    "typescript": "~4.7.4",
+    "webpack-bundle-analyzer": "^4.9.1"
   },
   "overrides": {
     "autoprefixer": "10.4.5"
