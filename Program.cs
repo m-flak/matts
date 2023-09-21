@@ -225,6 +225,17 @@ builder.Services.AddScoped<IUserService, UserService>();
 // TRANSIENT
 builder.Services.AddTransient<IMapper, Mapper>();
 
+// CSRF/XSRF Protection Setup
+builder.Services.AddAntiforgery(options =>
+{
+    options.Cookie = new CookieBuilder
+    {
+        Name = "XSRF-TOKEN",
+        HttpOnly = false
+    };
+    options.HeaderName = "X-XSRF-TOKEN";
+});
+
 var app = builder.Build();
 if (useAzureAppConfig)
 {

@@ -2,7 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { Location } from '@angular/common';
 import { APP_INITIALIZER, InjectionToken, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HttpClientXsrfModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -46,6 +46,7 @@ export const BASE_URL = new InjectionToken<string>('BASE_URL');
     PipesModule,
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
     HttpClientModule,
+    HttpClientXsrfModule,
     FormsModule,
     ReactiveFormsModule,
     RouterModule.forRoot([
