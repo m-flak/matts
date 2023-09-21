@@ -18,17 +18,17 @@
 import { Location } from '@angular/common';
 import { Component, EventEmitter, Inject, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { Applicant, Job } from '../models';
+import { Applicant, Job } from '../../../models';
 import { catchError, filter, first, lastValueFrom, mergeMap, of, Subscription, switchMap, takeWhile, tap } from 'rxjs';
 import { MonthViewDay, EventColor } from 'calendar-utils';
 import { CalendarEvent } from 'angular-calendar';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { InterviewDate, JobPageDataService } from '../services/job-page-data.service';
+import { InterviewDate, JobPageDataService } from '../../../services/job-page-data.service';
 import { formatISO, isPast, parse, parseISO, set } from 'date-fns';
 import { ChangeCommandData, JobPageChanges } from './job-page-changes';
-import { JobConstants } from '../constants';
-import { ToastService } from '../services/toast.service';
-import { AuthService } from '../services/auth.service';
+import { JobConstants } from '../../../constants';
+import { ToastService } from '../../../services/toast.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-job-page',

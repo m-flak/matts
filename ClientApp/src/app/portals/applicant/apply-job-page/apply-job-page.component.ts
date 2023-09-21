@@ -17,14 +17,14 @@
  **/
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { BackendService } from '../services/backend.service';
-import { AuthService } from '../services/auth.service';
+import { BackendService } from '../../../services/backend.service';
+import { AuthService } from '../../../services/auth.service';
 import { Subscription, filter, lastValueFrom, map, switchMap, take, tap } from 'rxjs';
-import { Job } from '../models';
-import { ApplicantDataService } from '../services/applicant-data.service';
+import { Job } from '../../../models';
+import { ApplicantDataService } from '../../../services/applicant-data.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FileInput, FileValidator } from 'ngx-material-file-input';
-import { ConfigService } from '../services/config.service';
+import { ConfigService } from '../../../services/config.service';
 import { HttpEventType } from '@angular/common/http';
 
 @Component({

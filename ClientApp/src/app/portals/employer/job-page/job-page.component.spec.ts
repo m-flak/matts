@@ -16,28 +16,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **/
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { compareAsc, parseISO } from 'date-fns';
 import { JobPageComponent } from './job-page.component';
-import { JobConstants } from '../constants';
-import { ComponentsModule } from '../components/components.module';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { of } from 'rxjs';
-import { BackendService } from '../services/backend.service';
+import { BackendService } from '../../../services/backend.service';
 import { HttpResponse } from '@angular/common/http';
-import { Applicant, Job } from '../models';
-import { JobPageDataService } from '../services/job-page-data.service';
+import { Applicant, Job } from '../../../models';
+import { JobPageDataService } from '../../../services/job-page-data.service';
 import { HarnessLoader } from '@angular/cdk/testing';
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
-import { ApplicantsPickerHarness } from '../components/applicants-picker/applicants-picker.harness';
-import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
+import { ApplicantsPickerHarness } from '../../../components/applicants-picker/applicants-picker.harness';
 import { JWT_OPTIONS, JwtHelperService } from '@auth0/angular-jwt';
-import { jwtOptionsFactory } from '../app.module';
+import { jwtOptionsFactory } from '../../../app.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
-import { PipesModule } from '../pipes/pipes.module';
+import { EmployerPortalModule } from '../employer-portal.module';
 
 const jobData: Job = {
   'id': 1,
@@ -89,16 +82,7 @@ describe('JobPageComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        BrowserAnimationsModule,
-        ComponentsModule,
-        PipesModule,
-        MatButtonModule,
-        MatInputModule,
-        MatIconModule,
-        NgbAlertModule,
-        NgxMaterialTimepickerModule,
-      ],
+      imports: [BrowserAnimationsModule, EmployerPortalModule],
       declarations: [JobPageComponent],
       providers: [
         {

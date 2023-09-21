@@ -1,6 +1,6 @@
 import { Component, Injectable, OnDestroy, OnInit } from '@angular/core';
-import { BackendService } from '../services/backend.service';
-import { Job } from '../models';
+import { BackendService } from '../../../services/backend.service';
+import { Job } from '../../../models';
 import { catchError, Observable, of, Subscription, throwError } from 'rxjs';
 import {
   ActivatedRoute,
@@ -11,8 +11,8 @@ import {
   RouterStateSnapshot,
   UrlSegment,
 } from '@angular/router';
-import { ToastService } from '../services/toast.service';
-import { JobPageDataService } from '../services/job-page-data.service';
+import { ToastService } from '../../../services/toast.service';
+import { JobPageDataService } from '../../../services/job-page-data.service';
 
 @Injectable({
   providedIn: 'root',

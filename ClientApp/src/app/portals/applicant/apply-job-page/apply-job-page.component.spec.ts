@@ -20,21 +20,17 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { ApplyJobPageComponent } from './apply-job-page.component';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { from, of } from 'rxjs';
-import { Job, configurationFixure } from '../models';
-import { BackendService } from '../services/backend.service';
-import { AuthService, CurrentUser } from '../services/auth.service';
-import { UserRoleConstants } from '../constants';
-import { MatButtonModule } from '@angular/material/button';
-import { ApplicantDataService } from '../services/applicant-data.service';
-import { ComponentHarness, HarnessLoader, HarnessPredicate, TestElement } from '@angular/cdk/testing';
+import { Job, configurationFixure } from '../../../models';
+import { BackendService } from '../../../services/backend.service';
+import { AuthService, CurrentUser } from '../../../services/auth.service';
+import { UserRoleConstants } from '../../../constants';
+import { ApplicantDataService } from '../../../services/applicant-data.service';
+import { HarnessLoader } from '@angular/cdk/testing';
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { MatButtonHarness } from '@angular/material/button/testing';
-import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { FileInput, MaterialFileInputModule } from 'ngx-material-file-input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { ConfigService } from '../services/config.service';
+import { FormBuilder } from '@angular/forms';
+import { FileInput } from 'ngx-material-file-input';
+import { ConfigService } from '../../../services/config.service';
 import {
   HttpClientModule,
   HttpEventType,
@@ -43,6 +39,8 @@ import {
   HttpUploadProgressEvent,
 } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { ApplicantPortalModule } from '../applicant-portal.module';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 const jobData: Job = {
   'id': 1,
@@ -120,17 +118,7 @@ describe('ApplyJobPageComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        BrowserAnimationsModule,
-        MatButtonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatFormFieldModule,
-        MatIconModule,
-        MaterialFileInputModule,
-        HttpClientModule,
-        HttpClientTestingModule,
-      ],
+      imports: [BrowserAnimationsModule, ApplicantPortalModule, HttpClientModule, HttpClientTestingModule],
       declarations: [ApplyJobPageComponent],
       providers: [
         FormBuilder,

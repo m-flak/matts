@@ -17,12 +17,12 @@
  **/
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Job } from '../models';
+import { Job } from '../../../models';
 import { Subscription } from 'rxjs';
 import { Router, ActivatedRoute } from '@angular/router';
-import { BackendService } from '../services/backend.service';
-import { ApplicantDataService } from '../services/applicant-data.service';
-import { AuthService } from '../services/auth.service';
+import { BackendService } from '../../../services/backend.service';
+import { ApplicantDataService } from '../../../services/applicant-data.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-home-applicant',

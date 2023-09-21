@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **/
-import { JobPageDataService } from '../services/job-page-data.service';
+import { JobPageDataService } from '../../../services/job-page-data.service';
 
 export type ChangeCommandData = any;
 export type ChangeCommand = (serviceInstance: JobPageDataService, commandData: ChangeCommandData) => Promise<boolean>;

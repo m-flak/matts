@@ -18,8 +18,8 @@
 
 import { HttpResponse } from '@angular/common/http';
 import { lastValueFrom, of } from 'rxjs';
-import { Job } from '../models';
-import { JobPageDataService } from '../services/job-page-data.service';
+import { Job } from '../../../models';
+import { JobPageDataService } from '../../../services/job-page-data.service';
 import { ChangeCommandData, JobPageChanges } from './job-page-changes';
 
 const FakeJobPageDataService = {

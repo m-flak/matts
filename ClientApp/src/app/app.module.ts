@@ -12,26 +12,16 @@ import { MatInputModule } from '@angular/material/input';
 
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
-import { HomeComponent, HomeComponentResolver } from './home/home.component';
 import { ComponentsModule } from './components/components.module';
-import { JobPageComponent } from './job-page/job-page.component';
-import { CalendarModule, DateAdapter } from 'angular-calendar';
-import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import { NgbAlertModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MaterialFileInputModule } from 'ngx-material-file-input';
 import { JWT_OPTIONS, JwtModule } from '@auth0/angular-jwt';
-import { UserRoleConstants } from './constants';
 import { HomeGuard } from './guards/home.guard';
 import { AppRootHomeComponent } from './app-root-home';
-import { HomeApplicantComponent } from './home-applicant/home-applicant.component';
 import { AuthGuard } from './guards/auth.guard';
 import { LoginPageComponent } from './login-page/login-page.component';
-import { ApplyJobPageComponent } from './apply-job-page/apply-job-page.component';
-import { NewJobPageComponent } from './new-job-page/new-job-page.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { TextFieldModule } from '@angular/cdk/text-field';
-import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
 import { ConfigService } from './services/config.service';
 import { PipesModule } from './pipes/pipes.module';
 import { LOADING_BAR_CONFIG, LoadingBarModule } from '@ngx-loading-bar/core';
@@ -41,19 +31,8 @@ import { LoadingBarRouterModule } from '@ngx-loading-bar/router';
 export const BASE_URL = new InjectionToken<string>('BASE_URL');
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    AppRootHomeComponent,
-    NavMenuComponent,
-    HomeComponent,
-    HomeApplicantComponent,
-    JobPageComponent,
-    LoginPageComponent,
-    ApplyJobPageComponent,
-    NewJobPageComponent,
-  ],
+  declarations: [AppComponent, AppRootHomeComponent, NavMenuComponent, LoginPageComponent],
   imports: [
-    NgxMaterialTimepickerModule,
     NgbModule,
     NgbAlertModule,
     MatCardModule,
@@ -63,7 +42,6 @@ export const BASE_URL = new InjectionToken<string>('BASE_URL');
     MatInputModule,
     TextFieldModule,
     MatFormFieldModule,
-    MaterialFileInputModule,
     ComponentsModule,
     PipesModule,
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -83,28 +61,14 @@ export const BASE_URL = new InjectionToken<string>('BASE_URL');
           },
           {
             path: 'employer',
-            component: HomeComponent,
-            resolve: { jobList: HomeComponentResolver },
-            data: { role: UserRoleConstants.USER_ROLE_EMPLOYER },
-            canActivate: [AuthGuard, HomeGuard],
-            children: [
-              {
-                path: 'viewJob/:id',
-                component: JobPageComponent,
-              },
-            ],
+            loadChildren: () => import('./portals/employer/employer-portal.module').then(m => m.EmployerPortalModule),
+            canMatch: [AuthGuard],
           },
           {
             path: 'applicant',
-            component: HomeApplicantComponent,
-            data: { role: UserRoleConstants.USER_ROLE_APPLICANT },
-            canActivate: [AuthGuard, HomeGuard],
-            children: [
-              {
-                path: 'applyToJob/:id',
-                component: ApplyJobPageComponent,
-              },
-            ],
+            loadChildren: () =>
+              import('./portals/applicant/applicant-portal.module').then(m => m.ApplicantPortalModule),
+            canMatch: [AuthGuard],
           },
         ],
       },
@@ -119,10 +83,6 @@ export const BASE_URL = new InjectionToken<string>('BASE_URL');
       },
     ]),
     BrowserAnimationsModule,
-    CalendarModule.forRoot({
-      provide: DateAdapter,
-      useFactory: adapterFactory,
-    }),
     JwtModule.forRoot({
       jwtOptionsProvider: {
         provide: JWT_OPTIONS,

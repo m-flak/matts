@@ -1,5 +1,5 @@
-@use '../styles/text.scss';
-@use '../styles/job-page-common.scss' as job;
+@use '../../../styles/text.scss';
+@use '../../../styles/job-page-common.scss' as job;
 
 @include text.emphasis;
 @include text.italicized;

@@ -17,50 +17,58 @@
  **/
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { NewJobPageComponent } from './new-job-page.component';
-import { MatCardModule } from '@angular/material/card';
-import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatInputModule } from '@angular/material/input';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HttpClientModule } from '@angular/common/http';
+import { HomeComponent } from './home.component';
+import { BackendService } from '../../../services/backend.service';
+import { of } from 'rxjs';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
-import { BackendService } from '../services/backend.service';
-import { TextFieldModule } from '@angular/cdk/text-field';
-import { ComponentsModule } from '../components/components.module';
-import { MonitorService } from '../services/monitor.service';
+import { HttpClientModule } from '@angular/common/http';
+import { JobConstants } from '../../../constants';
+import { ActivatedRoute } from '@angular/router';
+import { EmployerPortalModule } from '../employer-portal.module';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-describe('NewJobPageComponent', () => {
-  let component: NewJobPageComponent;
-  let fixture: ComponentFixture<NewJobPageComponent>;
+const jobs = [
+  {
+    id: 1,
+    name: 'Tester',
+    status: JobConstants.STATUS_OPEN,
+    applicants: [],
+  },
+];
+
+const FakeBackendService = {
+  getAllJobs: () => of(jobs),
+};
+
+describe('HomeComponent', () => {
+  let component: HomeComponent;
+  let fixture: ComponentFixture<HomeComponent>;
+  let service: BackendService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
         BrowserAnimationsModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatInputModule,
-        TextFieldModule,
-        MatCardModule,
         HttpClientModule,
         HttpClientTestingModule,
-        ComponentsModule,
+        EmployerPortalModule,
+        RouterTestingModule.withRoutes([]),
       ],
-      declarations: [NewJobPageComponent],
+      declarations: [HomeComponent],
       providers: [
-        FormBuilder,
+        //{ provide: 'BASE_URL', useValue: '' },
+        { provide: BackendService, useValue: FakeBackendService },
         {
-          provide: 'BASE_URL',
-          useValue: 'https://localhost/',
+          provide: ActivatedRoute,
+          useValue: { snapshot: { data: { jobList: jobs } } },
         },
-        BackendService,
-        MonitorService,
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(NewJobPageComponent);
+    service = TestBed.inject(BackendService);
+
+    fixture = TestBed.createComponent(HomeComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

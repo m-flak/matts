@@ -20,15 +20,14 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HomeApplicantComponent } from './home-applicant.component';
 import { HttpClientModule } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { MatCardModule } from '@angular/material/card';
 import { RouterTestingModule } from '@angular/router/testing';
-import { ComponentsModule } from '../components/components.module';
 import { of } from 'rxjs';
-import { JobConstants } from '../constants';
-import { BackendService } from '../services/backend.service';
+import { BackendService } from '../../../services/backend.service';
 import { JWT_OPTIONS, JwtHelperService } from '@auth0/angular-jwt';
-import { jwtOptionsFactory } from '../app.module';
-import { Job } from '../models';
+import { jwtOptionsFactory } from '../../../app.module';
+import { Job } from '../../../models';
+import { ApplicantPortalModule } from '../applicant-portal.module';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 const allJobs: Job[] = [
   {
@@ -72,10 +71,10 @@ describe('HomeApplicantComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
+        BrowserAnimationsModule,
         HttpClientModule,
         HttpClientTestingModule,
-        ComponentsModule,
-        MatCardModule,
+        ApplicantPortalModule,
         RouterTestingModule.withRoutes([]),
       ],
       declarations: [HomeApplicantComponent],

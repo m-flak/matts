@@ -9,7 +9,7 @@
     "start:default": "ng serve --port 44475 --ssl --ssl-cert \"$HOME/.aspnet/https/${npm_package_name}.pem\" --ssl-key \"$HOME/.aspnet/https/${npm_package_name}.key\"",
     "analyze": "webpack-bundle-analyzer ./dist/stats.json",
     "build": "ng build",
-    "build-analyze": "ng build --stats-json && analyze", 
+    "build-analyze": "ng build --stats-json && npm run analyze", 
     "build:ssr": "ng run matts:server:dev",
     "watch": "ng build --watch --configuration development",
     "test": "ng test --browsers=ChromeHeadless",

@@ -1,5 +1,5 @@
-@use '../styles/home-common.scss' as home;
-@use '../styles/text.scss';
+@use '../../../styles/home-common.scss' as home;
+@use '../../../styles/text.scss';
 
 @include home.home-container;
 @include home.under-toolbar;
