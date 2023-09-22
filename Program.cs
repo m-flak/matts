@@ -31,7 +31,7 @@ using matts.Services;
 using matts.Daos;
 using matts.Repositories;
 using matts.Constants;
-
+using matts.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -192,6 +192,17 @@ builder.Services.Configure<Neo4JConfiguration>(builder.Configuration.GetSection(
 builder.Services.Configure<JwtConfiguration>(builder.Configuration.GetSection("Jwt"));
 builder.Services.Configure<ClientAppConfiguration>(builder.Configuration.GetSection("ClientApp"));
 
+// CSRF/XSRF Protection Setup
+builder.Services.AddAntiforgery(options =>
+{
+    options.Cookie = new CookieBuilder
+    {
+        Name = "XSRF-TOKEN",
+        HttpOnly = false
+    };
+    options.HeaderName = "X-XSRF-TOKEN";
+});
+
 builder.Services.AddControllersWithViews();
 
 // SINGLETONS
@@ -225,17 +236,6 @@ builder.Services.AddScoped<IUserService, UserService>();
 // TRANSIENT
 builder.Services.AddTransient<IMapper, Mapper>();
 
-// CSRF/XSRF Protection Setup
-builder.Services.AddAntiforgery(options =>
-{
-    options.Cookie = new CookieBuilder
-    {
-        Name = "XSRF-TOKEN",
-        HttpOnly = false
-    };
-    options.HeaderName = "X-XSRF-TOKEN";
-});
-
 var app = builder.Build();
 if (useAzureAppConfig)
 {
@@ -254,6 +254,7 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<AntiforgeryMiddleware>();
 
 app.MapControllerRoute(
     name: "default",

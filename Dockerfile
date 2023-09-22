@@ -32,6 +32,7 @@ COPY ./Daos/* ./matts/Daos/
 COPY ./Interfaces/* ./matts/Interfaces/
 COPY ./matts.Tests/* ./matts/matts.Tests/
 COPY ./Models/* ./matts/Models/
+COPY ./Middleware/* ./matts/Middleware/
 COPY ./Pages/* ./matts/Pages/
 COPY ./Properties/* ./matts/Properties/
 COPY ./Repositories/* ./matts/Repositories/
