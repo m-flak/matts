@@ -70,3 +70,27 @@ section {
     @extend .registration-mode;
   }
 }
+
+$linkedin-color: #007fb1;
+.linkedin-signup-button {
+  background-color: $linkedin-color;
+  color: white;
+  border: none;
+  border-radius: 0.33rem;
+  box-sizing: border-box;
+  margin: 1em;
+  padding-right: 0.75rem;
+
+  img {
+    width: 2rem;
+    height: 2rem;
+  }
+  span {
+    vertical-align: sub;
+    line-height: 2.3;
+  }
+
+  &:active {
+    background-color: darken($linkedin-color, 5%);
+  }
+}
