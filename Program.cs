@@ -236,6 +236,9 @@ builder.Services.AddScoped<IUserService, UserService>();
 // TRANSIENT
 builder.Services.AddTransient<IMapper, Mapper>();
 
+// HTTP CLIENTS
+builder.Services.AddHttpClient("linkedin_client");
+
 var app = builder.Build();
 if (useAzureAppConfig)
 {

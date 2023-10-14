@@ -15,8 +15,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
+using matts.Models;
+
 namespace matts.Interfaces;
 
 public interface ILinkedinOAuthService : IOAuthService, IDisposable
 {
+    void SaveClientAuthCode(string clientId, string authCode);
+    void SaveProfileInformation(string clientId, UserRegistration profileInformation);
 }
