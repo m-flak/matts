@@ -89,6 +89,10 @@ describe('JobPageComponent', () => {
           provide: 'BASE_URL',
           useValue: 'https://localhost/',
         },
+        {
+          provide: 'WS_BASE_URL',
+          useValue: 'ws://localhost/',
+        },
         { provide: BackendService, useValue: FakeBackendService },
         JobPageDataService,
         {

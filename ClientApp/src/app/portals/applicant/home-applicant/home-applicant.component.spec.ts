@@ -83,6 +83,10 @@ describe('HomeApplicantComponent', () => {
           provide: 'BASE_URL',
           useValue: 'https://localhost/',
         },
+        {
+          provide: 'WS_BASE_URL',
+          useValue: 'ws://localhost/',
+        },
         { provide: BackendService, useValue: FakeBackendService },
         {
           provide: JWT_OPTIONS,

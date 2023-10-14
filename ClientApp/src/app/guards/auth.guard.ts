@@ -41,21 +41,6 @@ export class AuthGuard implements CanActivate, CanMatch {
 
   async canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<boolean | UrlTree> {
     return await this._doCheck(() => this.router.createUrlTree(['/welcome/login']));
-
-    // // Token is in local storage but no login was performed thru interaction
-    // if (!this.authService.isLoggedIn() && this.authService.hasToken()) {
-    //   try {
-    //     const _ = await lastValueFrom(this.authService.loginUser());
-    //     return true;
-    //   } catch (e) {
-    //     console.error(e);
-    //     return this.router.createUrlTree(['/welcome/login']);
-    //   }
-    // } else if (!this.authService.isLoggedIn()) {
-    //   return this.router.createUrlTree(['/welcome/login']);
-    // }
-
-    // return true;
   }
 
   async canMatch(route: Route, segments: UrlSegment[]): Promise<boolean | UrlTree> {

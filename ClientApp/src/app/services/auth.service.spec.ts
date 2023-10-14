@@ -15,6 +15,8 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **/
+import { Server } from 'mock-socket';
+import { Location } from '@angular/common';
 import { HttpClientModule, HttpResponse } from '@angular/common/http';
 import { HttpTestingController, HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
@@ -22,16 +24,21 @@ import { JWT_OPTIONS, JwtHelperService, JwtModule } from '@auth0/angular-jwt';
 import { jwtOptionsFactory } from '../app.module';
 import { AuthService } from './auth.service';
 import { UserRoleConstants } from '../constants';
-import { User, UserRegistration } from '../models';
-import { map, toArray } from 'rxjs';
+import { User, UserRegistration, WSAuthEventTypes, WSAuthMessage } from '../models';
+import { Subject, Subscription, map, toArray } from 'rxjs';
+import { CookieService } from 'ngx-cookie-service';
 
 // Contains the 'role' claim set to 'employer'
-const dummyToken =
+const DUMMY_TOKEN =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsIm5hbWUiOiJKb2huIERvZSIsImlhdCI6MTUxNjIzOTAyMiwicm9sZSI6ImVtcGxveWVyIn0.2sqxyiZcJHaLkSmBTTPu3gUqXEpJJKGJxNJi3_OuxrQ';
 
+const WEB_SOCKET_URL = 'ws://localhost:44475/';
+
 describe('AuthService', () => {
+  let websocketServer: Server;
   let httpMock: HttpTestingController;
   let authService: AuthService;
+  let cookieService: CookieService;
   let localStorage: any;
 
   beforeEach(() => {
@@ -44,10 +51,15 @@ describe('AuthService', () => {
           useValue: 'https://localhost/',
         },
         {
+          provide: 'WS_BASE_URL',
+          useValue: WEB_SOCKET_URL,
+        },
+        {
           provide: JWT_OPTIONS,
           useValue: jwtOptionsFactory('https://localhost/'),
         },
         JwtHelperService,
+        CookieService,
         AuthService,
       ],
     });
@@ -59,6 +71,7 @@ describe('AuthService', () => {
     spyOn(window.localStorage, 'clear').and.callFake(() => (localStorage = {}));
 
     authService = TestBed.inject(AuthService);
+    cookieService = TestBed.inject(CookieService);
     httpMock = TestBed.inject(HttpTestingController);
   });
 
@@ -91,7 +104,7 @@ describe('AuthService', () => {
     });
 
     const request = httpMock.expectOne('https://localhost/auth/login');
-    request.flush(dummyToken);
+    request.flush(DUMMY_TOKEN);
 
     httpMock.verify();
   });
@@ -112,7 +125,7 @@ describe('AuthService', () => {
     });
 
     const request = httpMock.expectOne('https://localhost/auth/login');
-    request.flush(dummyToken);
+    request.flush(DUMMY_TOKEN);
 
     httpMock.verify();
   });
@@ -125,18 +138,18 @@ describe('AuthService', () => {
     };
 
     authService.loginUser(user).subscribe(token => {
-      expect(token).toEqual(dummyToken);
+      expect(token).toEqual(DUMMY_TOKEN);
       done();
     });
 
     const request = httpMock.expectOne('https://localhost/auth/login');
-    request.flush(dummyToken);
+    request.flush(DUMMY_TOKEN);
 
     httpMock.verify();
   });
 
   it('should receive token for login endpoint when logged in', done => {
-    localStorage['access_token'] = dummyToken;
+    localStorage['access_token'] = DUMMY_TOKEN;
     const user: User = {
       userName: 'admin',
       password: 'password',
@@ -144,7 +157,7 @@ describe('AuthService', () => {
     };
 
     authService.loginUser(user).subscribe(token => {
-      expect(token).toEqual(dummyToken);
+      expect(token).toEqual(DUMMY_TOKEN);
       done();
     });
   });
@@ -169,5 +182,107 @@ describe('AuthService', () => {
     request.flush(null, { status: 200, statusText: 'OK' });
 
     httpMock.verify();
+  });
+
+  describe('OAuth Flow Websocket Tests', () => {
+    let clientIdentity = '';
+    let secondRequest = false;
+
+    beforeEach(() => {
+      cookieService.set('XSRF-TOKEN', '123');
+      secondRequest = false;
+      websocketServer = new Server(Location.joinWithSlash(WEB_SOCKET_URL, '/ws/oauth/linkedin'));
+      websocketServer.on('connection', (socket) => {
+        socket.send(JSON.stringify({
+          type: WSAuthEventTypes.SERVER_CONNECTION_ESTABLISHED,
+          clientIdentity: '',
+          data: null
+        }));
+        socket.on('message', (message) => {
+          if (typeof message !== 'string') {
+            return;
+          }
+          const parsedMsg: WSAuthMessage = JSON.parse(message);
+          if (parsedMsg.type === WSAuthEventTypes.CLIENT_OAUTH_START) {
+            clientIdentity = parsedMsg.clientIdentity;
+            const reply: WSAuthMessage = {
+              type: WSAuthEventTypes.SERVER_OAUTH_STARTED,
+              clientIdentity: clientIdentity,
+              data: null
+            };
+            socket.send(JSON.stringify(reply));
+          }
+          else if (parsedMsg.type === WSAuthEventTypes.CLIENT_OAUTH_REQUEST_STATUS) {
+            if (secondRequest === false) {
+              const reply: WSAuthMessage = {
+                type: WSAuthEventTypes.SERVER_OAUTH_PENDING,
+                clientIdentity: clientIdentity,
+                data: null
+              };
+              socket.send(JSON.stringify(reply));
+              secondRequest = true;
+            }
+            else {
+              const theData: UserRegistration = {
+                fullName: 'John Doe',
+                companyName: null,
+                email: 'john.doe@gmail.com',
+                phoneNumber: '555-555-5454',
+                userName: '',
+                password: '',
+                role: ''
+              };
+              const reply: WSAuthMessage = {
+                type: WSAuthEventTypes.SERVER_OAUTH_COMPLETED,
+                clientIdentity: clientIdentity,
+                data: theData
+              };
+              socket.send(JSON.stringify(reply));
+            }
+          }
+        })
+      });
+    });
+
+    it('waits and retrieves the user profile information claims', (done) => {
+      spyOn(cookieService, 'get').and.callThrough();
+
+      const sendToSocket = new Subject<WSAuthMessage>();
+      const socketMessages = authService.getWSAuthStream(sendToSocket);
+
+      let sub: Subscription = socketMessages.subscribe(jsonMsg => {
+        const message: WSAuthMessage = JSON.parse(jsonMsg);
+        if (message) {
+          if (message.type === WSAuthEventTypes.SERVER_CONNECTION_ESTABLISHED) {
+            authService.sendWSAuthStart(sendToSocket);
+            expect(cookieService.get).toHaveBeenCalled();
+          }
+          else if (message.type === WSAuthEventTypes.SERVER_OAUTH_STARTED || message.type === WSAuthEventTypes.SERVER_OAUTH_PENDING) {
+            expect(clientIdentity).toEqual('123');
+            const reply: WSAuthMessage = {
+              type: WSAuthEventTypes.CLIENT_OAUTH_REQUEST_STATUS,
+              clientIdentity: clientIdentity,
+              data: null
+            };
+            sendToSocket.next(reply);
+          }
+          else if (message.type === WSAuthEventTypes.SERVER_OAUTH_COMPLETED) {
+            expect(message.data).not.toBeNull();
+            expect(message.data).toBeDefined();
+            const theData: UserRegistration = message.data;
+            expect(theData.fullName).toEqual('John Doe');
+            expect(theData.email).toEqual('john.doe@gmail.com');
+            expect(theData.phoneNumber).toEqual('555-555-5454');
+            authService.terminateWSAuthStream(sub, sendToSocket);
+            done();
+          }
+        }
+      })
+    });
+
+    afterEach(() => {
+      websocketServer.close();
+      clientIdentity = '';
+    });
   });
 });

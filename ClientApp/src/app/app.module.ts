@@ -27,8 +27,10 @@ import { PipesModule } from './pipes/pipes.module';
 import { LOADING_BAR_CONFIG, LoadingBarModule } from '@ngx-loading-bar/core';
 import { LoadingBarHttpClientModule } from '@ngx-loading-bar/http-client';
 import { LoadingBarRouterModule } from '@ngx-loading-bar/router';
+import { CookieService } from 'ngx-cookie-service';
 
 export const BASE_URL = new InjectionToken<string>('BASE_URL');
+export const WS_BASE_URL = new InjectionToken<string>('WS_BASE_URL');
 
 @NgModule({
   declarations: [AppComponent, AppRootHomeComponent, NavMenuComponent, LoginPageComponent],
@@ -101,6 +103,10 @@ export const BASE_URL = new InjectionToken<string>('BASE_URL');
       useExisting: 'BASE_URL',
     },
     {
+      provide: WS_BASE_URL,
+      useExisting: 'WS_BASE_URL',
+    },
+    {
       provide: APP_INITIALIZER,
       multi: true,
       deps: [ConfigService],
@@ -111,6 +117,7 @@ export const BASE_URL = new InjectionToken<string>('BASE_URL');
       },
     },
     { provide: LOADING_BAR_CONFIG, useValue: { latencyThreshold: 125 } },
+    CookieService
   ],
   bootstrap: [AppComponent],
 })

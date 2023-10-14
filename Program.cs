@@ -215,7 +215,7 @@ builder.Services.AddSingleton<IDriver>(implementationFactory: provider =>
     }
     return GraphDatabase.Driver(settings.ConnectionURL, AuthTokens.Basic(settings.User, settings.Password));
 });
-
+builder.Services.AddSingleton<ILinkedinOAuthService, LinkedinOAuthService>();
 
 // SCOPED
 builder.Services.AddScoped<IValidator<User>, UserValidator>();
@@ -249,12 +249,14 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<AntiforgeryMiddleware>();
+app.UseWebSockets();
 
 app.MapControllerRoute(
     name: "default",
@@ -263,3 +265,5 @@ app.MapControllerRoute(
 app.MapFallbackToFile("index.html");
 
 app.Run();
+
+public partial class Program { }

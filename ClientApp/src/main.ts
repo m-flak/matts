@@ -12,8 +12,14 @@ export function getBaseUrl() {
   return document.getElementsByTagName('base')[0].href;
 }
 
+export function websocketBaseUrl() {
+  const baseUrl = getBaseUrl();
+  return baseUrl.replace(new URL(baseUrl).protocol, 'ws:');
+}
+
 const providers = [
-  { provide: 'BASE_URL', useFactory: getBaseUrl, deps: [] }
+  { provide: 'BASE_URL', useFactory: getBaseUrl, deps: [] },
+  { provide: 'WS_BASE_URL', useFactory: websocketBaseUrl, deps: [] },
 ];
 
 if (environment.production) {

@@ -20,8 +20,10 @@ import { Location } from '@angular/common';
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable, Inject } from '@angular/core';
 import { JwtHelperService } from '@auth0/angular-jwt';
-import { User, UserRegistration } from '../models';
-import { Observable, catchError, of, tap, throwError } from 'rxjs';
+import { User, UserRegistration, WSAuthEventTypes, WSAuthMessage } from '../models';
+import { Observable, Subject, Subscription, catchError, map, of, share, switchMap, tap, throwError } from 'rxjs';
+import { CookieService } from 'ngx-cookie-service';
+import makeWebSocketObservable, { GetWebSocketResponses  } from 'rxjs-websockets';
 
 export interface CurrentUser extends User {
   applicantId: string | null;
@@ -34,10 +36,14 @@ export interface CurrentUser extends User {
 export class AuthService {
   private _currentUser: CurrentUser | null = null;
 
+  private _oauthSocket$: Observable<GetWebSocketResponses<any>> | null = null;
+
   constructor(
     private http: HttpClient,
     private jwtHelper: JwtHelperService,
+    private cookieService: CookieService,
     @Inject('BASE_URL') private baseUrl: string,
+    @Inject('WS_BASE_URL') private wsBaseUrl: string,
   ) {}
 
   get currentUser(): CurrentUser | null {
@@ -125,5 +131,35 @@ export class AuthService {
     }
 
     return role;
+  }
+
+  terminateWSAuthStream(connection: Subscription, sendToSocket: Subject<WSAuthMessage>) {
+    sendToSocket.complete();
+    connection.unsubscribe();
+    this._oauthSocket$ = null;
+  }
+
+  sendWSAuthStart(sendToSocket: Subject<WSAuthMessage>) {
+    sendToSocket.next({
+      type: WSAuthEventTypes.CLIENT_OAUTH_START,
+      clientIdentity: this.cookieService.get('XSRF-TOKEN'),
+      data: null
+    });
+  }
+
+  getWSAuthStream(sendToSocket: Subject<WSAuthMessage>) {
+    this._oauthSocket$ = (this._oauthSocket$ !== null) ? this._oauthSocket$ : makeWebSocketObservable(Location.joinWithSlash(this.wsBaseUrl, '/ws/oauth/linkedin'));
+
+    return this._oauthSocket$.pipe(
+      switchMap((getResponses: GetWebSocketResponses) => {
+        return getResponses(sendToSocket.pipe(map(m => JSON.stringify(m)))) as unknown as string;
+      }),
+      share(),
+      map((message: string) => message),
+      catchError(e => {
+        console.error('OAuth WS error: ', e);
+        return [];
+      })
+    );
   }
 }

@@ -98,8 +98,8 @@ public class SasControllerTests
                 );
             Assert.Equal(damnQueryString["skoid"], skoid);
             Assert.Equal(damnQueryString["sktid"], sktid);
-            Assert.Equal(damnQueryString["skt"], key.SignedStartsOn.ToString("yyyy-MM-dd'T'H:mm:ss'Z'"));
-            Assert.Equal(damnQueryString["ske"], key.SignedExpiresOn.ToString("yyyy-MM-dd'T'H:mm:ss'Z'"));
+            Assert.Equal(damnQueryString["skt"], key.SignedStartsOn.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'"));
+            Assert.Equal(damnQueryString["ske"], key.SignedExpiresOn.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'"));
             Assert.True(damnQueryString["skv"] != null && damnQueryString["skv"]!.Length > 0);
 
             return query;
