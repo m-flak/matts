@@ -46,20 +46,23 @@ public class LinkedinOAuthServiceTests
     // TODO
     //
     [Fact]
-    public void Flow_GetProfileInformation_AfterAuthCodes()
+    public async Task Flow_GetProfileInformation_AfterAuthCodes()
     {
         _httpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_httpClient.CreateClient());
 
-        _httpClient.SetupRequest(HttpMethod.Post, "https://www.linkedin.com/oauth/v2/accessToken")
+        _httpClient.SetupRequest(HttpMethod.Post, "https://www.linkedin.com/oauth/v2/accessToken", r => r.Content is FormUrlEncodedContent)
             .ReturnsResponse(HttpStatusCode.Unauthorized);
         _httpClient.SetupRequest(HttpMethod.Get, "https://api.linkedin.com/v2/me")
+            .ReturnsResponse(HttpStatusCode.Unauthorized);
+        _httpClient.SetupRequest(HttpMethod.Get, "https://api.linkedin.com/v2/clientAwareMemberHandles?q=members&projection=(elements*(primary,type,handle~))")
             .ReturnsResponse(HttpStatusCode.Unauthorized);
 
         // SUT
         var sut = new LinkedinOAuthService(_logger, _httpClientFactory.Object);
 
         var ids = Enumerable.Range(0, 21)
-            .Select(_ => Guid.NewGuid().ToString());
+            .Select(_ => Guid.NewGuid().ToString())
+            .ToList();
 
         foreach (var id in ids)
         {
@@ -70,9 +73,23 @@ public class LinkedinOAuthServiceTests
         {
             sut.SaveClientAuthCode(id, "123");
         }
+        
+        foreach (var id in ids)
+        {
+            bool failed = false;
+            Exception? thrownEx = null;
+            while (!failed && !sut.IsFlowComplete(id))
+            {
+                await Task.Delay(100);
+                failed = sut.DidFlowFail(id, out thrownEx);
+            }
+
+            Assert.False(failed);
+            Assert.Null(thrownEx);
+        }
 
         _httpClient.VerifyRequest(HttpMethod.Post, "https://www.linkedin.com/oauth/v2/accessToken", Times.Exactly(ids.Count()));
         _httpClient.VerifyRequest(HttpMethod.Get, "https://api.linkedin.com/v2/me", Times.Exactly(ids.Count()));
-
+        _httpClient.VerifyRequest(HttpMethod.Get, "https://api.linkedin.com/v2/clientAwareMemberHandles?q=members&projection=(elements*(primary,type,handle~))", Times.Exactly(ids.Count()));
     }
 }

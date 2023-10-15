@@ -15,14 +15,40 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 
-namespace matts.Interfaces;
+namespace matts.Models.Linkedin;
 
-public interface IOAuthService
+public class PrimaryContact
 {
-    void StartFlow(string clientId);
-    bool IsFlowComplete(string clientId);
-    bool DidFlowFail(string clientId, [MaybeNullWhen(false)] out Exception failureInfo);
-    T? PullFlowResults<T>(string clientId) where T : class;
+    public List<ContactElement>? Elements { get; set; }
+}
+
+public class ContactElement
+{
+    [JsonPropertyName("handle")]
+    public string? HandleUrn { get; set; }
+
+    [JsonPropertyName("handle~")]
+    public Dictionary<string, object>? HandleData { get; set; }
+
+    [JsonPropertyName("handle!")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public Dictionary<string, object>? HandleError { get; set; }
+
+    public bool? Primary { get; set; }
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public ContactType? Type { get; set; }
+}
+
+public enum ContactType
+{
+    EMAIL,
+    PHONE
+}
+
+public class PhoneNumber
+{
+    public string? Number { get; set; }
 }

@@ -15,14 +15,33 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-using System.Diagnostics.CodeAnalysis;
+namespace matts.Models.Linkedin;
 
-namespace matts.Interfaces;
-
-public interface IOAuthService
+public class Profile
 {
-    void StartFlow(string clientId);
-    bool IsFlowComplete(string clientId);
-    bool DidFlowFail(string clientId, [MaybeNullWhen(false)] out Exception failureInfo);
-    T? PullFlowResults<T>(string clientId) where T : class;
+    public FirstName? FirstName { get; set; }
+    public string? LocalizedFirstName { get; set; }
+    public Headline? Headline { get; set; }
+    public string? LocalizedHeadline { get; set; }
+    public string? VanityName { get; set; }
+    public string? Id { get; set; }
+    public LastName? LastName { get; set; }
+    public string? LocalizedLastName { get; set; }
+    public ProfilePicture? ProfilePicture { get; set; }
+}
+
+public class Headline : LocalizedData
+{
+}
+public class FirstName : LocalizedData
+{
+}
+
+public class LastName : LocalizedData
+{
+}
+
+public class ProfilePicture
+{
+    public string? DisplayImage { get; set; }
 }

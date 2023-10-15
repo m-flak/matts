@@ -17,8 +17,14 @@
 **/
 using matts.Interfaces;
 using matts.Models;
+using matts.Models.Linkedin;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
+using System.Text.Json;
+using JorgeSerrano.Json;
+using Mapster;
+using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 
 namespace matts.Services;
 
@@ -28,13 +34,26 @@ using AuthCode = String;
 public class LinkedinOAuthService : ILinkedinOAuthService
 {
     private const int MAX_THREADS = 4;
+    private const int TIMEOUT_MS = 30000;
+    private const int LOGGER_CLID_MAXLENGTH = 36;
+
+    private static readonly JsonSerializerOptions OAUTH_OPTIONS = new JsonSerializerOptions
+    {
+        PropertyNamingPolicy = new JsonSnakeCaseNamingPolicy()
+    };
+    private static readonly JsonSerializerOptions API_OPTIONS = new JsonSerializerOptions
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
 
     private readonly ILogger<LinkedinOAuthService> _logger;
     private readonly HttpClient _httpClient;
-    private readonly ConcurrentQueue<KeyValuePair<ClientIdentity, AuthCode>> _authCodes = new();
-    private readonly ConcurrentDictionary<ClientIdentity, UserRegistration?> _data = new();
-    private readonly ConcurrentDictionary<ClientIdentity, object?> _pending = new();
-    private readonly CancellationTokenSource _cancellation = new();
+
+    internal ConcurrentQueue<KeyValuePair<string, string>> AuthCodes { get; } = new();
+    internal ConcurrentDictionary<string, UserRegistration?> Data { get; } = new();
+    internal ConcurrentDictionary<string, object?> Pending { get; } = new();
+    internal ConcurrentDictionary<string, Exception> Failed { get; } = new();
+    internal CancellationTokenSource Cancellation { get; } = new();
 
     internal object Lock { get; } = new object();
     internal Thread[] Threads { get; private set; } = default!;
@@ -59,78 +78,104 @@ public class LinkedinOAuthService : ILinkedinOAuthService
 
     public void Dispose()
     {
-        _cancellation.Cancel();
+        Cancellation.Cancel();
         _httpClient.Dispose();
         GC.SuppressFinalize(this);
     }
 
     public bool IsFlowComplete(string clientId)
     {
-        return _data.ContainsKey(clientId) && !_pending.TryGetValue(clientId, out var _);
+        return Data.ContainsKey(clientId) && !Pending.TryGetValue(clientId, out var _);
+    }
+
+    public bool DidFlowFail(string clientId, [MaybeNullWhen(false)] out Exception failureInfo)
+    {
+        bool failed = Failed.TryGetValue(clientId, out var ex);
+        if (failed)
+        {
+            failureInfo = ex;
+            Failed.TryRemove(clientId, out var _);
+        }
+        else
+        {
+            failureInfo = default;
+        }
+        return failed;
     }
 
     public T? PullFlowResults<T>(string clientId) where T : class
     {
-        T? result = (_data.GetValueOrDefault(clientId, null) as T);
+        T? result = (Data.GetValueOrDefault(clientId, null) as T);
         if (result != null)
         {
-            _pending.TryRemove(clientId, out var _);
+            Pending.TryRemove(clientId, out var _);
         }
         return result;
     }
 
     public void StartFlow(string clientId)
     {
-        _pending.TryAdd(clientId, null);
-        _data.TryAdd(clientId, null);
+        Pending.TryAdd(clientId, null);
+        Data.TryAdd(clientId, null);
 
-        _logger.LogInformation("LinkedIn OAuth Flow Started for: '{Client}'.", clientId);
+        _logger.LogInformation("LinkedIn OAuth Flow Started for: '{Client}'.", TruncateClientId(clientId));
     }
 
     public void SaveClientAuthCode(string clientId, string authCode)
     {
-        _authCodes.Enqueue(new KeyValuePair<ClientIdentity, ClientIdentity>(clientId, authCode));
+        AuthCodes.Enqueue(new KeyValuePair<ClientIdentity, ClientIdentity>(clientId, authCode));
 
-        _logger.LogInformation("LinkedIn OAuth Flow Authenticated for: '{Client}'.", clientId);
+        _logger.LogInformation("LinkedIn OAuth Flow Authenticated for: '{Client}'.", TruncateClientId(clientId));
     }
 
     public void SaveProfileInformation(string clientId, UserRegistration profileInformation)
     {
-        _data.AddOrUpdate(clientId, AddValueFactory, UpdateValueFactory, profileInformation);
-        _pending.TryRemove(clientId, out var _);
+        Data.AddOrUpdate(clientId, AddValueFactory, UpdateValueFactory, profileInformation);
+        Pending.TryRemove(clientId, out var _);
 
         _logger.LogInformation("LinkedIn OAuth Flow Completed for: '{Client}'.", clientId);
     }
 
     private void ThreadProc()
     {
-        _logger.LogInformation("LinkedinOAuth Helper Thread: Spawning...");
-        while (!_cancellation.IsCancellationRequested)
+        _logger.LogInformation("Helper Threads: Spawning...");
+        while (!Cancellation.IsCancellationRequested)
         {
-            Thread.Sleep(500);
-
             bool haveWork = true;
-            ClientIdentity client;
-            AuthCode authCode;
+            // We already have:
+            ClientIdentity client = "";
+            AuthCode authCode = "";
+            // We still need:
+            string accessToken = "";
+            Profile? profile = null;
+            PrimaryContact? contactInfo = null;
 
+            // Each thread will handle its own auth flow from the queue
             Monitor.Enter(Lock);
             try
             {
-                haveWork = _authCodes.TryGetNonEnumeratedCount(out var count);
+                haveWork = AuthCodes.TryGetNonEnumeratedCount(out var count);
 
                 if (haveWork && count > 0)
                 {
-                    haveWork &= _authCodes.TryDequeue(out var result);
+                    haveWork = AuthCodes.TryDequeue(out var result) && haveWork;
                     if (haveWork)
                     {
                         client = result.Key;
                         authCode = result.Value;
                     }
+                    haveWork = Pending.ContainsKey(client) && haveWork;
+                }
+                else // avoid deadlock
+                {
+                    // count was 0, so no there is no work
+                    haveWork = false;
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "LinkedinOAuth Helper Thread: Exception encountered!");
+                _logger.LogError(ex, "Helper Threads: Exception encountered!");
+                HandleFailure(client, ex);
                 continue;
             }
             finally 
@@ -140,20 +185,133 @@ public class LinkedinOAuthService : ILinkedinOAuthService
 
             if (!haveWork)
             {
+                Thread.Sleep(1000);
+                continue;
+            }
+
+            /* COMPLETE THE AUTHORIZATION CODE FLOW! (hopefully...)
+             * 
+             * HLL Reference here: https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow?tabs=HTTPS1
+             * 
+             * First try/catch - Step 3: Exchange Authorization Code for an Access Token
+             * Further try/catches - Step 4: Make Authenticated Requests
+             */
+            try
+            {
+                var tokenRequest = new HttpRequestMessage(HttpMethod.Post, "https://www.linkedin.com/oauth/v2/accessToken")
+                {
+                    Content = new FormUrlEncodedContent(
+                        new Dictionary<string, string>
+                        {
+                            ["grant_type"] = "authorization_code",
+                            ["code"] = authCode,
+                            ["client_id"] = "CLIENTID",
+                            ["client_secret"] = "SECRET",
+                            ["redirect_uri"] = "URL"
+                        })
+                };
+                var getToken = _httpClient.SendAsync(tokenRequest, Cancellation.Token);
+                if (!getToken.Wait(TIMEOUT_MS, Cancellation.Token))
+                {
+                    throw new TimeoutException("Timeout exceeded for access token exchange REST call!");
+                }
+                HttpResponseMessage response = getToken.Result;
+                response.EnsureSuccessStatusCode();
+
+                var getTokenResponseBody = response.Content.ReadFromJsonAsync(typeof(AuthResponse), OAUTH_OPTIONS, Cancellation.Token);
+                if (!getTokenResponseBody.Wait(TIMEOUT_MS, Cancellation.Token))
+                {
+                    throw new TimeoutException("Timeout exceeded for access token exchange REST call!");
+                }
+
+                AuthResponse? authStuff = 
+                    getTokenResponseBody.Result as AuthResponse ??
+                        throw new IOException("Cannot read the deserialized Linkedin AuthResponse.");
+
+                accessToken = authStuff.AccessToken ??
+                    throw new IOException("Cannot read the access token from the Linkedin AuthResponse.");
+
+                _logger.LogInformation("Helper Threads: Successfully exchanged auth code for access token for {Client}", TruncateClientId(client));
+            }
+            catch (OperationCanceledException)
+            {
+                // Thread cancelled
+                break;
+            }
+            catch (ObjectDisposedException)
+            {
+                // The service has been disposed and the thread cancelled
+                break;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Helper Threads: Exception encountered while fetching access token for client {ID}", TruncateClientId(client));
+                HandleFailure(client, ex);
+                continue;
+            }
+
+            try
+            {
+                var profileRequest = new HttpRequestMessage(HttpMethod.Get, "https://api.linkedin.com/v2/me");
+                profileRequest.Headers.Add("Authorization", $"Bearer {accessToken}");
+                var getProfile = _httpClient.SendAsync(profileRequest, Cancellation.Token);
+                if (!getProfile.Wait(TIMEOUT_MS, Cancellation.Token))
+                {
+                    throw new TimeoutException("Timeout exceeded for profile retrieval REST call!");
+                }
+                HttpResponseMessage response = getProfile.Result;
+                response.EnsureSuccessStatusCode();
+
+                var getProfileResponseBody = response.Content.ReadFromJsonAsync(typeof(Profile), API_OPTIONS, Cancellation.Token);
+                if (!getProfileResponseBody.Wait(TIMEOUT_MS, Cancellation.Token))
+                {
+                    throw new TimeoutException("Timeout exceeded for profile retrieval REST call!");
+                }
+
+                profile = getProfileResponseBody.Result as Profile ??
+                        throw new IOException("Cannot read the deserialized Linkedin Profile.");
+
+                _logger.LogInformation("Helper Threads: Successfully acquired profile data for {Client}", TruncateClientId(client));
+            }
+            catch (OperationCanceledException)
+            {
+                // Thread cancelled
+                break;
+            }
+            catch (ObjectDisposedException)
+            {
+                // The service has been disposed and the thread cancelled
+                break;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Helper Threads: Exception encountered while fetching profile information for client {ID}", TruncateClientId(client));
+                HandleFailure(client, ex);
                 continue;
             }
 
             //TODO
-            //_httpClient.PostAsync("https://www.linkedin.com/oauth/v2/accessToken", new FormUrlEncodedContent(xchgParams), _cancellation.Token);
-            //_httpClient.SendAsync(getProfileRequest, _cancellation.Token);
+            TypeAdapterConfig<(Profile, PrimaryContact), UserRegistration>
+                .NewConfig() // barf
+                .Map(dest => dest.FullName!, src => $"{src.Item1.FirstName!.Localized![$"{src.Item1.FirstName!.PreferredLocale!.Language}_{src.Item1.FirstName!.PreferredLocale!.Country}"]} {src.Item1.LastName!.Localized![$"{src.Item1.LastName!.PreferredLocale!.Language}_{src.Item1.LastName!.PreferredLocale!.Country}"]}")
+                .Map(dest => dest.Email, src => src.Item2.Elements!.Where(e => e.Type == ContactType.EMAIL).Select(e => e.HandleData!["emailAddress"] as string).FirstOrDefault(""))
+                .Map(dest => dest.PhoneNumber, src => src.Item2.Elements!.Where(p => p.Type == ContactType.PHONE).Select(p => p.HandleData!["phoneNumber"] as PhoneNumber).Select(p => p!.Number).FirstOrDefault(""))
+                .Compile(); // barf
 
-            Thread.Sleep(500);
+            SaveProfileInformation(client, new UserRegistration());
         }
+    }
+
+    private void HandleFailure(string client, Exception ex)
+    {
+        Data.TryRemove(client, out _);
+        Pending.TryRemove(client, out _);
+        Failed.TryAdd(client, ex);
     }
 
     private UserRegistration? AddValueFactory(string key, UserRegistration value)
     {
-        _logger.LogWarning("SaveProfileInformation() - Performed ADD for: '{Client}'.", key);
+        _logger.LogWarning("SaveProfileInformation() - Performed ADD for: '{Client}'.", TruncateClientId(key));
         return value;
     }
 
@@ -161,11 +319,18 @@ public class LinkedinOAuthService : ILinkedinOAuthService
     {
         if (oldValue != null)
         {
-            _logger.LogWarning("SaveProfileInformation() - Tried UPDATE on completed flow for: '{Client}'.", key);
+            _logger.LogWarning("SaveProfileInformation() - Tried UPDATE on completed flow for: '{Client}'.", TruncateClientId(key));
             return oldValue;
         }
 
-        _logger.LogInformation("LinkedIn OAuth Flow Profile Information saved for: '{Client}'.", key);
+        _logger.LogInformation("LinkedIn OAuth Flow Profile Information saved for: '{Client}'.", TruncateClientId(key));
         return newValue;
+    }
+
+    private static string TruncateClientId(string clientId)
+    {
+        return (clientId.Length > LOGGER_CLID_MAXLENGTH)
+            ? $"{clientId[0..LOGGER_CLID_MAXLENGTH]}..."
+            : clientId;
     }
 }

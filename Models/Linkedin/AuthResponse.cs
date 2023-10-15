@@ -15,14 +15,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-using System.Diagnostics.CodeAnalysis;
+namespace matts.Models.Linkedin;
 
-namespace matts.Interfaces;
-
-public interface IOAuthService
+public class AuthResponse
 {
-    void StartFlow(string clientId);
-    bool IsFlowComplete(string clientId);
-    bool DidFlowFail(string clientId, [MaybeNullWhen(false)] out Exception failureInfo);
-    T? PullFlowResults<T>(string clientId) where T : class;
+    public string? AccessToken { get; set; }
+    public int? ExpiresIn { get; set; }
+    public string? RefreshToken { get; set;}
+    public int? RefreshTokenExpiresIn { get; set; }
+    public string? Scope { get; set;}
 }
