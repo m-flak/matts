@@ -15,17 +15,19 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-using System.Diagnostics.CodeAnalysis;
+namespace matts.Configuration;
 
-namespace matts.Interfaces;
-
-public interface IOAuthService
+public sealed class OauthConfiguration
 {
-    void StartFlow(string clientId);
-    void CancelFlow(string clientId);
-    void CancelFlow(string clientId, Exception failureInfo);
-    bool IsFlowComplete(string clientId);
-    bool IsFlowInProgress(string clientId);
-    bool DidFlowFail(string clientId, [MaybeNullWhen(false)] out Exception failureInfo);
-    T? PullFlowResults<T>(string clientId) where T : class;
+    public OauthConfig[]? OauthConfigurations { get; set; }
+}
+
+public sealed class OauthConfig
+{
+    public string? ServiceName { get; set; }
+    public Dictionary<string, Uri>? ServiceUris { get; set; }
+    public string? ClientId { get; set; }
+    public string? ClientSecret { get; set;}
+    public Uri? RedirectUri { get; set; }
+    public string? Scope { get; set; }
 }

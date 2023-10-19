@@ -29,6 +29,15 @@ public class CustomWebApplicationFactory<TProgram>
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile(
+                    path: "appsettings.Test.json",
+                    optional: false,
+                    reloadOnChange: true)
+                .Build();
+
+        builder.UseConfiguration(configuration);
         builder.UseKestrel();
         builder.ConfigureTestServices(services =>
         {
@@ -39,6 +48,7 @@ public class CustomWebApplicationFactory<TProgram>
             {
                 options.KeepAliveInterval = TimeSpan.FromMinutes(2);
             });
+            services.AddSingleton<IConfiguration>(configuration);
         });
         builder.UseEnvironment("Development");
     }

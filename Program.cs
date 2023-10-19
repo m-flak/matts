@@ -192,6 +192,29 @@ builder.Services.Configure<Neo4JConfiguration>(builder.Configuration.GetSection(
 builder.Services.Configure<JwtConfiguration>(builder.Configuration.GetSection("Jwt"));
 builder.Services.Configure<ClientAppConfiguration>(builder.Configuration.GetSection("ClientApp"));
 
+// CONFIGURATION FOR IOPTIONSSNAPSHOT
+{
+    // Oauth Config
+    var oauthConfigs = builder.Configuration.GetSection("Oauth")
+        .GetSection("OauthConfigurations")
+        .Get<OauthConfig[]>()
+            ?? throw new ApplicationException("MISSING REQUIRED CONFIG SECTION: OauthConfigurations");
+
+    int i = 0;
+    foreach (var config in oauthConfigs)
+    {
+        if (config.GetType().GetProperties().Any(info => info.GetValue(config) is null))
+        {
+            throw new ApplicationException($"MISSING REQUIRED CONFIG VALUE WITHIN: OauthConfigurations[{i}]");
+        }
+
+        builder.Services.Configure<OauthConfig>(
+                config.ServiceName,
+                builder.Configuration.GetSection($"Oauth:OauthConfigurations:{i++}")
+            );
+    }
+}
+
 // CSRF/XSRF Protection Setup
 builder.Services.AddAntiforgery(options =>
 {

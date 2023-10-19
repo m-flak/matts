@@ -25,6 +25,8 @@ using JorgeSerrano.Json;
 using Mapster;
 using System.Linq;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Options;
+using matts.Configuration;
 
 namespace matts.Services;
 
@@ -48,6 +50,7 @@ public class LinkedinOAuthService : ILinkedinOAuthService
 
     private readonly ILogger<LinkedinOAuthService> _logger;
     private readonly HttpClient _httpClient;
+    private readonly OauthConfig _config;
 
     internal ConcurrentQueue<KeyValuePair<string, string>> AuthCodes { get; } = new();
     internal ConcurrentDictionary<string, UserRegistration?> Data { get; } = new();
@@ -58,10 +61,11 @@ public class LinkedinOAuthService : ILinkedinOAuthService
     internal object Lock { get; } = new object();
     internal Thread[] Threads { get; private set; } = default!;
 
-    public LinkedinOAuthService(ILogger<LinkedinOAuthService> logger, IHttpClientFactory httpClientFactory)
+    public LinkedinOAuthService(ILogger<LinkedinOAuthService> logger, IHttpClientFactory httpClientFactory, IOptionsMonitor<OauthConfig> optionsFactory)
     {
         _logger = logger;
         _httpClient = httpClientFactory.CreateClient("linkedin_client");
+        _config = optionsFactory.Get("LinkedIn");
 
         Threads = new Thread[MAX_THREADS]
         {
@@ -74,6 +78,13 @@ public class LinkedinOAuthService : ILinkedinOAuthService
         {
             t.Start();
         }
+
+        TypeAdapterConfig<(Profile, PrimaryContact), UserRegistration>
+            .NewConfig() // barf
+            .Map(dest => dest.FullName!, src => $"{src.Item1.FirstName!.Localized![$"{src.Item1.FirstName!.PreferredLocale!.Language}_{src.Item1.FirstName!.PreferredLocale!.Country}"]} {src.Item1.LastName!.Localized![$"{src.Item1.LastName!.PreferredLocale!.Language}_{src.Item1.LastName!.PreferredLocale!.Country}"]}")
+            .Map(dest => dest.Email!, src => src.Item2.Elements!.Where(e => e.Type == ContactType.EMAIL).Select(e => e.HandleData).Single()!.GetValueOrDefault("emailAddress", ""))
+            .Map(dest => dest.PhoneNumber!, src => (src.Item2.Elements!.Where(p => p.Type == ContactType.PHONE).Select(e => e.HandleData).Single()!.GetValueOrDefault("phoneNumber", new PhoneNumber()) as PhoneNumber)!.Number ?? "", srcCond => srcCond.Item2.Elements!.Exists(e => e.Type == ContactType.PHONE))
+            .Compile(); // barf
     }
 
     public void Dispose()
@@ -86,6 +97,11 @@ public class LinkedinOAuthService : ILinkedinOAuthService
     public bool IsFlowComplete(string clientId)
     {
         return Data.ContainsKey(clientId) && !Pending.TryGetValue(clientId, out var _);
+    }
+
+    public bool IsFlowInProgress(string clientId)
+    {
+        return Data.ContainsKey(clientId) && Pending.TryGetValue(clientId, out var _);
     }
 
     public bool DidFlowFail(string clientId, [MaybeNullWhen(false)] out Exception failureInfo)
@@ -119,6 +135,17 @@ public class LinkedinOAuthService : ILinkedinOAuthService
         Data.TryAdd(clientId, null);
 
         _logger.LogInformation("LinkedIn OAuth Flow Started for: '{Client}'.", TruncateClientId(clientId));
+    }
+
+    public void CancelFlow(string clientId)
+    {
+        Data.TryRemove(clientId, out _);
+        Pending.TryRemove(clientId, out _);
+    }
+
+    public void CancelFlow(string clientId, Exception failureInfo)
+    {
+        HandleFailure(clientId, failureInfo);
     }
 
     public void SaveClientAuthCode(string clientId, string authCode)
@@ -198,16 +225,16 @@ public class LinkedinOAuthService : ILinkedinOAuthService
              */
             try
             {
-                var tokenRequest = new HttpRequestMessage(HttpMethod.Post, "https://www.linkedin.com/oauth/v2/accessToken")
+                var tokenRequest = new HttpRequestMessage(HttpMethod.Post, _config.ServiceUris!["accessToken"])
                 {
                     Content = new FormUrlEncodedContent(
                         new Dictionary<string, string>
                         {
                             ["grant_type"] = "authorization_code",
                             ["code"] = authCode,
-                            ["client_id"] = "CLIENTID",
-                            ["client_secret"] = "SECRET",
-                            ["redirect_uri"] = "URL"
+                            ["client_id"] = _config.ClientId!,
+                            ["client_secret"] = _config.ClientSecret!,
+                            ["redirect_uri"] = _config.RedirectUri!.ToString()
                         })
                 };
                 var getToken = _httpClient.SendAsync(tokenRequest, Cancellation.Token);
@@ -250,9 +277,10 @@ public class LinkedinOAuthService : ILinkedinOAuthService
                 continue;
             }
 
+            /* * STEP 4a: Get Profile Information * */
             try
             {
-                var profileRequest = new HttpRequestMessage(HttpMethod.Get, "https://api.linkedin.com/v2/me");
+                var profileRequest = new HttpRequestMessage(HttpMethod.Get, _config.ServiceUris!["profile"]);
                 profileRequest.Headers.Add("Authorization", $"Bearer {accessToken}");
                 var getProfile = _httpClient.SendAsync(profileRequest, Cancellation.Token);
                 if (!getProfile.Wait(TIMEOUT_MS, Cancellation.Token))
@@ -290,15 +318,74 @@ public class LinkedinOAuthService : ILinkedinOAuthService
                 continue;
             }
 
-            //TODO
-            TypeAdapterConfig<(Profile, PrimaryContact), UserRegistration>
-                .NewConfig() // barf
-                .Map(dest => dest.FullName!, src => $"{src.Item1.FirstName!.Localized![$"{src.Item1.FirstName!.PreferredLocale!.Language}_{src.Item1.FirstName!.PreferredLocale!.Country}"]} {src.Item1.LastName!.Localized![$"{src.Item1.LastName!.PreferredLocale!.Language}_{src.Item1.LastName!.PreferredLocale!.Country}"]}")
-                .Map(dest => dest.Email, src => src.Item2.Elements!.Where(e => e.Type == ContactType.EMAIL).Select(e => e.HandleData!["emailAddress"] as string).FirstOrDefault(""))
-                .Map(dest => dest.PhoneNumber, src => src.Item2.Elements!.Where(p => p.Type == ContactType.PHONE).Select(p => p.HandleData!["phoneNumber"] as PhoneNumber).Select(p => p!.Number).FirstOrDefault(""))
-                .Compile(); // barf
+            /* * STEP 4b: Get Contact Information - Email and PhoneNumber * */
+            try
+            {
+                var contactRequest = new HttpRequestMessage(HttpMethod.Get, _config.ServiceUris!["primaryContact"]);
+                contactRequest.Headers.Add("Authorization", $"Bearer {accessToken}");
+                var getContact = _httpClient.SendAsync(contactRequest, Cancellation.Token);
+                if (!getContact.Wait(TIMEOUT_MS, Cancellation.Token))
+                {
+                    throw new TimeoutException("Timeout exceeded for contact information REST call!");
+                }
+                HttpResponseMessage response = getContact.Result;
+                response.EnsureSuccessStatusCode();
 
-            SaveProfileInformation(client, new UserRegistration());
+                var getContactResponseBody = response.Content.ReadFromJsonAsync(typeof(PrimaryContact), API_OPTIONS, Cancellation.Token);
+                if (!getContactResponseBody.Wait(TIMEOUT_MS, Cancellation.Token))
+                {
+                    throw new TimeoutException("Timeout exceeded for contact information REST call!");
+                }
+
+                contactInfo = getContactResponseBody.Result as PrimaryContact ??
+                        throw new IOException("Cannot read the deserialized Linkedin PrimaryContact.");
+
+                // ugh, the phone number will still be in json ...
+                try
+                {
+                    int i = contactInfo.Elements?.FindIndex(e => e.Type == ContactType.PHONE) ?? -1;
+                    if (i > -1)
+                    {
+                        string? stillJson = contactInfo.Elements![i].HandleData!["phoneNumber"]?.ToString();
+                        if (contactInfo.Elements![i].HandleData != null && stillJson != null)
+                        {
+                            contactInfo.Elements![i].HandleData!["phoneNumber"] = JsonSerializer.Deserialize<PhoneNumber>(stillJson, API_OPTIONS)!;
+                        }
+                    }
+                }
+                catch 
+                {
+                    _logger.LogError("Error while mapping the phone number.");
+                }
+
+                _logger.LogInformation("Helper Threads: Successfully acquired contact information data for {Client}", TruncateClientId(client));
+            }
+            catch (OperationCanceledException)
+            {
+                // Thread cancelled
+                break;
+            }
+            catch (ObjectDisposedException)
+            {
+                // The service has been disposed and the thread cancelled
+                break;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Helper Threads: Exception encountered while fetching contact information for client {ID}", TruncateClientId(client));
+                HandleFailure(client, ex);
+                continue;
+            }
+
+            try
+            {
+                SaveProfileInformation(client, TypeAdapter.Adapt<UserRegistration>((profile, contactInfo)));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while saving and mapping the final profile information for client {ID}", TruncateClientId(client));
+                HandleFailure(client, ex);
+            }
         }
     }
 

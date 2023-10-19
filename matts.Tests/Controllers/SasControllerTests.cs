@@ -12,7 +12,7 @@ using matts.Controllers;
 using matts.Configuration;
 using Azure.Storage.Sas;
 using System.Web;
-using System.Runtime.Intrinsics.X86;
+using Xunit.Abstractions;
 
 namespace matts.Tests.Controllers;
 
@@ -22,17 +22,22 @@ public class SasControllerTests
     private readonly Mock<BlobServiceClient> _blobServiceClient;
     private readonly Mock<BlobContainerClient> _blobContainerClient;
 
-    public SasControllerTests()
+    private ITestOutputHelper OutputHelper { get; }
+
+    public SasControllerTests(ITestOutputHelper outputHelper)
     {
         _blobServiceClient = new Mock<BlobServiceClient>(new Uri("https://test.blob.core.windows.net/"), default);
         _blobContainerClient = new Mock<BlobContainerClient>(new Uri("https://test.blob.core.windows.net/resumes/"), default);
 
         // Use real logger
-        var serviceProvider = new ServiceCollection()
-            .AddLogging()
-            .BuildServiceProvider();
-        var factory = serviceProvider.GetService<ILoggerFactory>();
-        _logger = factory!.CreateLogger<SasController>();
+        OutputHelper = outputHelper;
+
+        _logger = new ServiceCollection()
+            .AddLogging(logBuilder => logBuilder
+                .SetMinimumLevel(LogLevel.Debug)
+                .AddXUnit(OutputHelper))
+            .BuildServiceProvider()
+            .GetRequiredService<ILogger<SasController>>();
     }
 
     [Fact]

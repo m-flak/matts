@@ -15,6 +15,18 @@
 	<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
   </PropertyGroup>
 
+	<!-- Fixes 0% issue when using visual studio -->
+	<PropertyGroup Condition="'$(IsDockerBuild)' == 'false'">
+		<UseDataCollector />
+	</PropertyGroup>
+
+	<PropertyGroup Label="FineCodeCoverage">
+		<ExcludeByFile>
+			**/Models/*.cs
+			**/Models/**/*.cs
+		</ExcludeByFile>
+	</PropertyGroup>
+
 	<ItemGroup>
     <PackageReference Include="Mapster" Version="7.3.0" />
     <PackageReference Include="MartinCostello.Logging.XUnit" Version="0.3.0" />
@@ -41,6 +53,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\matts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="appsettings.Test.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>
