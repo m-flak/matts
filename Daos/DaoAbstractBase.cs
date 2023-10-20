@@ -114,7 +114,7 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
             return await session.ExecuteReadAsync(
                 async tx =>
                 {
-                    var addOptionalParams = (DbRelationship? optRel) => (optRel != null) ? DaoUtils.AddReturnsForRelationshipParams(optRel.Name, optRel.Selector) : "";
+                    static string addOptionalParams(DbRelationship? optRel) => (optRel != null) ? DaoUtils.AddReturnsForRelationshipParams(optRel.Name, optRel.Selector) : "";
 
                     string whereSelector = (config.WhereSelector == GetAllByRelationshipConfig.WhereNodeSelector.LEFT) ? lhAttr.Selector : rhAttr.Selector;
                     string whereUuidProperty = (config.WhereSelector == GetAllByRelationshipConfig.WhereNodeSelector.LEFT) ? infos[0].Name : infos[1].Name;

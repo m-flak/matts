@@ -10,6 +10,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>c13e403c-9bf7-4f22-91f7-c7ee13c4397f</UserSecretsId>
 	<IsDockerBuild>false</IsDockerBuild>
+	<EnableNETAnalyzers>true</EnableNETAnalyzers>
 	<NoWarn>VSTHRD200</NoWarn>
   </PropertyGroup>
 
@@ -27,6 +28,14 @@
     <PackageReference Include="Microsoft.Extensions.Azure" Version="1.7.0" />
     <PackageReference Include="Neo4j.Driver" Version="5.7.0" />
     <PackageReference Include="Nerdbank.Streams" Version="2.10.72" />
+    <PackageReference Include="Roslynator.Analyzers" Version="4.6.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.6.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <!-- Allow the unit tests project to access internal members for testing purposes. -->

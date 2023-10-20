@@ -8,6 +8,8 @@
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
 	<IsDockerBuild>false</IsDockerBuild>
+	<EnableNETAnalyzers>true</EnableNETAnalyzers>
+	<NoWarn>VSTHRD200</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(IsDockerBuild)' == 'true'">
@@ -22,6 +24,8 @@
 
 	<PropertyGroup Label="FineCodeCoverage">
 		<ExcludeByFile>
+			**/Configuration/*.cs
+			**/Constants/*.cs
 			**/Models/*.cs
 			**/Models/**/*.cs
 		</ExcludeByFile>
@@ -36,6 +40,14 @@
     <PackageReference Include="Moq" Version="4.20.69" />
     <PackageReference Include="Moq.Contrib.HttpClient" Version="1.4.0" />
     <PackageReference Include="Neo4j.Driver" Version="5.7.0" />
+    <PackageReference Include="Roslynator.Analyzers" Version="4.6.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.6.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="xunit" Version="2.5.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
