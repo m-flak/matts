@@ -30,7 +30,7 @@ public class ApplicantDaoTests
     }
 
     [Fact]
-    public async void GetAll_GetsTheApplicants()
+    public async Task GetAll_GetsTheApplicants()
     {
         _wrappers.Setup(wrap => wrap.RunToListAsync(It.IsAny<IResultCursor>(), It.IsAny<Func<IRecord, INode>>()))
             .Returns(Task.FromResult(DbFixture.CreateNodeRowsFromList(JobFixture.CreateApplicantList())));
@@ -53,7 +53,7 @@ public class ApplicantDaoTests
     }
     
     [Fact]
-    public async void GetAllByRelationship_GetsTheApplicants()
+    public async Task GetAllByRelationship_GetsTheApplicants()
     {
         _wrappers.Setup(wrap => wrap.RunToListAsync(It.IsAny<IResultCursor>(), It.IsAny<Func<IRecord, IReadOnlyDictionary<string, object>>>()))
             .Returns(Task.FromResult(DbFixture.CreateRowsFromList(JobFixture.CreateApplicantList(), "a")));
@@ -80,7 +80,7 @@ public class ApplicantDaoTests
     }
 
     [Fact]
-    public async void CreateNew_CreatesAnApplicant()
+    public async Task CreateNew_CreatesAnApplicant()
     {
         var applicant = new ApplicantDb()
         {

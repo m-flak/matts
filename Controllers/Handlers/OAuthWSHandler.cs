@@ -36,19 +36,22 @@ public abstract class OAuthWSHandler : IWebsocketHandler<WSAuthEventTypes, WSAut
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
-    private readonly Sequence<byte> _bufferSequence = new Sequence<byte>();
-    private OrderedDictionary _handlers = new();
+    private readonly Sequence<byte> _bufferSequence = new();
+    private readonly OrderedDictionary _handlers = new();
+
+    private bool _isDisposed = false;
 
     public WebSocket? Websocket { get; set; }
     public CancellationToken WebsocketCancellation { get; set; }
 
     internal ILogger<OAuthWSHandler>? Logger { get; set; }
 
-    public OAuthWSHandler(WebSocket socket)
+    protected OAuthWSHandler(WebSocket socket)
         : this(socket, default)
     {
     }
-    public OAuthWSHandler(WebSocket socket, CancellationToken token)
+
+    protected OAuthWSHandler(WebSocket socket, CancellationToken token)
     {
         Websocket = socket;
         WebsocketCancellation = token;
@@ -60,13 +63,28 @@ public abstract class OAuthWSHandler : IWebsocketHandler<WSAuthEventTypes, WSAut
 
     public void Dispose()
     {
-        if (Websocket?.State != WebSocketState.Closed)
-        {
-            Websocket?.Abort();
-        }
-        Websocket?.Dispose();
-        _handlers.Clear();
+        Dispose(true);
         GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (_isDisposed)
+        {
+            return;
+        }
+
+        if (disposing)
+        {
+            if (Websocket?.State != WebSocketState.Closed)
+            {
+                Websocket?.Abort();
+            }
+            Websocket?.Dispose();
+            _handlers.Clear();
+        }
+
+        _isDisposed = true;
     }
 
     public async Task<bool> HandleMessageAsync(WSAuthEventTypes handledType, WSAuthMessage handledMessage)
@@ -88,8 +106,7 @@ public abstract class OAuthWSHandler : IWebsocketHandler<WSAuthEventTypes, WSAut
                     handledMessage
                 );
                 return false;
-            }
-            
+            }            
         }
         else
         {

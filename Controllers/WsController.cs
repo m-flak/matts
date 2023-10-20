@@ -34,12 +34,9 @@ namespace matts.Controllers;
 [Route("[controller]")]
 public class WsController : ControllerBase
 {
-    private const int BUFFER_SIZE = 2048;
-
     private readonly ILogger<WsController> _logger;
     private readonly ILogger<OAuthWSHandler> _handlogger;
     private readonly ILinkedinOAuthService _linkedin;
-    private readonly Sequence<byte> _bufferSequence = new Sequence<byte>();
 
     public WsController(
         ILogger<WsController> logger, 
@@ -67,7 +64,11 @@ public class WsController : ControllerBase
             bool goodClose = false;
             while (!(badClose | goodClose) && !receiveResult.CloseStatus.HasValue) 
             {
-                bool success = await wsHandler.HandleMessageAsync((message?.Type ?? WSAuthEventTypes.NONE), message!);
+                // L80 sets the message to non-null if present
+                #pragma warning disable CA1508
+                bool success = await wsHandler.HandleMessageAsync(message?.Type ?? WSAuthEventTypes.NONE, message!);
+                #pragma warning restore CA1508
+
                 if (!success)
                 {
                     badClose = true;
@@ -94,11 +95,9 @@ public class WsController : ControllerBase
 
     private OAuthWSHandler BuildLinkedinHandler(WebSocket webSocket, HttpContext httpContext)
     {
-        var wsHandler = new LinkedinOAuthHandler(_linkedin, webSocket, HttpContext.RequestAborted)
+        return new LinkedinOAuthHandler(_linkedin, webSocket, httpContext.RequestAborted)
         {
             Logger = _handlogger
         };
-
-        return wsHandler;
     }
 }

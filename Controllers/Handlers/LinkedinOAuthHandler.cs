@@ -36,7 +36,8 @@ public class LinkedinOAuthHandler : OAuthWSHandler
     {
     }
 
-    public LinkedinOAuthHandler(ILinkedinOAuthService? service, WebSocket socket, CancellationToken token) : base(socket, token)
+    public LinkedinOAuthHandler(ILinkedinOAuthService? service, WebSocket socket, CancellationToken token)
+        : base(socket, token)
     {
         _oauthService = service;
     }
@@ -83,7 +84,7 @@ public class LinkedinOAuthHandler : OAuthWSHandler
         Logger?.LogInformation("Rx CLIENT_OAUTH_REQUEST_STATUS from Client '{Identity}'...", msg!.ClientIdentity);
         if (msg.ClientIdentity == null)
         {
-            Logger!.LogError("ClientIdentity must be provided for CLIENT_OAUTH_START");
+            Logger!.LogError("ClientIdentity must be provided for CLIENT_OAUTH_REQUEST_STATUS");
             return false;
         }
 
@@ -94,6 +95,15 @@ public class LinkedinOAuthHandler : OAuthWSHandler
                 reply.Type = WSAuthEventTypes.SERVER_OAUTH_PENDING;
                 reply.ClientIdentity = msg!.ClientIdentity;
                 reply.Data = null;
+            });
+        }
+        else if (_oauthService!.DidFlowFail(msg.ClientIdentity, out var errorData))
+        {
+            await this.ReplyToMessageAsync(reply =>
+            {
+                reply.Type = WSAuthEventTypes.SERVER_OAUTH_ABORTFAIL;
+                reply.ClientIdentity = msg!.ClientIdentity;
+                reply.Data = errorData;
             });
         }
         else

@@ -28,10 +28,10 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Options;
 using matts.Configuration;
 
-namespace matts.Services;
+using ClientIdentity = System.String;
+using AuthCode = System.String;
 
-using ClientIdentity = String;
-using AuthCode = String;
+namespace matts.Services;
 
 public class LinkedinOAuthService : ILinkedinOAuthService
 {
@@ -39,11 +39,11 @@ public class LinkedinOAuthService : ILinkedinOAuthService
     private const int TIMEOUT_MS = 30000;
     private const int LOGGER_CLID_MAXLENGTH = 36;
 
-    private static readonly JsonSerializerOptions OAUTH_OPTIONS = new JsonSerializerOptions
+    private static readonly JsonSerializerOptions OAUTH_OPTIONS = new()
     {
         PropertyNamingPolicy = new JsonSnakeCaseNamingPolicy()
     };
-    private static readonly JsonSerializerOptions API_OPTIONS = new JsonSerializerOptions
+    private static readonly JsonSerializerOptions API_OPTIONS = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
@@ -52,6 +52,8 @@ public class LinkedinOAuthService : ILinkedinOAuthService
     private readonly HttpClient _httpClient;
     private readonly OauthConfig _config;
 
+    private bool _isDisposed = false;
+
     internal ConcurrentQueue<KeyValuePair<string, string>> AuthCodes { get; } = new();
     internal ConcurrentDictionary<string, UserRegistration?> Data { get; } = new();
     internal ConcurrentDictionary<string, object?> Pending { get; } = new();
@@ -59,7 +61,7 @@ public class LinkedinOAuthService : ILinkedinOAuthService
     internal CancellationTokenSource Cancellation { get; } = new();
 
     internal object Lock { get; } = new object();
-    internal Thread[] Threads { get; private set; } = default!;
+    internal Thread[] Threads { get; } = default!;
 
     public LinkedinOAuthService(ILogger<LinkedinOAuthService> logger, IHttpClientFactory httpClientFactory, IOptionsMonitor<OauthConfig> optionsFactory)
     {
@@ -89,9 +91,24 @@ public class LinkedinOAuthService : ILinkedinOAuthService
 
     public void Dispose()
     {
-        Cancellation.Cancel();
-        _httpClient.Dispose();
+        Dispose(true);
         GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (_isDisposed)
+        {
+            return;
+        }
+
+        if (disposing)
+        {
+            Cancellation.Cancel();
+            _httpClient.Dispose();
+        }
+
+        _isDisposed = true;
     }
 
     public bool IsFlowComplete(string clientId)
@@ -121,7 +138,7 @@ public class LinkedinOAuthService : ILinkedinOAuthService
 
     public T? PullFlowResults<T>(string clientId) where T : class
     {
-        T? result = (Data.GetValueOrDefault(clientId, null) as T);
+        var result = (Data.GetValueOrDefault(clientId, null) as T);
         if (result != null)
         {
             Pending.TryRemove(clientId, out var _);
@@ -163,6 +180,8 @@ public class LinkedinOAuthService : ILinkedinOAuthService
         _logger.LogInformation("LinkedIn OAuth Flow Completed for: '{Client}'.", clientId);
     }
 
+// dedicated thread
+#pragma warning disable VSTHRD002
     private void ThreadProc()
     {
         _logger.LogInformation("Helper Threads: Spawning...");
@@ -225,7 +244,7 @@ public class LinkedinOAuthService : ILinkedinOAuthService
              */
             try
             {
-                var tokenRequest = new HttpRequestMessage(HttpMethod.Post, _config.ServiceUris!["accessToken"])
+                using var tokenRequest = new HttpRequestMessage(HttpMethod.Post, _config.ServiceUris!["accessToken"])
                 {
                     Content = new FormUrlEncodedContent(
                         new Dictionary<string, string>
@@ -280,7 +299,7 @@ public class LinkedinOAuthService : ILinkedinOAuthService
             /* * STEP 4a: Get Profile Information * */
             try
             {
-                var profileRequest = new HttpRequestMessage(HttpMethod.Get, _config.ServiceUris!["profile"]);
+                using var profileRequest = new HttpRequestMessage(HttpMethod.Get, _config.ServiceUris!["profile"]);
                 profileRequest.Headers.Add("Authorization", $"Bearer {accessToken}");
                 var getProfile = _httpClient.SendAsync(profileRequest, Cancellation.Token);
                 if (!getProfile.Wait(TIMEOUT_MS, Cancellation.Token))
@@ -321,7 +340,7 @@ public class LinkedinOAuthService : ILinkedinOAuthService
             /* * STEP 4b: Get Contact Information - Email and PhoneNumber * */
             try
             {
-                var contactRequest = new HttpRequestMessage(HttpMethod.Get, _config.ServiceUris!["primaryContact"]);
+                using var contactRequest = new HttpRequestMessage(HttpMethod.Get, _config.ServiceUris!["primaryContact"]);
                 contactRequest.Headers.Add("Authorization", $"Bearer {accessToken}");
                 var getContact = _httpClient.SendAsync(contactRequest, Cancellation.Token);
                 if (!getContact.Wait(TIMEOUT_MS, Cancellation.Token))
@@ -388,6 +407,7 @@ public class LinkedinOAuthService : ILinkedinOAuthService
             }
         }
     }
+#pragma warning restore VSTHRD002
 
     private void HandleFailure(string client, Exception ex)
     {

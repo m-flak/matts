@@ -1,4 +1,5 @@
 ﻿using Xunit;
+using Moq;
 using Xunit.Abstractions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -14,6 +15,8 @@ namespace matts.Tests;
 public class CustomWebApplicationFactory<TProgram>
     : WebApplicationFactory<TProgram>, ITestOutputHelperAccessor where TProgram : class
 {
+    public Mock<HttpMessageHandler> LinkedInHttp { get; } = new(MockBehavior.Strict);
+
     public ITestOutputHelper? OutputHelper { get; set; }
 
     public CustomWebApplicationFactory(ITestOutputHelper outputHelper)
@@ -41,6 +44,8 @@ public class CustomWebApplicationFactory<TProgram>
         builder.UseKestrel();
         builder.ConfigureTestServices(services =>
         {
+            services.AddHttpClient("linkedin_client")
+                .ConfigurePrimaryHttpMessageHandler(() => LinkedInHttp.Object);
             services.AddLogging(logBuilder => logBuilder
                 .SetMinimumLevel(LogLevel.Debug)
                 .AddXUnit(OutputHelper!));

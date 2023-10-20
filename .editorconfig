@@ -55,7 +55,6 @@ dotnet_style_prefer_compound_assignment = true:suggestion
 dotnet_code_quality_unused_parameters = all:suggestion
 
 # Additional addon rules
-roslynator_binary_operator_new_line = before
 roslynator_conditional_operator_new_line = before
 
 
@@ -237,3 +236,4 @@ dotnet_style_qualification_for_field = false:silent
 dotnet_style_qualification_for_property = false:silent
 dotnet_style_qualification_for_method = false:silent
 dotnet_style_qualification_for_event = false:silent
+dotnet_diagnostic.RCS1037.severity = silent

@@ -8,6 +8,7 @@ using System.Net;
 using Microsoft.Extensions.Options;
 using matts.Configuration;
 using matts.Models;
+using matts.Tests.Fixture;
 
 namespace matts.Tests.Services;
 
@@ -37,7 +38,6 @@ public class LinkedinOAuthServiceTests
     [Fact]
     public void Flow_Tracking_AfterStart()
     {
-        //_httpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_httpClient.CreateClient());
         var factory = _httpClient.CreateClientFactory();
         Mock.Get(factory).Setup(x => x.CreateClient("linkedin_client"))
             .Returns(() =>
@@ -46,19 +46,15 @@ public class LinkedinOAuthServiceTests
                 return client;
             });
 
-        var sut = new LinkedinOAuthService(_logger, factory, _config);
+        using var sut = new LinkedinOAuthService(_logger, factory, _config);
 
         sut.StartFlow("MYIDTOKEN");
         Assert.False(sut.IsFlowComplete("MYIDTOKEN"));
     }
 
-    //
-    // TODO
-    //
     [Fact]
     public async Task Flow_GetProfileInformation_AfterAuthCodes()
     {
-        //_httpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_httpClient.CreateClient());
         var factory = _httpClient.CreateClientFactory();
         Mock.Get(factory).Setup(x => x.CreateClient("linkedin_client"))
             .Returns(() =>
@@ -70,87 +66,26 @@ public class LinkedinOAuthServiceTests
         _httpClient.SetupRequest(HttpMethod.Post, _config.Get("LinkedIn").ServiceUris!["accessToken"], r => r.Content is FormUrlEncodedContent)
             .ReturnsResponse(
                 HttpStatusCode.OK,
-                @"{  
-                    ""access_token"":""AQUvlL_DYEzvT2wz1QJiEPeLioeA"",
-                    ""expires_in"":5184000,
-                    ""scope"":""r_basicprofile,r_primarycontact""
-                  }",
+                DummyDataFixture.LinkedIn_AccessToken,
                 encoding: System.Text.Encoding.UTF8
                 );
 
         _httpClient.SetupRequest(HttpMethod.Get, _config.Get("LinkedIn").ServiceUris!["profile"])
             .ReturnsResponse(
                 HttpStatusCode.OK,
-			    @"{
-				    ""firstName"":{
-					    ""localized"":{
-						    ""en_US"":""Bob""
-					    },
-					    ""preferredLocale"":{
-						    ""country"":""US"",
-						    ""language"":""en""
-					    }
-				    },
-				    ""localizedFirstName"": ""Bob"",
-				    ""headline"":{
-					    ""localized"":{
-						    ""en_US"":""API Enthusiast at LinkedIn""
-					    },
-					    ""preferredLocale"":{
-						    ""country"":""US"",
-						    ""language"":""en""
-					    }
-				    },
-				    ""localizedHeadline"": ""API Enthusiast at LinkedIn"",
-				    ""vanityName"": ""bsmith"",
-				    ""id"":""yrZCpj2Z12"",
-				    ""lastName"":{
-					    ""localized"":{
-						    ""en_US"":""Smith""
-					    },
-					    ""preferredLocale"":{
-						    ""country"":""US"",
-						    ""language"":""en""
-					    }
-				    },
-				    ""localizedLastName"": ""Smith"",
-				    ""profilePicture"": {
-					    ""displayImage"": ""urn:li:digitalmediaAsset:C4D00AAAAbBCDEFGhiJ""
-				    }
-			      }",
+			    DummyDataFixture.LinkedIn_Profile,
                 encoding: System.Text.Encoding.UTF8
                 );
 
         _httpClient.SetupRequest(HttpMethod.Get, _config.Get("LinkedIn").ServiceUris!["primaryContact"])
             .ReturnsResponse(
                 HttpStatusCode.OK,
-                @"{
-                    ""elements"": [
-                        {
-                            ""handle"": ""urn:li:emailAddress:3775708763"",
-                            ""handle~"": {
-                                ""emailAddress"": ""ding_wei_stub@example.com""
-                            },
-                            ""primary"": true,
-                            ""type"": ""EMAIL""
-                        },
-                        {
-                            ""handle"": ""urn:li:phoneNumber:6146249836070047744"",
-                            ""handle~"": {
-                                ""phoneNumber"": {
-                                        ""number"": ""158****1473""
-                                 }
-                            },
-                            ""primary"": true,
-                            ""type"": ""PHONE""
-                        }
-                    ]
-                  }",
+                DummyDataFixture.LinkedIn_PrimaryContact,
                 encoding: System.Text.Encoding.UTF8
                 );
 
         // SUT
-        var sut = new LinkedinOAuthService(_logger, factory, _config);
+        using var sut = new LinkedinOAuthService(_logger, factory, _config);
 
         var ids = Enumerable.Range(0, 21)
             .Select(_ => Guid.NewGuid().ToString())
