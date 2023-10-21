@@ -1,4 +1,4 @@
-/* matts
+﻿/* matts
  * "Matthew's ATS" - Portfolio Project
  * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
  * 
@@ -33,6 +33,7 @@ using matts.Repositories;
 using matts.Constants;
 using matts.Middleware;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -135,7 +136,7 @@ builder.Services.AddAuthentication("Bearer").AddJwtBearer(o =>
             var usersJwtIssuer = builder.Configuration["Authentication:Schemes:Bearer:ValidIssuer"];
             var appJwtIssuer = builder.Configuration["Jwt:Issuer"];
 
-            if ( (usersJwtIssuer != null && issuer == usersJwtIssuer) || (appJwtIssuer != null && issuer == appJwtIssuer) )
+            if ((usersJwtIssuer != null && issuer == usersJwtIssuer) || (appJwtIssuer != null && issuer == appJwtIssuer))
             {
                 return issuer;
             }
@@ -145,7 +146,7 @@ builder.Services.AddAuthentication("Bearer").AddJwtBearer(o =>
         IssuerSigningKeyResolver = (string token, SecurityToken securityToken, string kid, TokenValidationParameters validationParameters) =>
         {
             var logger = builder.Logging.Services.BuildServiceProvider().GetRequiredService<ILogger<Program>>();
-            
+
             List<SecurityKey> keys = new();
 
             if (builder.Environment.IsDevelopment())
@@ -172,7 +173,7 @@ builder.Services.AddAuthentication("Bearer").AddJwtBearer(o =>
             {
                 logger.LogError("The application Jwt Signing Key is missing from Config!");
             }
-            
+
             return keys;
         },
         ValidAudiences = builder.Configuration.GetSection("Authentication:Schemes:Bearer:ValidAudiences").Get<string[]>(),
@@ -217,10 +218,11 @@ builder.Services.AddAntiforgery(options =>
 {
     options.Cookie = new CookieBuilder
     {
-        Name = "XSRF-TOKEN",
-        HttpOnly = false
+        Name = "ASP-XSRF-TOKEN",
+        IsEssential = true,
+        SecurePolicy = CookieSecurePolicy.Always
     };
-    options.HeaderName = "X-XSRF-TOKEN";
+    options.HeaderName = "X-Xsrf-Token";
 });
 
 builder.Services.AddControllersWithViews(options =>
@@ -286,16 +288,14 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
+app.UseMiddleware<AntiforgeryMiddleware>();  // MUST go after auth middleware
 app.UseAuthorization();
-app.UseMiddleware<AntiforgeryMiddleware>();
 app.UseMiddleware<ContentSecurityPolicyMiddleware>();
 app.UseWebSockets();
-
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller}/{action=Index}/{id?}");

@@ -2,7 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { Location } from '@angular/common';
 import { APP_INITIALIZER, InjectionToken, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule, HttpClientXsrfModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule, HttpClientXsrfModule, HttpXsrfTokenExtractor } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -28,6 +28,8 @@ import { LOADING_BAR_CONFIG, LoadingBarModule } from '@ngx-loading-bar/core';
 import { LoadingBarHttpClientModule } from '@ngx-loading-bar/http-client';
 import { LoadingBarRouterModule } from '@ngx-loading-bar/router';
 import { CookieService } from 'ngx-cookie-service';
+import { HttpXsrfInterceptor } from './xsrf/xsrf.interceptor';
+import { HttpXsrfCookieExtractor } from './xsrf/xsrf.extractor';
 
 export const BASE_URL = new InjectionToken<string>('BASE_URL');
 export const WS_BASE_URL = new InjectionToken<string>('WS_BASE_URL');
@@ -116,6 +118,8 @@ export const WS_BASE_URL = new InjectionToken<string>('WS_BASE_URL');
         };
       },
     },
+    { provide: HTTP_INTERCEPTORS, useExisting: HttpXsrfInterceptor, multi: true },
+    { provide: HttpXsrfTokenExtractor, useClass: HttpXsrfCookieExtractor },
     { provide: LOADING_BAR_CONFIG, useValue: { latencyThreshold: 125 } },
     CookieService
   ],

@@ -1,4 +1,4 @@
-/* matts
+﻿/* matts
  * "Matthew's ATS" - Portfolio Project
  * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
  * 
@@ -35,6 +35,7 @@ using System.Runtime.InteropServices;
 namespace matts.Controllers;
 
 [ApiController]
+[IgnoreAntiforgeryToken]
 [Route("[controller]")]
 public class AuthController : ControllerBase
 {
