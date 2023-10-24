@@ -80,6 +80,17 @@ public class WebsocketIntegrationTests : IDisposable
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
+        var hello = new WSAuthMessage
+        {
+            Type = WSAuthEventTypes.NONE,
+            ClientIdentity = "",
+            Data = null
+        };
+        await socket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(System.Text.Json.JsonSerializer.Serialize(hello, options))), WebSocketMessageType.Text, true, CancellationToken.None);
+        var responseBytes = new byte[1024];
+        _ = await socket.ReceiveAsync(new ArraySegment<byte>(responseBytes), CancellationToken.None);
+        _ = await socket.ReceiveAsync(new ArraySegment<byte>(responseBytes), CancellationToken.None);
+
         var reply = new WSAuthMessage
         {
             Type = clientCode,
@@ -117,6 +128,17 @@ public class WebsocketIntegrationTests : IDisposable
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
+        var hello = new WSAuthMessage
+        {
+            Type = WSAuthEventTypes.NONE,
+            ClientIdentity = "",
+            Data = null
+        };
+        await socket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(System.Text.Json.JsonSerializer.Serialize(hello, options))), WebSocketMessageType.Text, true, CancellationToken.None);
+        var responseBytes = new byte[1024];
+        _ = await socket.ReceiveAsync(new ArraySegment<byte>(responseBytes), CancellationToken.None);
+        _ = await socket.ReceiveAsync(new ArraySegment<byte>(responseBytes), CancellationToken.None);
+
         var reply = new WSAuthMessage
         {
             Type = clientCode,
@@ -168,6 +190,17 @@ public class WebsocketIntegrationTests : IDisposable
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
+        var hello = new WSAuthMessage
+        {
+            Type = WSAuthEventTypes.NONE,
+            ClientIdentity = "",
+            Data = null
+        };
+        await socket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(System.Text.Json.JsonSerializer.Serialize(hello, options))), WebSocketMessageType.Text, true, CancellationToken.None);
+        var responseBytes = new byte[1024];
+        _ = await socket.ReceiveAsync(new ArraySegment<byte>(responseBytes), CancellationToken.None);
+        _ = await socket.ReceiveAsync(new ArraySegment<byte>(responseBytes), CancellationToken.None);
+
         var reply = new WSAuthMessage
         {
             Type = WSAuthEventTypes.CLIENT_OAUTH_START,

@@ -25,21 +25,22 @@ using System.Net.WebSockets;
 
 namespace matts.Controllers;
 
+[IgnoreAntiforgeryToken]
 [Route("[controller]")]
 public class WsController : ControllerBase
 {
     private readonly ILogger<WsController> _logger;
-    private readonly ILogger<OAuthWSHandler> _handlogger;
+    private readonly IServiceProvider _provider;
     private readonly ILinkedinOAuthService _linkedin;
 
     public WsController(
         ILogger<WsController> logger, 
-        ILogger<OAuthWSHandler> handlogger,
+        IServiceProvider provider,
         ILinkedinOAuthService linkedIn
         )
     {
         _logger = logger;
-        _handlogger = handlogger;
+        _provider = provider;
         _linkedin = linkedIn;
     }
 
@@ -52,15 +53,14 @@ public class WsController : ControllerBase
             using var wsHandler = BuildLinkedinHandler(webSocket, HttpContext);
 
             WSAuthMessage? message = null;
-            var receiveResult = await wsHandler.ReceiveMessageAsync(msg => message = msg);
 
             bool badClose = false;
             bool goodClose = false;
-            while (!(badClose | goodClose) && !receiveResult.CloseStatus.HasValue) 
+            while (!(badClose | goodClose) && !webSocket.CloseStatus.HasValue) 
             {
-                // L80 sets the message to non-null if present
+                // ReceiveMessageAsync sets the message to non-null if present
                 #pragma warning disable CA1508
-                bool success = await wsHandler.HandleMessageAsync(message?.Type ?? WSAuthEventTypes.NONE, message!);
+                bool success = await wsHandler.HandleMessageAsync(message?.Type ?? WSAuthEventTypes.NONE, message);
                 #pragma warning restore CA1508
 
                 if (!success)
@@ -68,7 +68,8 @@ public class WsController : ControllerBase
                     badClose = true;
                     continue;
                 }
-                receiveResult = await wsHandler.ReceiveMessageAsync(msg => message = msg); 
+
+                await wsHandler.ReceiveMessageAsync(msg => message = msg);
             }
 
             if (!badClose)
@@ -91,7 +92,7 @@ public class WsController : ControllerBase
     {
         return new LinkedinOAuthHandler(_linkedin, webSocket, httpContext.RequestAborted)
         {
-            Logger = _handlogger
+            Logger = (ILogger <LinkedinOAuthHandler>) _provider.GetRequiredService(typeof(ILogger<LinkedinOAuthHandler>))
         };
     }
 }

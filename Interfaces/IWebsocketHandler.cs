@@ -1,4 +1,4 @@
-/* matts
+﻿/* matts
  * "Matthew's ATS" - Portfolio Project
  * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
  * 
@@ -27,6 +27,6 @@ public interface IWebsocketHandler<EMsgTypes, TMessage> : IDisposable where EMsg
     Task<WebSocketReceiveResult> ReceiveMessageAsync(Action<TMessage> onMessageReceived);
     Task ReplyToMessageAsync(Action<TMessage> buildReply);
 
-    Task<bool> HandleMessageAsync(EMsgTypes handledType, TMessage handledMessage);
+    Task<bool> HandleMessageAsync(EMsgTypes handledType, TMessage? handledMessage);
     void AssignMessageHandler(EMsgTypes handledType, Func<WebSocket, TMessage, Task<bool>> handler);
 }

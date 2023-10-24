@@ -60,7 +60,7 @@ public class LinkedinOAuthHandler : OAuthWSHandler
 
     private async Task<bool> HandleStart(WebSocket ws, WSAuthMessage msg)
     {
-        Logger?.LogInformation("Rx CLIENT_OAUTH_START from Client '{Identity}'...", msg!.ClientIdentity);
+        Logger?.LogDebug("Rx CLIENT_OAUTH_START from Client '{Identity}'...", msg!.ClientIdentity);
         if (msg.ClientIdentity == null)
         {
             Logger!.LogError("ClientIdentity must be provided for CLIENT_OAUTH_START");
@@ -81,7 +81,7 @@ public class LinkedinOAuthHandler : OAuthWSHandler
 
     private async Task<bool> HandleRequestStatus(WebSocket ws, WSAuthMessage msg)
     {
-        Logger?.LogInformation("Rx CLIENT_OAUTH_REQUEST_STATUS from Client '{Identity}'...", msg!.ClientIdentity);
+        Logger?.LogDebug("Rx CLIENT_OAUTH_REQUEST_STATUS from Client '{Identity}'...", msg!.ClientIdentity);
         if (msg.ClientIdentity == null)
         {
             Logger!.LogError("ClientIdentity must be provided for CLIENT_OAUTH_REQUEST_STATUS");
@@ -121,7 +121,7 @@ public class LinkedinOAuthHandler : OAuthWSHandler
 
     private async Task<bool> HandleInitialConnect(WebSocket ws, WSAuthMessage msg)
     {
-        Logger?.LogInformation("Rx NONE from Client 'NOT_IDENTIFIED'...");
+        Logger?.LogDebug("Rx NONE from Client 'NOT_IDENTIFIED'...");
         await this.ReplyToMessageAsync(reply =>
         {
             reply.Type = WSAuthEventTypes.SERVER_CONNECTION_ESTABLISHED;

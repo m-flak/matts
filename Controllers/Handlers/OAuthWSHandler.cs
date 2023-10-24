@@ -87,9 +87,14 @@ public abstract class OAuthWSHandler : IWebsocketHandler<WSAuthEventTypes, WSAut
         _isDisposed = true;
     }
 
-    public async Task<bool> HandleMessageAsync(WSAuthEventTypes handledType, WSAuthMessage handledMessage)
+    public async Task<bool> HandleMessageAsync(WSAuthEventTypes handledType, WSAuthMessage? handledMessage)
     {
         var handler = (Func<WebSocket, WSAuthMessage, Task<bool>>?) _handlers[handledType as object];
+
+        handledMessage ??= new WSAuthMessage
+            {
+                Type = WSAuthEventTypes.NONE
+            };
 
         if (handler != null)
         {
@@ -126,7 +131,15 @@ public abstract class OAuthWSHandler : IWebsocketHandler<WSAuthEventTypes, WSAut
             WebsocketCancellation
         );
         _bufferSequence.Advance(receiveResult.Count);
-        var message = JsonSerializer.Deserialize<WSAuthMessage>(Encoding.UTF8.GetString(_bufferSequence), OPTIONS);
+        WSAuthMessage? message;
+        try
+        {
+            message = JsonSerializer.Deserialize<WSAuthMessage>(Encoding.UTF8.GetString(_bufferSequence), OPTIONS);
+        }
+        catch (JsonException)
+        {
+            message = null;
+        }
         
         if (message != null)
         {

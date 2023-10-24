@@ -32,9 +32,13 @@ public class ContentSecurityPolicyMiddleware
 
     public async Task Invoke(HttpContext context)
     {
-        if (!context.Response.Headers.ContainsKey(CSP_HEADER))
+        var requestPath = context.Request.Path.Value;
+        if (!(requestPath?.StartsWith("/ws", StringComparison.OrdinalIgnoreCase) ?? false))
         {
-            context.Response.Headers.Add(CSP_HEADER, _cspPolicy.ToString());
+            if (!context.Response.Headers.ContainsKey(CSP_HEADER))
+            {
+                context.Response.Headers.Add(CSP_HEADER, _cspPolicy.ToString());
+            }
         }
 
         await _next(context);

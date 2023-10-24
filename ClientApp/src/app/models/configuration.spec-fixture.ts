@@ -22,4 +22,5 @@ export const configurationFixure: Configuration = {
   externalApis: {},
   branding: {},
   resumeUploader: {},
+  linkedinOauth: {},
 };

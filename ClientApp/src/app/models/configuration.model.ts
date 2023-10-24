@@ -20,4 +20,5 @@ export interface Configuration {
   externalApis: { [propName: string]: string };
   branding: { [propName: string]: string };
   resumeUploader: { [propName: string]: string | number };
+  linkedinOauth: { [propName: string]: string | number };
 }
