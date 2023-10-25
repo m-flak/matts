@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-using Azure;
 using matts.Constants;
 using matts.Controllers.Handlers;
 using matts.Interfaces;
@@ -55,28 +54,36 @@ public class WsController : ControllerBase
             WSAuthMessage? message = null;
 
             bool badClose = false;
-            bool goodClose = false;
-            while (!(badClose | goodClose) && !webSocket.CloseStatus.HasValue) 
+            bool aborted = false;
+            try
             {
-                // ReceiveMessageAsync sets the message to non-null if present
-                #pragma warning disable CA1508
-                bool success = await wsHandler.HandleMessageAsync(message?.Type ?? WSAuthEventTypes.NONE, message);
-                #pragma warning restore CA1508
-
-                if (!success)
+                while (!badClose && !webSocket.CloseStatus.HasValue)
                 {
-                    badClose = true;
-                    continue;
-                }
+                    // ReceiveMessageAsync sets the message to non-null if present
+                    #pragma warning disable CA1508
+                    bool success = await wsHandler.HandleMessageAsync(message?.Type ?? WSAuthEventTypes.NONE, message);
+                    #pragma warning restore CA1508
 
-                await wsHandler.ReceiveMessageAsync(msg => message = msg);
+                    if (!success)
+                    {
+                        badClose = true;
+                        continue;
+                    }
+
+                    await wsHandler.ReceiveMessageAsync(msg => message = msg);
+                }
+            }
+            catch (OperationCanceledException oce)
+            {
+                aborted = string.Equals(oce.InnerException?.Message, "The client reset the request stream.")
+                    || webSocket.State == WebSocketState.Aborted;
             }
 
-            if (!badClose)
+            if (!badClose && !aborted)
             {
                 await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", HttpContext.RequestAborted);
             }
-            else
+            else if (!aborted)
             {
                 _logger.LogError("WebSocket closed with failure state.");
                 await webSocket.CloseAsync(WebSocketCloseStatus.InternalServerError, "Error while processing", HttpContext.RequestAborted);
