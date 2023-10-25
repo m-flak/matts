@@ -6,72 +6,20 @@ public sealed class DummyDataFixture
         => @"{
                 ""access_token"":""AQUvlL_DYEzvT2wz1QJiEPeLioeA"",
                 ""expires_in"":5184000,
-                ""scope"":""r_basicprofile,r_primarycontact""
+                ""scope"":""openid profile email""
              }";
 
-    public static string LinkedIn_Profile
+    public static string LinkedIn_UserInfo
         => @"{
-				""firstName"":{
-					""localized"":{
-						""en_US"":""Bob""
-					},
-					""preferredLocale"":{
-						""country"":""US"",
-						""language"":""en""
-					}
-				},
-				""localizedFirstName"": ""Bob"",
-				""headline"":{
-					""localized"":{
-						""en_US"":""API Enthusiast at LinkedIn""
-					},
-					""preferredLocale"":{
-						""country"":""US"",
-						""language"":""en""
-					}
-				},
-				""localizedHeadline"": ""API Enthusiast at LinkedIn"",
-				""vanityName"": ""bsmith"",
-				""id"":""yrZCpj2Z12"",
-				""lastName"":{
-					""localized"":{
-						""en_US"":""Smith""
-					},
-					""preferredLocale"":{
-						""country"":""US"",
-						""language"":""en""
-					}
-				},
-				""localizedLastName"": ""Smith"",
-				""profilePicture"": {
-					""displayImage"": ""urn:li:digitalmediaAsset:C4D00AAAAbBCDEFGhiJ""
-				}
-			 }";
-
-    public static string LinkedIn_PrimaryContact
-        => @"{
-                ""elements"": [
-                    {
-                        ""handle"": ""urn:li:emailAddress:3775708763"",
-                        ""handle~"": {
-                            ""emailAddress"": ""ding_wei_stub@example.com""
-                        },
-                        ""primary"": true,
-                        ""type"": ""EMAIL""
-                    },
-                    {
-                        ""handle"": ""urn:li:phoneNumber:6146249836070047744"",
-                        ""handle~"": {
-                            ""phoneNumber"": {
-                                    ""number"": ""158****1473""
-                                }
-                        },
-                        ""primary"": true,
-                        ""type"": ""PHONE""
-                    }
-                ]
+                ""sub"": ""782bbtaQ"",
+                ""name"": ""John Doe"",
+                ""given_name"": ""John"",
+                ""family_name"": ""Doe"",
+                ""picture"": ""https://media.licdn-ei.com/dms/image/C5F03AQHqK8v7tB1HCQ/profile-displayphoto-shrink_100_100/0/"",
+                ""locale"": ""en-US"",
+                ""email"": ""doe@email.com"",
+                ""email_verified"": true
              }";
-
 
     private DummyDataFixture() { }
 }

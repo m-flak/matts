@@ -70,17 +70,10 @@ public class LinkedinOAuthServiceTests
                 encoding: System.Text.Encoding.UTF8
                 );
 
-        _httpClient.SetupRequest(HttpMethod.Get, _config.Get("LinkedIn").ServiceUris!["profile"])
+        _httpClient.SetupRequest(HttpMethod.Get, _config.Get("LinkedIn").ServiceUris!["userInfo"])
             .ReturnsResponse(
                 HttpStatusCode.OK,
-			    DummyDataFixture.LinkedIn_Profile,
-                encoding: System.Text.Encoding.UTF8
-                );
-
-        _httpClient.SetupRequest(HttpMethod.Get, _config.Get("LinkedIn").ServiceUris!["primaryContact"])
-            .ReturnsResponse(
-                HttpStatusCode.OK,
-                DummyDataFixture.LinkedIn_PrimaryContact,
+                DummyDataFixture.LinkedIn_UserInfo,
                 encoding: System.Text.Encoding.UTF8
                 );
 
@@ -116,16 +109,15 @@ public class LinkedinOAuthServiceTests
         }
 
         _httpClient.VerifyRequest(HttpMethod.Post, "https://www.linkedin.com/oauth/v2/accessToken", Times.Exactly(ids.Count()));
-        _httpClient.VerifyRequest(HttpMethod.Get, "https://api.linkedin.com/v2/me", Times.Exactly(ids.Count()));
-        _httpClient.VerifyRequest(HttpMethod.Get, "https://api.linkedin.com/v2/clientAwareMemberHandles?q=members&projection=(elements*(primary,type,handle~))", Times.Exactly(ids.Count()));
-    
+        _httpClient.VerifyRequest(HttpMethod.Get, "https://api.linkedin.com/v2/userinfo", Times.Exactly(ids.Count()));
+
         foreach (var id in ids)
         {
             UserRegistration? data = sut.PullFlowResults<UserRegistration>(id);
             Assert.NotNull(data);
-            Assert.Equal("Bob Smith", data.FullName);
-            Assert.Equal("ding_wei_stub@example.com", data.Email);
-            Assert.Equal("158****1473", data.PhoneNumber);
+            Assert.Equal("John Doe", data.FullName);
+            Assert.Equal("doe@email.com", data.Email);
+            Assert.Equal(string.Empty, data.PhoneNumber);
         }
     }
 
@@ -137,13 +129,12 @@ public class LinkedinOAuthServiceTests
             ServiceUris = new Dictionary<string, Uri>
             {
                 ["accessToken"] = new Uri("https://www.linkedin.com/oauth/v2/accessToken"),
-                ["profile"] = new Uri("https://api.linkedin.com/v2/me"),
-                ["primaryContact"] = new Uri("https://api.linkedin.com/v2/clientAwareMemberHandles?q=members&projection=(elements*(primary,type,handle~))")
+                ["userInfo"] = new Uri("https://api.linkedin.com/v2/userinfo")
             },
             ClientId = "78g5lyuo9catib",
             ClientSecret = "TOP_SECRET",
             RedirectUri = new Uri("https://mydomain.com/auth/linkedin/callback"),
-            Scope = "r_basicprofile,r_primarycontact"
+            Scope = "openid profile email"
         };
 
         public OauthConfig Get(string? name)

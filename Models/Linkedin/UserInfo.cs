@@ -17,31 +17,14 @@
 **/
 namespace matts.Models.Linkedin;
 
-public class Profile
+public sealed class UserInfo
 {
-    public FirstName? FirstName { get; set; }
-    public string? LocalizedFirstName { get; set; }
-    public Headline? Headline { get; set; }
-    public string? LocalizedHeadline { get; set; }
-    public string? VanityName { get; set; }
-    public string? Id { get; set; }
-    public LastName? LastName { get; set; }
-    public string? LocalizedLastName { get; set; }
-    public ProfilePicture? ProfilePicture { get; set; }
-}
-
-public class Headline : LocalizedData
-{
-}
-public class FirstName : LocalizedData
-{
-}
-
-public class LastName : LocalizedData
-{
-}
-
-public class ProfilePicture
-{
-    public string? DisplayImage { get; set; }
+    public string? Sub {  get; set; }
+    public string? Name { get; set;}
+    public string? GivenName { get; set; }
+    public string? FamilyName { get; set; }
+    public Uri? Picture { get; set; }
+    public string? Locale { get; set; }
+    public string? Email { get; set; }
+    public bool? EmailVerified { get; set; }
 }

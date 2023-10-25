@@ -13,9 +13,6 @@ using System.Net.Http;
 using Moq.Contrib.HttpClient;
 using Microsoft.Extensions.Options;
 using matts.Configuration;
-using System.Collections.Specialized;
-using Microsoft.VisualStudio.TestPlatform.Utilities;
-using Newtonsoft.Json.Linq;
 
 namespace matts.Tests.Integration;
 
@@ -169,19 +166,14 @@ public class WebsocketIntegrationTests : IDisposable
                 HttpStatusCode.OK,
                 DummyDataFixture.LinkedIn_AccessToken,
                 encoding: System.Text.Encoding.UTF8
-            );
-        _factory.LinkedInHttp.SetupRequest(HttpMethod.Get, _config.Get("LinkedIn").ServiceUris!["profile"])
+                );
+
+        _factory.LinkedInHttp.SetupRequest(HttpMethod.Get, _config.Get("LinkedIn").ServiceUris!["userInfo"])
             .ReturnsResponse(
                 HttpStatusCode.OK,
-                DummyDataFixture.LinkedIn_Profile,
+                DummyDataFixture.LinkedIn_UserInfo,
                 encoding: System.Text.Encoding.UTF8
-            );
-        _factory.LinkedInHttp.SetupRequest(HttpMethod.Get, _config.Get("LinkedIn").ServiceUris!["primaryContact"])
-            .ReturnsResponse(
-                HttpStatusCode.OK,
-                DummyDataFixture.LinkedIn_PrimaryContact,
-                encoding: System.Text.Encoding.UTF8
-            );
+                );
 
         var client = _factory.Server.CreateWebSocketClient();
         var socket = await client.ConnectAsync(_factory.GetWebsocketUri("/ws/oauth/linkedin"), CancellationToken.None);
@@ -287,8 +279,8 @@ public class WebsocketIntegrationTests : IDisposable
         Assert.Equal(WSAuthEventTypes.SERVER_OAUTH_COMPLETED, (WSAuthEventTypes)message!.type);
         Assert.Equal(client_identity, (string)message.clientIdentity);
         Assert.NotNull(data);
-        Assert.Equal("Bob Smith", data.FullName);
-        Assert.Equal("ding_wei_stub@example.com", data.Email);
-        Assert.Equal("158****1473", data.PhoneNumber);
+        Assert.Equal("John Doe", data.FullName);
+        Assert.Equal("doe@email.com", data.Email);
+        Assert.Equal(string.Empty, data.PhoneNumber);
     }
 }

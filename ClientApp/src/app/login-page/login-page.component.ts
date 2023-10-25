@@ -272,7 +272,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
         client_id: this.configService.config.linkedinOauth.clientId,
         redirect_uri: this.configService.config.linkedinOauth.redirectUri,
         state: clientIdentity,
-        scope: encodeURIComponent(this.configService.config.linkedinOauth.scope),
+        scope: this.configService.config.linkedinOauth.scope,
       }
     });
 

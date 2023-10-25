@@ -43,10 +43,6 @@ public class LinkedinOAuthService : ILinkedinOAuthService
     {
         PropertyNamingPolicy = new JsonSnakeCaseNamingPolicy()
     };
-    private static readonly JsonSerializerOptions API_OPTIONS = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
 
     private readonly ILogger<LinkedinOAuthService> _logger;
     private readonly HttpClient _httpClient;
@@ -81,12 +77,12 @@ public class LinkedinOAuthService : ILinkedinOAuthService
             t.Start();
         }
 
-        TypeAdapterConfig<(Profile, PrimaryContact), UserRegistration>
-            .NewConfig() // barf
-            .Map(dest => dest.FullName!, src => $"{src.Item1.FirstName!.Localized![$"{src.Item1.FirstName!.PreferredLocale!.Language}_{src.Item1.FirstName!.PreferredLocale!.Country}"]} {src.Item1.LastName!.Localized![$"{src.Item1.LastName!.PreferredLocale!.Language}_{src.Item1.LastName!.PreferredLocale!.Country}"]}")
-            .Map(dest => dest.Email!, src => src.Item2.Elements!.Where(e => e.Type == ContactType.EMAIL).Select(e => e.HandleData).Single()!.GetValueOrDefault("emailAddress", ""))
-            .Map(dest => dest.PhoneNumber!, src => (src.Item2.Elements!.Where(p => p.Type == ContactType.PHONE).Select(e => e.HandleData).Single()!.GetValueOrDefault("phoneNumber", new PhoneNumber()) as PhoneNumber)!.Number ?? "", srcCond => srcCond.Item2.Elements!.Exists(e => e.Type == ContactType.PHONE))
-            .Compile(); // barf
+        TypeAdapterConfig<UserInfo, UserRegistration>
+            .NewConfig()
+            .Map(dest => dest.FullName!, src => src.Name!)
+            .Map(dest => dest.Email!, src => src.Email!)
+            .Map(dest => dest.PhoneNumber!, _ => string.Empty) // not allowed to get the digits ;_;
+            .Compile();
     }
 
     public void Dispose()
@@ -193,8 +189,7 @@ public class LinkedinOAuthService : ILinkedinOAuthService
             AuthCode authCode = "";
             // We still need:
             string accessToken = "";
-            Profile? profile = null;
-            PrimaryContact? contactInfo = null;
+            UserInfo? userInfo = null;
 
             // Each thread will handle its own auth flow from the queue
             Monitor.Enter(Lock);
@@ -240,7 +235,7 @@ public class LinkedinOAuthService : ILinkedinOAuthService
              * HLL Reference here: https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow?tabs=HTTPS1
              * 
              * First try/catch - Step 3: Exchange Authorization Code for an Access Token
-             * Further try/catches - Step 4: Make Authenticated Requests
+             * Second try/catch - Step 4: Make Authenticated Requests
              */
             try
             {
@@ -296,26 +291,26 @@ public class LinkedinOAuthService : ILinkedinOAuthService
                 continue;
             }
 
-            /* * STEP 4a: Get Profile Information * */
+            /* * STEP 4: Get Profile Information * */
             try
             {
-                using var profileRequest = new HttpRequestMessage(HttpMethod.Get, _config.ServiceUris!["profile"]);
-                profileRequest.Headers.Add("Authorization", $"Bearer {accessToken}");
-                var getProfile = _httpClient.SendAsync(profileRequest, Cancellation.Token);
-                if (!getProfile.Wait(TIMEOUT_MS, Cancellation.Token))
+                using var userInfoRequest = new HttpRequestMessage(HttpMethod.Get, _config.ServiceUris!["userInfo"]);
+                userInfoRequest.Headers.Add("Authorization", $"Bearer {accessToken}");
+                var getUserInfo = _httpClient.SendAsync(userInfoRequest, Cancellation.Token);
+                if (!getUserInfo.Wait(TIMEOUT_MS, Cancellation.Token))
                 {
                     throw new TimeoutException("Timeout exceeded for profile retrieval REST call!");
                 }
-                HttpResponseMessage response = getProfile.Result;
+                HttpResponseMessage response = getUserInfo.Result;
                 response.EnsureSuccessStatusCode();
 
-                var getProfileResponseBody = response.Content.ReadFromJsonAsync(typeof(Profile), API_OPTIONS, Cancellation.Token);
-                if (!getProfileResponseBody.Wait(TIMEOUT_MS, Cancellation.Token))
+                var getUserInfoResponseBody = response.Content.ReadFromJsonAsync(typeof(UserInfo), OAUTH_OPTIONS, Cancellation.Token);
+                if (!getUserInfoResponseBody.Wait(TIMEOUT_MS, Cancellation.Token))
                 {
                     throw new TimeoutException("Timeout exceeded for profile retrieval REST call!");
                 }
 
-                profile = getProfileResponseBody.Result as Profile ??
+                userInfo = getUserInfoResponseBody.Result as UserInfo ??
                         throw new IOException("Cannot read the deserialized Linkedin Profile.");
 
                 _logger.LogInformation("Helper Threads: Successfully acquired profile data for {Client}", TruncateClientId(client));
@@ -337,68 +332,9 @@ public class LinkedinOAuthService : ILinkedinOAuthService
                 continue;
             }
 
-            /* * STEP 4b: Get Contact Information - Email and PhoneNumber * */
             try
             {
-                using var contactRequest = new HttpRequestMessage(HttpMethod.Get, _config.ServiceUris!["primaryContact"]);
-                contactRequest.Headers.Add("Authorization", $"Bearer {accessToken}");
-                var getContact = _httpClient.SendAsync(contactRequest, Cancellation.Token);
-                if (!getContact.Wait(TIMEOUT_MS, Cancellation.Token))
-                {
-                    throw new TimeoutException("Timeout exceeded for contact information REST call!");
-                }
-                HttpResponseMessage response = getContact.Result;
-                response.EnsureSuccessStatusCode();
-
-                var getContactResponseBody = response.Content.ReadFromJsonAsync(typeof(PrimaryContact), API_OPTIONS, Cancellation.Token);
-                if (!getContactResponseBody.Wait(TIMEOUT_MS, Cancellation.Token))
-                {
-                    throw new TimeoutException("Timeout exceeded for contact information REST call!");
-                }
-
-                contactInfo = getContactResponseBody.Result as PrimaryContact ??
-                        throw new IOException("Cannot read the deserialized Linkedin PrimaryContact.");
-
-                // ugh, the phone number will still be in json ...
-                try
-                {
-                    int i = contactInfo.Elements?.FindIndex(e => e.Type == ContactType.PHONE) ?? -1;
-                    if (i > -1)
-                    {
-                        string? stillJson = contactInfo.Elements![i].HandleData!["phoneNumber"]?.ToString();
-                        if (contactInfo.Elements![i].HandleData != null && stillJson != null)
-                        {
-                            contactInfo.Elements![i].HandleData!["phoneNumber"] = JsonSerializer.Deserialize<PhoneNumber>(stillJson, API_OPTIONS)!;
-                        }
-                    }
-                }
-                catch 
-                {
-                    _logger.LogError("Error while mapping the phone number.");
-                }
-
-                _logger.LogInformation("Helper Threads: Successfully acquired contact information data for {Client}", TruncateClientId(client));
-            }
-            catch (OperationCanceledException)
-            {
-                // Thread cancelled
-                break;
-            }
-            catch (ObjectDisposedException)
-            {
-                // The service has been disposed and the thread cancelled
-                break;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Helper Threads: Exception encountered while fetching contact information for client {ID}", TruncateClientId(client));
-                HandleFailure(client, ex);
-                continue;
-            }
-
-            try
-            {
-                SaveProfileInformation(client, TypeAdapter.Adapt<UserRegistration>((profile, contactInfo)));
+                SaveProfileInformation(client, userInfo.Adapt<UserRegistration>());
             }
             catch (Exception ex)
             {
