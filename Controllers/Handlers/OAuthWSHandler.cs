@@ -76,6 +76,8 @@ public abstract class OAuthWSHandler : IWebsocketHandler<WSAuthEventTypes, WSAut
 
         if (disposing)
         {
+            _bufferSequence.Reset();
+
             if (Websocket?.State != WebSocketState.Closed)
             {
                 Websocket?.Abort();
