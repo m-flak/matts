@@ -1,4 +1,4 @@
-/* matts
+﻿/* matts
  * "Matthew's ATS" - Portfolio Project
  * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
  * 
@@ -31,7 +31,9 @@ using matts.Services;
 using matts.Daos;
 using matts.Repositories;
 using matts.Constants;
-
+using matts.Middleware;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -81,12 +83,8 @@ builder.Services.AddAzureClients(clients =>
     {
         var blobConfigs = builder.Configuration.GetSection("AzurePlatform")
             .GetSection("AzureBlobConfigurations")
-            .Get<AzureBlobConfiguration[]>();
-        
-        if (blobConfigs == null)
-        {
-            throw new ApplicationException("MISSING REQUIRED CONFIG SECTION: AzureBlobConfigurations");
-        }
+            .Get<AzureBlobConfiguration[]>() 
+                ?? throw new ApplicationException("MISSING REQUIRED CONFIG SECTION: AzureBlobConfigurations");
 
         // Create blob clients and register their configs as well
         int i = 0;
@@ -138,7 +136,7 @@ builder.Services.AddAuthentication("Bearer").AddJwtBearer(o =>
             var usersJwtIssuer = builder.Configuration["Authentication:Schemes:Bearer:ValidIssuer"];
             var appJwtIssuer = builder.Configuration["Jwt:Issuer"];
 
-            if ( (usersJwtIssuer != null && issuer == usersJwtIssuer) || (appJwtIssuer != null && issuer == appJwtIssuer) )
+            if ((usersJwtIssuer != null && issuer == usersJwtIssuer) || (appJwtIssuer != null && issuer == appJwtIssuer))
             {
                 return issuer;
             }
@@ -148,8 +146,8 @@ builder.Services.AddAuthentication("Bearer").AddJwtBearer(o =>
         IssuerSigningKeyResolver = (string token, SecurityToken securityToken, string kid, TokenValidationParameters validationParameters) =>
         {
             var logger = builder.Logging.Services.BuildServiceProvider().GetRequiredService<ILogger<Program>>();
-            
-            List<SecurityKey> keys = new List<SecurityKey>();
+
+            List<SecurityKey> keys = new();
 
             if (builder.Environment.IsDevelopment())
             {
@@ -175,7 +173,7 @@ builder.Services.AddAuthentication("Bearer").AddJwtBearer(o =>
             {
                 logger.LogError("The application Jwt Signing Key is missing from Config!");
             }
-            
+
             return keys;
         },
         ValidAudiences = builder.Configuration.GetSection("Authentication:Schemes:Bearer:ValidAudiences").Get<string[]>(),
@@ -192,19 +190,68 @@ builder.Services.Configure<Neo4JConfiguration>(builder.Configuration.GetSection(
 builder.Services.Configure<JwtConfiguration>(builder.Configuration.GetSection("Jwt"));
 builder.Services.Configure<ClientAppConfiguration>(builder.Configuration.GetSection("ClientApp"));
 
-builder.Services.AddControllersWithViews();
-
-// SINGLETONS
-builder.Services.AddSingleton<IDriver>(implementationFactory: provider => 
+// CONFIGURATION FOR IOPTIONSMONITOR / IOPTIONSSNAPSHOT
 {
-    var settings = provider.GetRequiredService<IOptions<Neo4JConfiguration>>()?.Value;
-    if (settings == null)
+    // Oauth Config
+    var oauthConfigs = builder.Configuration.GetSection("Oauth")
+        .GetSection("OauthConfigurations")
+        .Get<OauthConfig[]>()
+            ?? throw new ApplicationException("MISSING REQUIRED CONFIG SECTION: OauthConfigurations");
+
+    int i = 0;
+    foreach (var config in oauthConfigs)
     {
-        throw new ApplicationException("MISSING REQUIRED CONFIG VALUES: Neo4J Driver");
+        if (config.GetType().GetProperties().Any(info => info.GetValue(config) is null))
+        {
+            throw new ApplicationException($"MISSING REQUIRED CONFIG VALUE WITHIN: OauthConfigurations[{i}]");
+        }
+
+        builder.Services.Configure<OauthConfig>(
+                config.ServiceName,
+                builder.Configuration.GetSection($"Oauth:OauthConfigurations:{i++}")
+            );
     }
-    return GraphDatabase.Driver(settings.ConnectionURL, AuthTokens.Basic(settings.User, settings.Password));
+}
+
+// CSRF/XSRF Protection Setup
+builder.Services.AddAntiforgery(options =>
+{
+    options.Cookie = new CookieBuilder
+    {
+        Name = "ASP-XSRF-TOKEN",
+        IsEssential = true,
+        SecurePolicy = CookieSecurePolicy.Always
+    };
+    options.HeaderName = "X-Xsrf-Token";
 });
 
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+});
+
+// SINGLETONS
+/*** Neo4J ***/
+builder.Services.AddSingleton<IDriver>(implementationFactory: provider => 
+{
+    var settings = (provider.GetRequiredService<IOptions<Neo4JConfiguration>>()?.Value) 
+        ?? throw new ApplicationException("MISSING REQUIRED CONFIG VALUES: Neo4J Driver");
+
+    return GraphDatabase.Driver(settings.ConnectionURL, AuthTokens.Basic(settings.User, settings.Password));
+});
+/*** CSP Policy ***/
+builder.Services.AddSingleton<CSP>(implementationFactory: provider =>
+{
+    var policy = CSP.DefaultPolicy.Clone();
+
+    policy.ConnectSrc = CSP.Self;
+    policy.Sandbox = $"{policy.Sandbox} allow-downloads allow-popups allow-popups-to-escape-sandbox";
+    policy.BaseUri = string.Empty;
+
+    return policy;
+});
+/*** LinkedIn OAuth Service ***/
+builder.Services.AddSingleton<ILinkedinOAuthService, LinkedinOAuthService>();
 
 // SCOPED
 builder.Services.AddScoped<IValidator<User>, UserValidator>();
@@ -225,6 +272,9 @@ builder.Services.AddScoped<IUserService, UserService>();
 // TRANSIENT
 builder.Services.AddTransient<IMapper, Mapper>();
 
+// HTTP CLIENTS
+builder.Services.AddHttpClient("linkedin_client");
+
 var app = builder.Build();
 if (useAzureAppConfig)
 {
@@ -242,8 +292,10 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
+app.UseMiddleware<AntiforgeryMiddleware>();  // MUST go after auth middleware
 app.UseAuthorization();
-
+app.UseMiddleware<ContentSecurityPolicyMiddleware>();
+app.UseWebSockets();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller}/{action=Index}/{id?}");
@@ -251,3 +303,5 @@ app.MapControllerRoute(
 app.MapFallbackToFile("index.html");
 
 app.Run();
+
+public partial class Program { }

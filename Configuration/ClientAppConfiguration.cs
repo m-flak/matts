@@ -38,9 +38,17 @@ public sealed class ClientAppResumeUploader
     public string? AllowedFileExtensions { get; set; }
 }
 
+public sealed class ClientAppLinkedinOauth
+{
+    public string? ClientId { get; set; }
+    public Uri? RedirectUri { get; set; }
+    public string? Scope { get; set; }
+}
+
 public sealed class ClientAppConfiguration
 {
     public ClientAppExternalApis? ExternalApis { get; set; }
     public ClientAppBranding? Branding { get; set; }
     public ClientAppResumeUploader? ResumeUploader  { get; set; }
+    public ClientAppLinkedinOauth? LinkedinOauth { get; set; }
 }

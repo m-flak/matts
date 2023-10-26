@@ -7,3 +7,4 @@ export * from './apply-to-job.model';
 export * from './employer.model';
 export * from './configuration.model';
 export * from './configuration.spec-fixture';
+export * from './auth-ws.model';

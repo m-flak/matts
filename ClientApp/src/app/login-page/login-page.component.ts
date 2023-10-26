@@ -20,11 +20,14 @@ import { UserRoleConstants } from '../constants';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-import { User, UserRegistration } from '../models';
-import { Subscription, first } from 'rxjs';
+import { User, UserRegistration, WSAuthEventTypes, WSAuthMessage } from '../models';
+import { Observable, Subject, Subscription, delay, first } from 'rxjs';
 import { MatExpansionPanel } from '@angular/material/expansion';
 import { MonitorService } from '../services/monitor.service';
 import { LoadingBarService } from '@ngx-loading-bar/core';
+import { ConfigService } from '../services/config.service';
+import { HttpParams } from '@angular/common/http';
+import { CookieService } from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-login-page',
@@ -41,6 +44,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   private _subscription: Subscription | null = null;
   private _subscription2: Subscription | null = null;
   private _subscription3: Subscription | null = null;
+  private _subscription4: Subscription | null = null;
 
   loader = this.loadingBar.useRef();
   displayDimmer = false;
@@ -67,6 +71,8 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
+    private configService: ConfigService,
+    private cookieService: CookieService,
     private authService: AuthService,
     private monitorService: MonitorService,
     private loadingBar: LoadingBarService,
@@ -130,6 +136,9 @@ export class LoginPageComponent implements OnInit, OnDestroy {
     }
     if (this._subscription3 !== null) {
       this._subscription3.unsubscribe();
+    }
+    if (this._subscription4 !== null) {
+      this._subscription4.unsubscribe();
     }
   }
 
@@ -253,5 +262,72 @@ export class LoginPageComponent implements OnInit, OnDestroy {
           },
         });
     }
+  }
+
+  clickApplicantLinkedinButton(): void {
+    const clientIdentity = this.cookieService.get('XSRF-TOKEN');
+    const params = new HttpParams({
+      fromObject: {
+        response_type: 'code',
+        client_id: this.configService.config.linkedinOauth.clientId,
+        redirect_uri: this.configService.config.linkedinOauth.redirectUri,
+        state: clientIdentity,
+        scope: this.configService.config.linkedinOauth.scope,
+      }
+    });
+
+    const linkedinUrl = `https://www.linkedin.com/oauth/v2/authorization?${params.toString()}`
+    window.open(linkedinUrl, '_blank');
+
+    const sendToSocket = new Subject<WSAuthMessage>();
+    const socketMessages = this.authService.getWSAuthStream(sendToSocket);
+    sendToSocket.next({
+      type: WSAuthEventTypes.NONE,
+      clientIdentity: "",
+      data: null
+    });
+    const obs: Observable<UserRegistration> = new Observable((subscriber) => {
+      let sub: Subscription = socketMessages.pipe(delay(500)).subscribe(jsonMsg => {
+        const message: WSAuthMessage = JSON.parse(jsonMsg);
+        if (message) {
+          if (message.type === WSAuthEventTypes.SERVER_CONNECTION_ESTABLISHED) {
+            this.authService.sendWSAuthStart(sendToSocket);
+          }
+          else if (message.type === WSAuthEventTypes.SERVER_OAUTH_STARTED || message.type === WSAuthEventTypes.SERVER_OAUTH_PENDING) {
+            const reply: WSAuthMessage = {
+              type: WSAuthEventTypes.CLIENT_OAUTH_REQUEST_STATUS,
+              clientIdentity: clientIdentity,
+              data: null
+            };
+            sendToSocket.next(reply);
+          }
+          else if (message.type === WSAuthEventTypes.SERVER_OAUTH_ABORTFAIL) {
+            this.authService.terminateWSAuthStream(sub, sendToSocket);
+            subscriber.error();
+            sub.unsubscribe();
+          }
+          else if (message.type === WSAuthEventTypes.SERVER_OAUTH_COMPLETED) {
+            const theData: UserRegistration = message.data;
+            subscriber.next(theData);
+            this.authService.terminateWSAuthStream(sub, sendToSocket);
+            subscriber.complete();
+            sub.unsubscribe();
+          }
+        }
+        else {
+          sendToSocket.next({
+            type: WSAuthEventTypes.NONE,
+            clientIdentity: "",
+            data: null
+          });
+        }
+      });
+    });
+
+    this._subscription4 = obs.subscribe(data => {
+      this.applicantRegistrationForm.controls.fullName.setValue(data.fullName);
+      this.applicantRegistrationForm.controls.email.setValue(data.email);
+      this.applicantRegistrationForm.controls.phoneNumber.setValue(data.phoneNumber);
+    });
   }
 }

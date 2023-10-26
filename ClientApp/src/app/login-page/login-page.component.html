@@ -160,6 +160,14 @@
         <section *ngSwitchCase="REGISTRATION_TYPE_APPLICANT">
           <h3 class="registration-section-header">Applicants:</h3>
           <a mat-flat-button color="primary" (click)="setRegistrationMode(-1)">&#x21FD; Back</a>
+          <br>
+          <button 
+            class="linkedin-signup-button"
+            (click)="clickApplicantLinkedinButton()"
+          >
+            <img src="assets/linkedin.svg" alt="IN" />
+            <span>Sign Up with LinkedIn</span>
+          </button>
           <form
             [formGroup]="applicantRegistrationForm"
             class="d-flex flex-column"

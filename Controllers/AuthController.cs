@@ -1,4 +1,4 @@
-/* matts
+﻿/* matts
  * "Matthew's ATS" - Portfolio Project
  * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
  * 
@@ -29,10 +29,13 @@ using matts.Configuration;
 using matts.Interfaces;
 using matts.Constants;
 using matts.Models;
+using System.ComponentModel.DataAnnotations;
+using System.Runtime.InteropServices;
 
 namespace matts.Controllers;
 
 [ApiController]
+[IgnoreAntiforgeryToken]
 [Route("[controller]")]
 public class AuthController : ControllerBase
 {
@@ -41,14 +44,22 @@ public class AuthController : ControllerBase
     private readonly ILogger<AuthController> _logger;
     private readonly IOptions<JwtConfiguration> _options;
     private readonly IUserService _userService;
+    private readonly ILinkedinOAuthService _linkedinService;
 
-    public AuthController(ILogger<AuthController> logger, IOptions<JwtConfiguration> options, IValidator<User> validator, IValidator<UserRegistration> validatorRegister, IUserService userService) 
+    public AuthController(
+        ILogger<AuthController> logger, 
+        IOptions<JwtConfiguration> options, 
+        IValidator<User> validator, 
+        IValidator<UserRegistration> validatorRegister, 
+        IUserService userService,
+        ILinkedinOAuthService linkedinService) 
     {
         _logger = logger;
         _options = options;
         _validator = validator;
         _validatorRegister = validatorRegister;
         _userService = userService;
+        _linkedinService = linkedinService;
     }
 
     [AllowAnonymous]
@@ -143,6 +154,34 @@ public class AuthController : ControllerBase
             return BadRequest();
         }
 
+        return Ok();
+    }
+
+    [AllowAnonymous]
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [Route("linkedin/callback")]
+    public IActionResult LinkedinCallback(
+        [Required][FromQuery] string code,
+        [Required][FromQuery] string state,
+        [Optional][FromQuery] string? error,
+        [Optional][FromQuery] string? error_description
+        )
+    {
+        if (error is not null)
+        {
+            var ex = new Exception($"{error} - {error_description}");
+            _linkedinService.CancelFlow(state, ex);
+            return Unauthorized();
+        }
+
+        if (!_linkedinService.IsFlowInProgress(state))
+        {
+            return Unauthorized();
+        }
+
+        _linkedinService.SaveClientAuthCode(state, code);
         return Ok();
     }
 }

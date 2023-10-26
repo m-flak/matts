@@ -27,12 +27,16 @@ import { lastValueFrom, take, tap } from 'rxjs';
 })
 export class ConfigService {
   private _config!: Configuration;
-
+  
   get config() {
     return this._config;
   }
   set config(val: Configuration) {
     this._config = val;
+  }
+
+  get appUrl() {
+    return this.baseUrl;
   }
 
   constructor(

@@ -22,7 +22,7 @@ public class JobRepositoryTests
     }
 
     [Fact]
-    public async void GetAll_GetsAllTheJobs()
+    public async Task GetAll_GetsAllTheJobs()
     {
         _daoJob.Setup(d => d.GetAll())
             .Returns(Task.FromResult(JobFixture.CreateJobList()));
