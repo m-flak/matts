@@ -245,6 +245,8 @@ builder.Services.AddSingleton<CSP>(implementationFactory: provider =>
     var policy = CSP.DefaultPolicy.Clone();
 
     policy.ConnectSrc = CSP.Self;
+    // FIXME: Setup script nonces
+    policy.ScriptSrc = $"{policy.ScriptSrc} {CSP.UnsafeInline}";
     policy.Sandbox = $"{policy.Sandbox} allow-downloads allow-popups allow-popups-to-escape-sandbox";
     policy.BaseUri = string.Empty;
 
