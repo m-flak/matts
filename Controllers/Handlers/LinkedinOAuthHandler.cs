@@ -24,6 +24,8 @@ namespace matts.Controllers.Handlers;
 
 public class LinkedinOAuthHandler : OAuthWSHandler
 {
+    private const int LOGGER_CLID_MAXLENGTH = 36;
+
     private readonly IOAuthService? _oauthService;
 
     protected LinkedinOAuthHandler(WebSocket socket) 
@@ -56,6 +58,19 @@ public class LinkedinOAuthHandler : OAuthWSHandler
             WSAuthEventTypes.NONE,
             HandleInitialConnect
             );
+    }
+
+    public override void CleanupOnClientReset(object? clientIdentifier)
+    {
+        base.CleanupOnClientReset(clientIdentifier);
+
+        if (clientIdentifier is not null
+            && clientIdentifier is string clientId
+            && _oauthService!.IsFlowInProgress(clientId))
+        {
+            Logger?.LogInformation("LinkedIn OAuth Flow Aborted Client-Side by: '{Client}'.", TruncateClientId(clientId));
+            _oauthService!.CancelFlow(clientId);
+        }
     }
 
     private async Task<bool> HandleStart(WebSocket ws, WSAuthMessage msg)
@@ -130,5 +145,12 @@ public class LinkedinOAuthHandler : OAuthWSHandler
         });
 
         return true;
+    }
+
+    private static string TruncateClientId(string clientId)
+    {
+        return (clientId.Length > LOGGER_CLID_MAXLENGTH)
+            ? $"{clientId[0..LOGGER_CLID_MAXLENGTH]}..."
+            : clientId;
     }
 }

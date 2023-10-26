@@ -29,4 +29,6 @@ public interface IWebsocketHandler<EMsgTypes, TMessage> : IDisposable where EMsg
 
     Task<bool> HandleMessageAsync(EMsgTypes handledType, TMessage? handledMessage);
     void AssignMessageHandler(EMsgTypes handledType, Func<WebSocket, TMessage, Task<bool>> handler);
+
+    void CleanupOnClientReset(object? clientIdentifier);
 }

@@ -182,4 +182,9 @@ public abstract class OAuthWSHandler : IWebsocketHandler<WSAuthEventTypes, WSAut
     {
         _handlers.Add(handledType as object, handler);
     }
+
+    public virtual void CleanupOnClientReset(object? clientIdentifier)
+    {
+        Logger?.LogDebug("Entering the CleanupOnClientReset for {Client}", clientIdentifier);
+    }
 }

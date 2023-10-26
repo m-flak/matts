@@ -61,6 +61,13 @@ public class WsController : ControllerBase
                 {
                     // ReceiveMessageAsync sets the message to non-null if present
                     #pragma warning disable CA1508
+
+                    // store client id for handling aborts
+                    if (!HttpContext.Items.ContainsKey("LinkedinOAuthClientId") && message?.ClientIdentity is not null)
+                    {
+                        HttpContext.Items["LinkedinOAuthClientId"] = message.ClientIdentity;
+                    }
+
                     bool success = await wsHandler.HandleMessageAsync(message?.Type ?? WSAuthEventTypes.NONE, message);
                     #pragma warning restore CA1508
 
@@ -77,6 +84,12 @@ public class WsController : ControllerBase
             {
                 aborted = string.Equals(oce.InnerException?.Message, "The client reset the request stream.")
                     || webSocket.State == WebSocketState.Aborted;
+
+                // perform cleanup (if needed) using stored client id (if present)
+                if (aborted)
+                {
+                    wsHandler.CleanupOnClientReset(HttpContext.Items["LinkedinOAuthClientId"]);
+                }
             }
 
             if (!badClose && !aborted)
