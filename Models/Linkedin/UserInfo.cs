@@ -24,7 +24,7 @@ public sealed class UserInfo
     public string? GivenName { get; set; }
     public string? FamilyName { get; set; }
     public Uri? Picture { get; set; }
-    public string? Locale { get; set; }
+    public object? Locale { get; set; }
     public string? Email { get; set; }
     public bool? EmailVerified { get; set; }
 }

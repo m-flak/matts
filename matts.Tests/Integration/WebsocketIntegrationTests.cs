@@ -283,4 +283,123 @@ public class WebsocketIntegrationTests : IDisposable
         Assert.Equal("doe@email.com", data.Email);
         Assert.Equal(string.Empty, data.PhoneNumber);
     }
+
+    [Fact]
+    public async Task LinkedIn_FlowFailed_SendsFailureMessage()
+    {
+        const string client_identity = "MYIDTOKEN";
+
+        _factory.LinkedInHttp.SetupRequest(HttpMethod.Post, _config.Get("LinkedIn").ServiceUris!["accessToken"], r => r.Content is FormUrlEncodedContent)
+            .ReturnsResponse(
+                HttpStatusCode.OK,
+                DummyDataFixture.LinkedIn_AccessToken,
+                encoding: System.Text.Encoding.UTF8
+                );
+
+        _factory.LinkedInHttp.SetupRequest(HttpMethod.Get, _config.Get("LinkedIn").ServiceUris!["userInfo"])
+            .ReturnsResponse(HttpStatusCode.InternalServerError);
+
+        var client = _factory.Server.CreateWebSocketClient();
+        var socket = await client.ConnectAsync(_factory.GetWebsocketUri("/ws/oauth/linkedin"), CancellationToken.None);
+
+        var options = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
+        var hello = new WSAuthMessage
+        {
+            Type = WSAuthEventTypes.NONE,
+            ClientIdentity = "",
+            Data = null
+        };
+        await socket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(System.Text.Json.JsonSerializer.Serialize(hello, options))), WebSocketMessageType.Text, true, CancellationToken.None);
+        var responseBytes = new byte[1024];
+        _ = await socket.ReceiveAsync(new ArraySegment<byte>(responseBytes), CancellationToken.None);
+        _ = await socket.ReceiveAsync(new ArraySegment<byte>(responseBytes), CancellationToken.None);
+
+        var reply = new WSAuthMessage
+        {
+            Type = WSAuthEventTypes.CLIENT_OAUTH_START,
+            ClientIdentity = client_identity,
+            Data = null
+        };
+        var replyBytes = Encoding.UTF8.GetBytes(System.Text.Json.JsonSerializer.Serialize(reply, options));
+        await socket.SendAsync(
+            new ArraySegment<byte>(replyBytes, 0, replyBytes.Length),
+            WebSocketMessageType.Text,
+            true,
+            CancellationToken.None
+        );
+
+        /* ************************ RECEIVE STARTED MESSAGE ************************************************** */
+        dynamic? message = null;
+        var responseBytes2 = new byte[1024];
+        var response = await socket.ReceiveAsync(new ArraySegment<byte>(responseBytes2), CancellationToken.None);
+
+        Assert.Equal(WebSocketMessageType.Text, response.MessageType);
+        message = JsonConvert.DeserializeObject(Encoding.UTF8.GetString(responseBytes2[0..response.Count]))!;
+        Assert.NotNull(message);
+        Assert.Equal(WSAuthEventTypes.SERVER_OAUTH_STARTED, (WSAuthEventTypes)message!.type);
+        Assert.Equal(client_identity, (string)message.clientIdentity);
+
+        /* ************************ REPLY REQUEST STATUS ************************************************** */
+        reply.Type = WSAuthEventTypes.CLIENT_OAUTH_REQUEST_STATUS;
+        replyBytes = Encoding.UTF8.GetBytes(System.Text.Json.JsonSerializer.Serialize(reply, options));
+        await socket.SendAsync(
+            new ArraySegment<byte>(replyBytes, 0, replyBytes.Length),
+            WebSocketMessageType.Text,
+            true,
+            CancellationToken.None
+        );
+
+        /* ************************ RECEIVE PENDING MESSAGE ************************************************** */
+        message = null;
+        Array.Fill<byte>(responseBytes2, 0x00);
+        response = await socket.ReceiveAsync(new ArraySegment<byte>(responseBytes2), CancellationToken.None);
+
+        Assert.Equal(WebSocketMessageType.Text, response.MessageType);
+        message = JsonConvert.DeserializeObject(Encoding.UTF8.GetString(responseBytes2[0..response.Count]))!;
+        Assert.NotNull(message);
+        Assert.Equal(WSAuthEventTypes.SERVER_OAUTH_PENDING, (WSAuthEventTypes)message!.type);
+        Assert.Equal(client_identity, (string)message.clientIdentity);
+
+        /* *********************** HIT REDIRECT URI ******************************************************** */
+        using var queryContent = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["code"] = "AUTH-CODE-123",
+            ["state"] = client_identity
+        });
+        var redirectUriBuilder = new UriBuilder(_factory.Server.BaseAddress)
+        {
+            Path = "/auth/linkedin/callback",
+            Query = await queryContent.ReadAsStringAsync()
+        };
+
+        var httpResponse = await _client.GetAsync(redirectUriBuilder.Uri);
+        Assert.Equal(HttpStatusCode.OK, httpResponse.StatusCode);
+
+        // wait for processing, 5s so the CI can handle it ;)
+        await Task.Delay(5000);
+
+        /* ************************ REPLY REQUEST STATUS ************************************************** */
+        reply.Type = WSAuthEventTypes.CLIENT_OAUTH_REQUEST_STATUS;
+        replyBytes = Encoding.UTF8.GetBytes(System.Text.Json.JsonSerializer.Serialize(reply, options));
+        await socket.SendAsync(
+            new ArraySegment<byte>(replyBytes, 0, replyBytes.Length),
+            WebSocketMessageType.Text,
+            true,
+            CancellationToken.None
+        );
+
+        /* ************************ RECEIVE COMPLETED MESSAGE ************************************************** */
+        message = null;
+        Array.Fill<byte>(responseBytes2, 0x00);
+        response = await socket.ReceiveAsync(new ArraySegment<byte>(responseBytes2), CancellationToken.None);
+
+        Assert.Equal(WebSocketMessageType.Text, response.MessageType);
+        message = JsonConvert.DeserializeObject(Encoding.UTF8.GetString(responseBytes2[0..response.Count]))!;
+        Assert.NotNull(message);
+        Assert.Equal(WSAuthEventTypes.SERVER_OAUTH_ABORTFAIL, (WSAuthEventTypes)message!.type);
+        Assert.Equal(client_identity, (string)message.clientIdentity);
+    }
 }
