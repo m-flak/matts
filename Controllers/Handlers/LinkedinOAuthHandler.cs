@@ -103,22 +103,22 @@ public class LinkedinOAuthHandler : OAuthWSHandler
             return false;
         }
 
-        if (!_oauthService!.IsFlowComplete(msg.ClientIdentity))
+        if (_oauthService!.DidFlowFail(msg.ClientIdentity, out var errorData))
+        {
+            await this.ReplyToMessageAsync(reply =>
+            {
+                reply.Type = WSAuthEventTypes.SERVER_OAUTH_ABORTFAIL;
+                reply.ClientIdentity = msg!.ClientIdentity;
+                reply.Data = errorData.ToString();
+            });
+        }
+        else if (!_oauthService!.IsFlowComplete(msg.ClientIdentity))
         {
             await this.ReplyToMessageAsync(reply =>
             {
                 reply.Type = WSAuthEventTypes.SERVER_OAUTH_PENDING;
                 reply.ClientIdentity = msg!.ClientIdentity;
                 reply.Data = null;
-            });
-        }
-        else if (_oauthService!.DidFlowFail(msg.ClientIdentity, out var errorData))
-        {
-            await this.ReplyToMessageAsync(reply =>
-            {
-                reply.Type = WSAuthEventTypes.SERVER_OAUTH_ABORTFAIL;
-                reply.ClientIdentity = msg!.ClientIdentity;
-                reply.Data = errorData;
             });
         }
         else
