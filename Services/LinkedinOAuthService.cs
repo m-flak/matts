@@ -173,7 +173,7 @@ public class LinkedinOAuthService : ILinkedinOAuthService
         Data.AddOrUpdate(clientId, AddValueFactory, UpdateValueFactory, profileInformation);
         Pending.TryRemove(clientId, out var _);
 
-        _logger.LogInformation("LinkedIn OAuth Flow Completed for: '{Client}'.", clientId);
+        _logger.LogInformation("LinkedIn OAuth Flow Completed for: '{Client}'.", TruncateClientId(clientId));
     }
 
 // dedicated thread
