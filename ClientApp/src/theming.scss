@@ -67,6 +67,7 @@ $mat-dark-theme-foreground: (
 // Light bg
 $light-background: #edeae0;
 $light-bg-shaded: #e9e6dd;
+$light-bg-shaded-2: #e1ded4;
 $light-bg-bright: #fcfbf7;
 $light-bg-borderline: #c9c7be;
 $light-bg-darker-5: darken($light-background, 5%);
@@ -127,8 +128,12 @@ $mat-dark-theme-background: (
 $mat-primary: (
   main: #a3c6cb,
   lighter: #e3eeef,
+  saturated: #83c6cb,
   darker: #88b1b8,
   darker-2: #83b2b9,
+  darker-3: #a9c3c7,
+  darker-3-t10: #a9c3c71a,
+  darker-3-t25: #a9c3c740,
   200: #a3c6cb,
   // For slide toggle,
   contrast:

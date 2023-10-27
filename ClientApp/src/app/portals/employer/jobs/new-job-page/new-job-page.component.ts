@@ -18,15 +18,15 @@
 
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Job } from '../../../models';
+import { Job } from '../../../../models';
 import { Subscription, first } from 'rxjs';
-import { BackendService } from '../../../services/backend.service';
+import { BackendService } from '../../../../services/backend.service';
 import { Router } from '@angular/router';
-import { ToastService } from '../../../services/toast.service';
-import { MonitorService } from '../../../services/monitor.service';
+import { ToastService } from '../../../../services/toast.service';
+import { MonitorService } from '../../../../services/monitor.service';
 
 @Component({
-  selector: 'app-new-job-page',
+  selector: 'app-jobs-new-job-page',
   templateUrl: './new-job-page.component.html',
   styleUrls: ['./new-job-page.component.scss'],
 })

@@ -17,16 +17,17 @@
  **/
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HomeComponent } from './home.component';
-import { BackendService } from '../../../services/backend.service';
+import { JobListComponent } from './job-list.component';
+import { BackendService } from '../../../../services/backend.service';
 import { of } from 'rxjs';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientModule } from '@angular/common/http';
-import { JobConstants } from '../../../constants';
+import { JobConstants } from '../../../../constants';
 import { ActivatedRoute } from '@angular/router';
-import { EmployerPortalModule } from '../employer-portal.module';
+import { EmployerPortalModule } from '../../employer-portal.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { EmployerJobsModule } from '../employer-jobs.module';
 
 const jobs = [
   {
@@ -41,9 +42,9 @@ const FakeBackendService = {
   getAllJobs: () => of(jobs),
 };
 
-describe('HomeComponent', () => {
-  let component: HomeComponent;
-  let fixture: ComponentFixture<HomeComponent>;
+describe('JobListComponent', () => {
+  let component: JobListComponent;
+  let fixture: ComponentFixture<JobListComponent>;
   let service: BackendService;
 
   beforeEach(async () => {
@@ -53,9 +54,10 @@ describe('HomeComponent', () => {
         HttpClientModule,
         HttpClientTestingModule,
         EmployerPortalModule,
+        EmployerJobsModule,
         RouterTestingModule.withRoutes([]),
       ],
-      declarations: [HomeComponent],
+      declarations: [JobListComponent],
       providers: [
         //{ provide: 'BASE_URL', useValue: '' },
         { provide: BackendService, useValue: FakeBackendService },
@@ -68,7 +70,7 @@ describe('HomeComponent', () => {
 
     service = TestBed.inject(BackendService);
 
-    fixture = TestBed.createComponent(HomeComponent);
+    fixture = TestBed.createComponent(JobListComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

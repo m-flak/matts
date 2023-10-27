@@ -11,9 +11,10 @@ $card-border-color: mat.get-color-from-palette($accent-palette, main);
   .home-container {
     @include layouts.flex(false);
 
-    min-height: 100%;
-    height: 100%;
-    padding-bottom: 4em;
+    min-height: 98%;
+    height: 98%;
+    padding-bottom: 0.1em;
+    gap: 1em;
   }
 }
 
@@ -24,9 +25,6 @@ $card-border-color: mat.get-color-from-palette($accent-palette, main);
     border-radius: unset;
     border: 1px solid $card-border-color;
     min-width: 48%;
-  }
-  .positions-card + .details-card {
-    margin-left: 2rem;
   }
 
   .details-card mat-card-content {

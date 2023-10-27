@@ -9,37 +9,38 @@ import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
 import { MatButtonModule } from '@angular/material/button';
-import { EmployerToolbarComponent } from '../components/employer-toolbar/employer-toolbar.component';
 import { ToastsContainerComponent } from './toasts-container/toasts-container.component';
 import { MatIconLinkDirective } from './mat-icon-link/mat-icon-link.directive';
 import { MonitoredMatButtonDirective } from './monitored-component/monitored-mat-button.directive';
 import { BrandingContainerComponent } from '../components/branding-container/branding-container.component';
 import { BrandingNoneDefaultDirective, BrandingWithBrandDirective } from './branding-container/branding.directives';
+import { SideMenuComponent } from '../components/side-menu/side-menu.component';
+import { RouterModule } from '@angular/router';
 
 @NgModule({
   declarations: [
     ApplicantsPickerComponent,
     ApplicantComponent,
     JobListComponent,
-    EmployerToolbarComponent,
     ToastsContainerComponent,
     MatIconLinkDirective,
     MonitoredMatButtonDirective,
     BrandingContainerComponent,
     BrandingWithBrandDirective,
     BrandingNoneDefaultDirective,
+    SideMenuComponent,
   ],
-  imports: [CommonModule, MatListModule, HttpClientModule, MatIconModule, NgbToastModule, MatButtonModule],
+  imports: [CommonModule, MatListModule, HttpClientModule, MatIconModule, NgbToastModule, MatButtonModule, RouterModule],
   exports: [
     ApplicantsPickerComponent,
     JobListComponent,
-    EmployerToolbarComponent,
     ToastsContainerComponent,
     MatIconLinkDirective,
     MonitoredMatButtonDirective,
     BrandingContainerComponent,
     BrandingWithBrandDirective,
     BrandingNoneDefaultDirective,
+    SideMenuComponent
   ],
 })
 export class ComponentsModule {

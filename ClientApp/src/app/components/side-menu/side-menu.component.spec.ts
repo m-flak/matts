@@ -15,28 +15,26 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **/
-import { HttpClientModule } from '@angular/common/http';
-import { NgModule } from '@angular/core';
-import { ComponentsModule } from 'src/app/components/components.module';
-import { PipesModule } from 'src/app/pipes/pipes.module';
-import { EmployerPortalRouteModule } from './employer-portal-route.module';
-import { CommonModule } from '@angular/common';
-import { EmployerRootComponent } from './employer-root/employer-root.component';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-@NgModule({
-  declarations: [
-    EmployerRootComponent
-  ],
-  imports: [
-    CommonModule,
-    HttpClientModule,
-    // Our modules start below
-    EmployerPortalRouteModule,
-    ComponentsModule,
-    PipesModule,
-  ],
-  exports: [
-    EmployerRootComponent
-  ],
-})
-export class EmployerPortalModule {}
+import { SideMenuComponent } from './side-menu.component';
+
+describe('SideMenuComponent', () => {
+  let component: SideMenuComponent;
+  let fixture: ComponentFixture<SideMenuComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [ SideMenuComponent ]
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent(SideMenuComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});

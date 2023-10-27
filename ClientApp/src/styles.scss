@@ -60,16 +60,30 @@ body {
   overflow: visible;
 }
 
+app-root-home {
+  height: 100%;
+}
 app-root-home body, app-root body {
   display: flex;
   flex-direction: column;
 }
 main.app-root-home {
   flex-grow: 1;
-  margin-bottom: 5em;
+  display: flex;
+  align-self: stretch;
+  height: auto;
 }
-app-login-page {
+app-login-page, app-home-applicant {
   flex-grow: 1;
+}
+app-employer-root {
+  align-self: stretch;
+  flex-grow: 1;
+  height: 100%;
+  display: flex;
+}
+app-jobs-joblist, app-jobs-new-job-page {
+  width: 100%;
 }
 
 footer.copyright-footer {

@@ -1,0 +1,25 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
+@use '../../../../styles/home-common.scss' as home;
+@use '../../../../styles/text.scss';
+@use '../../../../../theming.scss';
+
+@include home.home-container;
+@include home.under-toolbar;
+
+@include text.require-text;
+
+$config: mat.get-color-config(theming.$theme);
+$accent-palette: map.get($config, 'accent');
+$card-border-color: mat.get-color-from-palette($accent-palette, main);
+
+.new-job-card {
+  @include mat.elevation(0);
+  border-radius: unset;
+  border: 1px solid $card-border-color;
+  flex-grow: 1;
+}
+
+mat-card-content {
+  margin: 2em;
+}

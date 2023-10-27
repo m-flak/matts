@@ -20,17 +20,18 @@ import { compareAsc, parseISO } from 'date-fns';
 import { JobPageComponent } from './job-page.component';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { of } from 'rxjs';
-import { BackendService } from '../../../services/backend.service';
+import { BackendService } from '../../../../services/backend.service';
 import { HttpResponse } from '@angular/common/http';
-import { Applicant, Job } from '../../../models';
-import { JobPageDataService } from '../../../services/job-page-data.service';
+import { Applicant, Job } from '../../../../models';
+import { JobPageDataService } from '../../../../services/job-page-data.service';
 import { HarnessLoader } from '@angular/cdk/testing';
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
-import { ApplicantsPickerHarness } from '../../../components/applicants-picker/applicants-picker.harness';
+import { ApplicantsPickerHarness } from '../../../../components/applicants-picker/applicants-picker.harness';
 import { JWT_OPTIONS, JwtHelperService } from '@auth0/angular-jwt';
-import { jwtOptionsFactory } from '../../../app.module';
+import { jwtOptionsFactory } from '../../../../app.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { EmployerPortalModule } from '../employer-portal.module';
+import { EmployerPortalModule } from '../../employer-portal.module';
+import { EmployerJobsModule } from '../employer-jobs.module';
 
 const jobData: Job = {
   'id': 1,
@@ -82,7 +83,7 @@ describe('JobPageComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BrowserAnimationsModule, EmployerPortalModule],
+      imports: [BrowserAnimationsModule, EmployerPortalModule, EmployerJobsModule ],
       declarations: [JobPageComponent],
       providers: [
         {

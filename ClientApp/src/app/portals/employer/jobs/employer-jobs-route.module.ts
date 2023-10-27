@@ -18,29 +18,42 @@
 
 import { RouterModule, Routes } from '@angular/router';
 import { UserRoleConstants } from 'src/app/constants';
+import { JobListComponent, JobListComponentResolver } from './job-list/job-list.component';
+import { JobPageComponent } from './job-page/job-page.component';
 import { NgModule } from '@angular/core';
 import { AuthGuard } from 'src/app/guards/auth.guard';
-import { HomeGuard } from 'src/app/guards/home.guard';
-import { EmployerRootComponent } from './employer-root/employer-root.component';
+import { NewJobPageComponent } from './new-job-page/new-job-page.component';
 
-export const EMPLOYER_ROUTES: Routes = [
+export const EMPLOYER_JOBS_ROUTES: Routes = [
   {
     path: '',
-    component: EmployerRootComponent,
+    redirectTo: 'list',
+    pathMatch: 'full',
+  },
+  {
+    path: 'list',
+    component: JobListComponent,
+    resolve: { jobList: JobListComponentResolver },
     data: { role: UserRoleConstants.USER_ROLE_EMPLOYER },
-    canActivate: [AuthGuard, HomeGuard],
+    canActivate: [AuthGuard],
     children: [
       {
-        path: 'jobs',
-        loadChildren: () => import('./jobs/employer-jobs.module').then(m => m.EmployerJobsModule),
-        canMatch: [AuthGuard],
+        path: 'viewJob/:id',
+        component: JobPageComponent,
       },
     ],
+  },
+  {
+    path: 'postNew',
+    component: NewJobPageComponent,
+    data: { role: UserRoleConstants.USER_ROLE_EMPLOYER },
+    canActivate: [AuthGuard],
+    children: [],
   },
 ];
 
 @NgModule({
-  imports: [RouterModule.forChild(EMPLOYER_ROUTES)],
+  imports: [RouterModule.forChild(EMPLOYER_JOBS_ROUTES)],
   exports: [RouterModule],
 })
-export class EmployerPortalRouteModule {}
+export class EmployerJobsRouteModule {}

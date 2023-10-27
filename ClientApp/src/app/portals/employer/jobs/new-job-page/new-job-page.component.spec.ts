@@ -23,9 +23,10 @@ import { FormBuilder } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { BackendService } from '../../../services/backend.service';
-import { MonitorService } from '../../../services/monitor.service';
-import { EmployerPortalModule } from '../employer-portal.module';
+import { BackendService } from '../../../../services/backend.service';
+import { MonitorService } from '../../../../services/monitor.service';
+import { EmployerPortalModule } from '../../employer-portal.module';
+import { EmployerJobsModule } from '../employer-jobs.module';
 
 describe('NewJobPageComponent', () => {
   let component: NewJobPageComponent;
@@ -33,7 +34,7 @@ describe('NewJobPageComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BrowserAnimationsModule, EmployerPortalModule, HttpClientModule, HttpClientTestingModule],
+      imports: [BrowserAnimationsModule, EmployerPortalModule, EmployerJobsModule, HttpClientModule, HttpClientTestingModule],
       declarations: [NewJobPageComponent],
       providers: [
         FormBuilder,

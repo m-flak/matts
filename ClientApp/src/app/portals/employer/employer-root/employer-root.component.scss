@@ -1,0 +1,9 @@
+.employer-root {
+    display: flex;
+    width: 100%;
+}
+
+app-side-menu {
+    flex-shrink: 0;
+    max-width: 15.6875em;
+}

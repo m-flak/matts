@@ -15,35 +15,21 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **/
-
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { EmployerToolbarComponent } from './employer-toolbar.component';
-import { ComponentsModule } from '../components.module';
-import { CommonModule } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatListModule } from '@angular/material/list';
-import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
 
-describe('EmployerToolbarComponent', () => {
-  let component: EmployerToolbarComponent;
-  let fixture: ComponentFixture<EmployerToolbarComponent>;
+import { EmployerRootComponent } from './employer-root.component';
+
+describe('EmployerRootComponent', () => {
+  let component: EmployerRootComponent;
+  let fixture: ComponentFixture<EmployerRootComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        CommonModule,
-        MatListModule,
-        HttpClientModule,
-        MatIconModule,
-        NgbToastModule,
-        MatButtonModule,
-        ComponentsModule,
-      ],
-    }).compileComponents();
+      declarations: [ EmployerRootComponent ]
+    })
+    .compileComponents();
 
-    fixture = TestBed.createComponent(EmployerToolbarComponent);
+    fixture = TestBed.createComponent(EmployerRootComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

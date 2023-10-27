@@ -15,33 +15,26 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **/
+import { JobPageDataService } from '../../../../services/job-page-data.service';
 
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+export type ChangeCommandData = any;
+export type ChangeCommand = (serviceInstance: JobPageDataService, commandData: ChangeCommandData) => Promise<boolean>;
 
-@Component({
-  selector: 'cmp-employer-toolbar',
-  templateUrl: './employer-toolbar.component.html',
-  styleUrls: ['./employer-toolbar.component.scss'],
-})
-export class EmployerToolbarComponent implements OnInit {
-  readonly ITEM_JOBLIST = 'joblist';
-  readonly ITEM_POSTNEW = 'postnew';
+export class JobPageChanges {
+  // True if successful
+  private _changeCommand!: ChangeCommand;
+  private _commandData!: ChangeCommandData;
 
-  @Input()
-  currentSelected!: string;
+  public sortTag: string = '';
 
-  @Output()
-  currentSelectedChange = new EventEmitter<string>();
+  constructor(sortTag: string, changeCommand: ChangeCommand, commandData: ChangeCommandData) {
+    this.sortTag = sortTag;
+    this._changeCommand = changeCommand;
+    this._commandData = commandData;
+  }
 
-  @Output()
-  onClickButton = new EventEmitter<string>();
-
-  constructor() {}
-
-  ngOnInit(): void {}
-
-  clickButton(id: string) {
-    this.currentSelectedChange.emit(id);
-    this.onClickButton.emit(id);
+  // True if successful
+  async invokeCommand(usingService: JobPageDataService): Promise<boolean> {
+    return await this._changeCommand(usingService, this._commandData);
   }
 }
