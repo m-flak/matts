@@ -60,6 +60,18 @@ body {
   overflow: visible;
 }
 
+app-root-home body, app-root body {
+  display: flex;
+  flex-direction: column;
+}
+main.app-root-home {
+  flex-grow: 1;
+  margin-bottom: 5em;
+}
+app-login-page {
+  flex-grow: 1;
+}
+
 footer.copyright-footer {
   position: relative;
   width: 100%;

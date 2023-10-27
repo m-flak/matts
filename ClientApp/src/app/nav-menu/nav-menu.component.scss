@@ -8,6 +8,7 @@
 $config: mat.get-color-config(theming.$theme);
 $primary-palette: map.get($config, 'primary');
 $hover-color: mat.get-color-from-palette($primary-palette, lighter);
+$border-color: mat.get-color-from-palette($primary-palette, darker-2);
 
 a.navbar-brand {
   white-space: normal;
@@ -29,12 +30,11 @@ html {
   }
 }
 
-.box-shadow {
-  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05);
-}
-
 header {
-  box-shadow: 0px -8px 16px 2px;
+  border-bottom: 2px solid $border-color;
+}
+nav.navbar {
+  border-bottom: 2px solid theming.$light-bg-borderline;
 }
 
 li.nav-item {

@@ -7,7 +7,9 @@
 
 $config: mat.get-color-config(theming.$theme);
 $primary-palette: map.get($config, 'primary');
+$accent-palette: map.get($config, 'accent');
 $hover-color: mat.get-color-from-palette($primary-palette, lighter);
+$item-side-deco-color: mat.get-color-from-palette($accent-palette, main);
 
 matListItemTitle {
   font-weight: bold;
@@ -42,14 +44,46 @@ matListItemTitle {
   }
 }
 
+mat-list {
+  border-top: 1px solid theming.$light-bg-borderline;
+  border-right: 1px solid theming.$light-bg-borderline;
+  border-left: 1px solid theming.$light-bg-borderline;
+
+  background: theming.$light-bg-shaded;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
 mat-list-item {
-  &:hover {
+  &:hover, & div:hover {
     background-color: $hover-color;
   }
   &:hover,
   span:hover {
     cursor: pointer;
   }
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+
+  background-color: theming.$light-bg-bright;
+  & div {
+    border: 1px solid $item-side-deco-color !important;
+    background-color: #fcfbf7;
+    width: 100%;
+    padding: 0.2rem;
+  }
+
+  border-top: 1px solid $item-side-deco-color !important;
+  border-bottom: 1px solid $item-side-deco-color !important;
+  border-right: 1rem solid $item-side-deco-color !important;
+  border-left: 1rem solid $item-side-deco-color !important;
 }
 
 .applied-to-checkmark {

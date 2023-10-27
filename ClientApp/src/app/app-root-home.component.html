@@ -8,7 +8,15 @@
     [ngClass]="{'loading-dimmer__inactive': this.displayDimmer}"
     title="Loading..."
   ></div>
-  <main class="container app-root-home">
+  <main class="app-root-home">
     <router-outlet></router-outlet>
   </main>
+  <footer class="copyright-footer p-3">
+    <div class="p-sm-1 p-md-2 p-lg-2">
+      <p>
+        &#169; 2023 Matthew Kehrer. Matthew's ATS is licensed under the GNU Affero General Public License (AGPLv3).
+        <a href="https://github.com/m-flak/matts">A copy of the source code may be found here.</a>
+      </p>
+    </div>
+  </footer>
 </body>

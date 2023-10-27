@@ -1,4 +1,11 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
 @use 'layouts.scss';
+@use '../../theming.scss';
+
+$config: mat.get-color-config(theming.$theme);
+$accent-palette: map.get($config, 'accent');
+$card-border-color: mat.get-color-from-palette($accent-palette, main);
 
 @mixin home-container {
   .home-container {
@@ -13,6 +20,9 @@
 @mixin cards {
   .positions-card,
   .details-card {
+    @include mat.elevation(0);
+    border-radius: unset;
+    border: 1px solid $card-border-color;
     min-width: 48%;
   }
   .positions-card + .details-card {
