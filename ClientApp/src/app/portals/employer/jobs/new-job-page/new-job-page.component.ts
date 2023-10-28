@@ -33,12 +33,10 @@ import { MonitorService } from '../../../../services/monitor.service';
 export class NewJobPageComponent implements OnInit, OnDestroy {
   newJobForm: FormGroup;
 
-  @Output()
-  jobCreated = new EventEmitter<void>();
-
   private _subscription: Subscription | null = null;
 
   constructor(
+    private router: Router,
     private formBuilder: FormBuilder,
     private backendService: BackendService,
     private toastService: ToastService,
@@ -76,7 +74,7 @@ export class NewJobPageComponent implements OnInit, OnDestroy {
             classname: 'bg-success text-light',
             delay: 10000,
           });
-          this.jobCreated.emit();
+          this.router.navigate(['/employer/jobs/list']);
         },
         error: _ => {
           this.monitorService.sendFailure({ id: 'postJob' });
