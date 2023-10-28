@@ -1,11 +1,20 @@
-<div class="side-menu mat-app-background">
+<div class="side-menu mat-app-background" [class.expanded]="expanded" [class.collapsed]="!expanded">
     <section class="expand-collapse">
-        <div class="icon-container">
+        <div class="icon-container collapse" (click)="collapseExpand()">
             <span>
                 <img
                     src="assets/sm-collapse.svg"
                     alt="Collapse"
                     title="Collapse Menu"
+                />
+            </span>
+        </div>
+        <div class="icon-container expand" (click)="collapseExpand()">
+            <span>
+                <img
+                    src="assets/sm-expand.svg"
+                    alt="Expand"
+                    title="Expand Menu"
                 />
             </span>
         </div>

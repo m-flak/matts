@@ -17,7 +17,85 @@
  **/
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SideMenuComponent } from './side-menu.component';
+import { SIDE_MENU_CONFIG, SideMenuComponent, SideMenuConfig } from './side-menu.component';
+import { RouterTestingModule } from '@angular/router/testing';
+
+const menu: SideMenuConfig = {
+  sections: [
+    {
+      items: [
+        {
+          text: 'Home',
+          image: 'assets/sm-home.svg',
+          imageHint: 'Home',
+          route: '/employer'
+        }
+      ]
+    },
+    {
+      items: [
+        {
+          text: 'Manage Jobs',
+          image: 'assets/sm-manage-job.svg',
+          imageHint: 'Manage Jobs',
+          route: '/employer/jobs/list'
+        },
+        {
+          text: 'Create Jobs',
+          image: 'assets/sm-create-job.svg',
+          imageHint: 'Create Jobs',
+          route: '/employer/jobs/postNew'
+        }
+      ]
+    },
+    {
+      items: [
+        {
+          text: 'Manage Applicants',
+          image: 'assets/sm-manage-app.svg',
+          imageHint: 'Manage Applicants',
+          route: '/employer/applicants/list'
+        },
+        {
+          text: 'Hiring / Onboarding',
+          image: 'assets/sm-hiring.svg',
+          imageHint: 'Hiring',
+          route: '/employer/hiring'
+        }
+      ]
+    },
+    {
+      items: [
+        {
+          text: 'Reports',
+          image: 'assets/sm-reports.svg',
+          imageHint: 'Reports',
+          route: '/employer/reports'
+        }
+      ]
+    },
+    {
+      items: [
+        {
+          text: 'Company',
+          image: 'assets/sm-company.svg',
+          imageHint: 'Company',
+          route: '/employer/company'
+        }
+      ]
+    },
+    {
+      items: [
+        {
+          text: 'Preferences',
+          image: 'assets/sm-preferences.svg',
+          imageHint: 'Preferences',
+          route: '/employer/preferences'
+        }
+      ]
+    }
+  ]
+};
 
 describe('SideMenuComponent', () => {
   let component: SideMenuComponent;
@@ -25,7 +103,11 @@ describe('SideMenuComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ SideMenuComponent ]
+      imports: [ RouterTestingModule.withRoutes([]) ],
+      declarations: [ SideMenuComponent ],
+      providers: [
+        { provide: SIDE_MENU_CONFIG, useValue: menu }
+      ],
     })
     .compileComponents();
 

@@ -18,6 +18,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { EmployerRootComponent } from './employer-root.component';
+import { ComponentsModule } from 'src/app/components/components.module';
+import { RouterTestingModule } from '@angular/router/testing';
 
 describe('EmployerRootComponent', () => {
   let component: EmployerRootComponent;
@@ -25,6 +27,10 @@ describe('EmployerRootComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      imports: [
+        RouterTestingModule.withRoutes([]),
+        ComponentsModule
+      ],
       declarations: [ EmployerRootComponent ]
     })
     .compileComponents();

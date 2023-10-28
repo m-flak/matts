@@ -5,7 +5,28 @@
 $config: mat.get-color-config(theming.$theme);
 $primary-palette: map.get($config, 'primary');
 $border-color: mat.get-color-from-palette($primary-palette, darker-2);
-$section-bg-color: mat.get-color-from-palette($primary-palette, darker-3-t10);
+$hover-color: mat.get-color-from-palette($primary-palette, lighter);
+$section-bg-color: mat.get-color-from-palette($primary-palette, darker-3-t25);
+
+.expanded {
+    .expand {
+        display: none !important;
+    }
+}
+.collapsed {
+    .collapse {
+        display: none !important;
+    }
+
+    div.section-text-container {
+        display: none !important;
+    }
+}
+
+.expand {
+    position: relative;
+    right: 0.375em;
+}
 
 .side-menu {
     border-right: 3px solid $border-color;
@@ -91,9 +112,12 @@ section {
         gap: 1em;
 
         border-top: 1px solid $border-color;
-        border-bottom: 1px solid $border-color;
 
         & > div {
+            &:hover {
+                background-color: $hover-color !important;
+            }
+
             cursor: pointer;
             background-color: theming.$light-background;
             display: inline-flex;
@@ -101,5 +125,9 @@ section {
             flex-shrink: 1;
             flex-basis: min-content;
         }
+    }
+
+    &:last-child {
+        border-bottom: 1px solid $border-color;
     }
 }

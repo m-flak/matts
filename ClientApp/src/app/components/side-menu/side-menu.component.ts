@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **/
-import { Component, Inject, InjectionToken, OnInit } from '@angular/core';
+import { Component, Inject, InjectionToken, Input, OnInit } from '@angular/core';
 
 export interface SideMenuItem {
   text: string; 
@@ -39,6 +39,9 @@ export class SideMenuComponent implements OnInit {
   activeSection: number = 0;
   activeItem: number = 0;
 
+  @Input()
+  expanded: boolean = true;
+
   constructor(
     @Inject(SIDE_MENU_CONFIG) config: SideMenuConfig
   ) { 
@@ -55,5 +58,9 @@ export class SideMenuComponent implements OnInit {
   setActiveMenuItem(sectionIndex: number, itemIndex: number): void {
     this.activeSection = sectionIndex;
     this.activeItem = itemIndex;
+  }
+
+  collapseExpand(): void {
+    this.expanded = !this.expanded;
   }
 }
