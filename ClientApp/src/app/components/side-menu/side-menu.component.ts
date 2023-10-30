@@ -63,4 +63,8 @@ export class SideMenuComponent implements OnInit {
   collapseExpand(): void {
     this.expanded = !this.expanded;
   }
+
+  _createIconClassName(i: number, j: number): string {
+    return `side-menu__icon-s${i}-i${j}`;
+  }
 }

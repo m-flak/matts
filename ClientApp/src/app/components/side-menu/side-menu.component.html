@@ -28,6 +28,7 @@
             <div class="icon-container">
                 <span>
                     <img
+                        [ngClass]="_createIconClassName(i,j)"
                         [attr.src]="item.image"
                         [attr.alt]="item.imageHint"
                         [attr.title]="item.imageHint"
