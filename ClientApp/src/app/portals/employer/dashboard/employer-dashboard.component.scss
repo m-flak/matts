@@ -15,12 +15,12 @@ mat-card {
     flex: 1 0 0;
     align-self: stretch;
     flex-wrap: wrap;
+    flex-flow: row wrap;
     width: 100%;
 }
 
 .tasks-card, .messages-card {
     height: 23.125em;
-    max-width: 48.75em;
     min-width: 24.375em;
     flex-grow: 1;
 }
@@ -28,4 +28,5 @@ mat-card {
 .interviews-card {
     width: 100%;
     height: 25em;
+    flex-grow: 1;
 }
