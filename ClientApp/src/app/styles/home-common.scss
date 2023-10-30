@@ -44,3 +44,9 @@ $card-border-color: mat.get-color-from-palette($accent-palette, main);
     margin-top: 16%;
   }
 }
+
+@mixin card-appearance {
+  @include mat.elevation(0);
+  border-radius: unset;
+  border: 1px solid $card-border-color;
+}

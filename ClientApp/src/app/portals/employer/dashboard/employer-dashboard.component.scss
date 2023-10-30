@@ -1,0 +1,31 @@
+@use '../../../styles/home-common.scss' as home;
+
+@include home.under-toolbar;
+
+mat-card {
+    @include home.card-appearance;
+}
+
+.dashboard-container {
+    display: flex;
+    padding: 0.5em 0.75em;
+    align-items: flex-start;
+    align-content: flex-start;
+    gap: 1.5em;
+    flex: 1 0 0;
+    align-self: stretch;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.tasks-card, .messages-card {
+    height: 23.125em;
+    max-width: 48.75em;
+    min-width: 24.375em;
+    flex-grow: 1;
+}
+
+.interviews-card {
+    width: 100%;
+    height: 25em;
+}

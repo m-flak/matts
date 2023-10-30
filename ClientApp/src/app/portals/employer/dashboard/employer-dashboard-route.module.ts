@@ -20,33 +20,20 @@ import { RouterModule, Routes } from '@angular/router';
 import { UserRoleConstants } from 'src/app/constants';
 import { NgModule } from '@angular/core';
 import { AuthGuard } from 'src/app/guards/auth.guard';
-import { HomeGuard } from 'src/app/guards/home.guard';
-import { EmployerRootComponent } from './employer-root/employer-root.component';
+import { EmployerDashboardComponent } from './employer-dashboard.component';
 
-export const EMPLOYER_ROUTES: Routes = [
+export const EMPLOYER_DASHBOARD_ROUTES: Routes = [
   {
     path: '',
-    component: EmployerRootComponent,
+    pathMatch: 'full',
+    component: EmployerDashboardComponent,
     data: { role: UserRoleConstants.USER_ROLE_EMPLOYER },
-    canActivate: [AuthGuard, HomeGuard],
-    children: [
-      {
-        path: '',
-        pathMatch: 'full',
-        loadChildren: () => import('./dashboard/employer-dashboard.module').then(m => m.EmployerDashboardModule),
-        canMatch: [AuthGuard],
-      },
-      {
-        path: 'jobs',
-        loadChildren: () => import('./jobs/employer-jobs.module').then(m => m.EmployerJobsModule),
-        canMatch: [AuthGuard],
-      },
-    ],
+    canActivate: [AuthGuard],
   },
 ];
 
 @NgModule({
-  imports: [RouterModule.forChild(EMPLOYER_ROUTES)],
+  imports: [RouterModule.forChild(EMPLOYER_DASHBOARD_ROUTES)],
   exports: [RouterModule],
 })
-export class EmployerPortalRouteModule {}
+export class EmployerDashboardRouteModule {}
