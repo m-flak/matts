@@ -3,30 +3,31 @@
 @include home.under-toolbar;
 
 mat-card {
-    @include home.card-appearance;
+  @include home.card-appearance;
 }
 
 .dashboard-container {
-    display: flex;
-    padding: 0.5em 0.75em;
-    align-items: flex-start;
-    align-content: flex-start;
-    gap: 1.5em;
-    flex: 1 0 0;
-    align-self: stretch;
-    flex-wrap: wrap;
-    flex-flow: row wrap;
-    width: 100%;
+  display: flex;
+  padding: 0.5em 0.75em;
+  align-items: flex-start;
+  align-content: flex-start;
+  gap: 1.5em;
+  flex: 1 0 0;
+  align-self: stretch;
+  flex-wrap: wrap;
+  flex-flow: row wrap;
+  width: 100%;
 }
 
-.tasks-card, .messages-card {
-    height: 23.125em;
-    min-width: 24.375em;
-    flex-grow: 1;
+.tasks-card,
+.messages-card {
+  height: 23.125em;
+  min-width: 24.375em;
+  flex-grow: 1;
 }
 
 .interviews-card {
-    width: 100%;
-    height: 25em;
-    flex-grow: 1;
+  width: 100%;
+  height: 25em;
+  flex-grow: 1;
 }

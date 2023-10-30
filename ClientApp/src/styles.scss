@@ -63,7 +63,8 @@ body {
 app-root-home {
   height: 100%;
 }
-app-root-home body, app-root body {
+app-root-home body,
+app-root body {
   display: flex;
   flex-direction: column;
 }
@@ -73,7 +74,8 @@ main.app-root-home {
   align-self: stretch;
   height: auto;
 }
-app-login-page, app-home-applicant {
+app-login-page,
+app-home-applicant {
   flex-grow: 1;
 }
 app-employer-root {
@@ -82,7 +84,9 @@ app-employer-root {
   height: 100%;
   display: flex;
 }
-app-jobs-joblist, app-jobs-new-job-page, app-dashboard {
+app-jobs-joblist,
+app-jobs-new-job-page,
+app-dashboard {
   width: 100%;
 }
 
@@ -108,7 +112,8 @@ h4,
   text-transform: uppercase !important;
 }
 
-button, a.mat-flat-button {
+button,
+a.mat-flat-button {
   font-family: GTAmericaMedium !important;
   text-transform: uppercase !important;
 

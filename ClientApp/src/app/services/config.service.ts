@@ -27,7 +27,7 @@ import { lastValueFrom, take, tap } from 'rxjs';
 })
 export class ConfigService {
   private _config!: Configuration;
-  
+
   get config() {
     return this._config;
   }

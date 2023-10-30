@@ -83,7 +83,7 @@ describe('JobPageComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BrowserAnimationsModule, EmployerPortalModule, EmployerJobsModule ],
+      imports: [BrowserAnimationsModule, EmployerPortalModule, EmployerJobsModule],
       declarations: [JobPageComponent],
       providers: [
         {

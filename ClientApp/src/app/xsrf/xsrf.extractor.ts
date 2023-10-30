@@ -15,10 +15,10 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **/
-import { DOCUMENT } from "@angular/common";
-import { HttpXsrfTokenExtractor } from "@angular/common/http";
-import { Inject, Injectable } from "@angular/core";
-import { CookieService } from "ngx-cookie-service";
+import { DOCUMENT } from '@angular/common';
+import { HttpXsrfTokenExtractor } from '@angular/common/http';
+import { Inject, Injectable } from '@angular/core';
+import { CookieService } from 'ngx-cookie-service';
 
 @Injectable({
   providedIn: 'root',
@@ -29,11 +29,10 @@ export class HttpXsrfCookieExtractor implements HttpXsrfTokenExtractor {
 
   constructor(
     @Inject(DOCUMENT) private document: Document,
-    private cookieService: CookieService
-  ) { }
+    private cookieService: CookieService,
+  ) {}
 
   getToken(): string | null {
-
     const cookieString = this.document.cookie || '';
     if (cookieString !== this.lastCookieString) {
       this.lastToken = this.cookieService.get('XSRF-TOKEN');

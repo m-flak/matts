@@ -28,9 +28,9 @@ const menu: SideMenuConfig = {
           text: 'Home',
           image: 'assets/sm-home.svg',
           imageHint: 'Home',
-          route: '/employer'
-        }
-      ]
+          route: '/employer',
+        },
+      ],
     },
     {
       items: [
@@ -38,15 +38,15 @@ const menu: SideMenuConfig = {
           text: 'Manage Jobs',
           image: 'assets/sm-manage-job.svg',
           imageHint: 'Manage Jobs',
-          route: '/employer/jobs/list'
+          route: '/employer/jobs/list',
         },
         {
           text: 'Create Jobs',
           image: 'assets/sm-create-job.svg',
           imageHint: 'Create Jobs',
-          route: '/employer/jobs/postNew'
-        }
-      ]
+          route: '/employer/jobs/postNew',
+        },
+      ],
     },
     {
       items: [
@@ -54,15 +54,15 @@ const menu: SideMenuConfig = {
           text: 'Manage Applicants',
           image: 'assets/sm-manage-app.svg',
           imageHint: 'Manage Applicants',
-          route: '/employer/applicants/list'
+          route: '/employer/applicants/list',
         },
         {
           text: 'Hiring / Onboarding',
           image: 'assets/sm-hiring.svg',
           imageHint: 'Hiring',
-          route: '/employer/hiring'
-        }
-      ]
+          route: '/employer/hiring',
+        },
+      ],
     },
     {
       items: [
@@ -70,9 +70,9 @@ const menu: SideMenuConfig = {
           text: 'Reports',
           image: 'assets/sm-reports.svg',
           imageHint: 'Reports',
-          route: '/employer/reports'
-        }
-      ]
+          route: '/employer/reports',
+        },
+      ],
     },
     {
       items: [
@@ -80,9 +80,9 @@ const menu: SideMenuConfig = {
           text: 'Company',
           image: 'assets/sm-company.svg',
           imageHint: 'Company',
-          route: '/employer/company'
-        }
-      ]
+          route: '/employer/company',
+        },
+      ],
     },
     {
       items: [
@@ -90,11 +90,11 @@ const menu: SideMenuConfig = {
           text: 'Preferences',
           image: 'assets/sm-preferences.svg',
           imageHint: 'Preferences',
-          route: '/employer/preferences'
-        }
-      ]
-    }
-  ]
+          route: '/employer/preferences',
+        },
+      ],
+    },
+  ],
 };
 
 describe('SideMenuComponent', () => {
@@ -103,13 +103,10 @@ describe('SideMenuComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ RouterTestingModule.withRoutes([]) ],
-      declarations: [ SideMenuComponent ],
-      providers: [
-        { provide: SIDE_MENU_CONFIG, useValue: menu }
-      ],
-    })
-    .compileComponents();
+      imports: [RouterTestingModule.withRoutes([])],
+      declarations: [SideMenuComponent],
+      providers: [{ provide: SIDE_MENU_CONFIG, useValue: menu }],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(SideMenuComponent);
     component = fixture.componentInstance;

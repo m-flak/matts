@@ -34,7 +34,13 @@ describe('NewJobPageComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BrowserAnimationsModule, EmployerPortalModule, EmployerJobsModule, HttpClientModule, HttpClientTestingModule],
+      imports: [
+        BrowserAnimationsModule,
+        EmployerPortalModule,
+        EmployerJobsModule,
+        HttpClientModule,
+        HttpClientTestingModule,
+      ],
       declarations: [NewJobPageComponent],
       providers: [
         FormBuilder,

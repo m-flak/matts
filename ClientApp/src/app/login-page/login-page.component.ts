@@ -273,52 +273,51 @@ export class LoginPageComponent implements OnInit, OnDestroy {
         redirect_uri: this.configService.config.linkedinOauth.redirectUri,
         state: clientIdentity,
         scope: this.configService.config.linkedinOauth.scope,
-      }
+      },
     });
 
-    const linkedinUrl = `https://www.linkedin.com/oauth/v2/authorization?${params.toString()}`
+    const linkedinUrl = `https://www.linkedin.com/oauth/v2/authorization?${params.toString()}`;
     window.open(linkedinUrl, '_blank');
 
     const sendToSocket = new Subject<WSAuthMessage>();
     const socketMessages = this.authService.getWSAuthStream(sendToSocket);
     sendToSocket.next({
       type: WSAuthEventTypes.NONE,
-      clientIdentity: "",
-      data: null
+      clientIdentity: '',
+      data: null,
     });
-    const obs: Observable<UserRegistration> = new Observable((subscriber) => {
+    const obs: Observable<UserRegistration> = new Observable(subscriber => {
       let sub: Subscription = socketMessages.pipe(delay(500)).subscribe(jsonMsg => {
         const message: WSAuthMessage = JSON.parse(jsonMsg);
         if (message) {
           if (message.type === WSAuthEventTypes.SERVER_CONNECTION_ESTABLISHED) {
             this.authService.sendWSAuthStart(sendToSocket);
-          }
-          else if (message.type === WSAuthEventTypes.SERVER_OAUTH_STARTED || message.type === WSAuthEventTypes.SERVER_OAUTH_PENDING) {
+          } else if (
+            message.type === WSAuthEventTypes.SERVER_OAUTH_STARTED ||
+            message.type === WSAuthEventTypes.SERVER_OAUTH_PENDING
+          ) {
             const reply: WSAuthMessage = {
               type: WSAuthEventTypes.CLIENT_OAUTH_REQUEST_STATUS,
               clientIdentity: clientIdentity,
-              data: null
+              data: null,
             };
             sendToSocket.next(reply);
-          }
-          else if (message.type === WSAuthEventTypes.SERVER_OAUTH_ABORTFAIL) {
+          } else if (message.type === WSAuthEventTypes.SERVER_OAUTH_ABORTFAIL) {
             this.authService.terminateWSAuthStream(sub, sendToSocket);
             subscriber.error();
             sub.unsubscribe();
-          }
-          else if (message.type === WSAuthEventTypes.SERVER_OAUTH_COMPLETED) {
+          } else if (message.type === WSAuthEventTypes.SERVER_OAUTH_COMPLETED) {
             const theData: UserRegistration = message.data;
             subscriber.next(theData);
             this.authService.terminateWSAuthStream(sub, sendToSocket);
             subscriber.complete();
             sub.unsubscribe();
           }
-        }
-        else {
+        } else {
           sendToSocket.next({
             type: WSAuthEventTypes.NONE,
-            clientIdentity: "",
-            data: null
+            clientIdentity: '',
+            data: null,
           });
         }
       });

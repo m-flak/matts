@@ -30,7 +30,15 @@ import { RouterModule } from '@angular/router';
     BrandingNoneDefaultDirective,
     SideMenuComponent,
   ],
-  imports: [CommonModule, MatListModule, HttpClientModule, MatIconModule, NgbToastModule, MatButtonModule, RouterModule],
+  imports: [
+    CommonModule,
+    MatListModule,
+    HttpClientModule,
+    MatIconModule,
+    NgbToastModule,
+    MatButtonModule,
+    RouterModule,
+  ],
   exports: [
     ApplicantsPickerComponent,
     JobListComponent,
@@ -40,7 +48,7 @@ import { RouterModule } from '@angular/router';
     BrandingContainerComponent,
     BrandingWithBrandDirective,
     BrandingNoneDefaultDirective,
-    SideMenuComponent
+    SideMenuComponent,
   ],
 })
 export class ComponentsModule {

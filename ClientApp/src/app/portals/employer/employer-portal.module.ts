@@ -24,9 +24,7 @@ import { CommonModule } from '@angular/common';
 import { EmployerRootComponent } from './employer-root/employer-root.component';
 
 @NgModule({
-  declarations: [
-    EmployerRootComponent
-  ],
+  declarations: [EmployerRootComponent],
   imports: [
     CommonModule,
     HttpClientModule,
@@ -35,8 +33,6 @@ import { EmployerRootComponent } from './employer-root/employer-root.component';
     ComponentsModule,
     PipesModule,
   ],
-  exports: [
-    EmployerRootComponent
-  ],
+  exports: [EmployerRootComponent],
 })
 export class EmployerPortalModule {}

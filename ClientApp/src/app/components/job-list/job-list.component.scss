@@ -22,10 +22,9 @@ $item-title-sz: 24px; // can't use typography config for this one...
 // Want to calculate properly so the list looks okay
 @function margin_calc($num-rows) {
   @if $num-rows == 3 {
-    @return calc($item-top-margin*0.167); // 1/6
-  }
-  @else {
-    @return calc($item-top-margin*0.67); // 2/3
+    @return calc($item-top-margin * 0.167); // 1/6
+  } @else {
+    @return calc($item-top-margin * 0.67); // 2/3
   }
 }
 
@@ -73,11 +72,18 @@ mat-list {
   align-items: flex-start;
   gap: $list-gap;
 
-  height: calc(var(--num-job-list-items) * (margin_calc(var(--num-job-list-item-rows)) + $item-title-sz + calc(var(--num-job-list-item-rows)*$item-line-sz) + $item-bord-sz + $item-padding-sz));
+  height: calc(
+    var(--num-job-list-items) *
+      (
+        margin_calc(var(--num-job-list-item-rows)) + $item-title-sz +
+          calc(var(--num-job-list-item-rows) * $item-line-sz) + $item-bord-sz + $item-padding-sz
+      )
+  );
 }
 
 mat-list-item {
-  &:hover, & div:hover {
+  &:hover,
+  & div:hover {
     background-color: $hover-color;
   }
   &:hover,

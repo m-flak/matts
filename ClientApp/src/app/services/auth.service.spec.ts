@@ -192,13 +192,15 @@ describe('AuthService', () => {
       cookieService.set('XSRF-TOKEN', '123');
       secondRequest = false;
       websocketServer = new Server(Location.joinWithSlash(WEB_SOCKET_URL, '/ws/oauth/linkedin'));
-      websocketServer.on('connection', (socket) => {
-        socket.send(JSON.stringify({
-          type: WSAuthEventTypes.SERVER_CONNECTION_ESTABLISHED,
-          clientIdentity: '',
-          data: null
-        }));
-        socket.on('message', (message) => {
+      websocketServer.on('connection', socket => {
+        socket.send(
+          JSON.stringify({
+            type: WSAuthEventTypes.SERVER_CONNECTION_ESTABLISHED,
+            clientIdentity: '',
+            data: null,
+          }),
+        );
+        socket.on('message', message => {
           if (typeof message !== 'string') {
             return;
           }
@@ -208,21 +210,19 @@ describe('AuthService', () => {
             const reply: WSAuthMessage = {
               type: WSAuthEventTypes.SERVER_OAUTH_STARTED,
               clientIdentity: clientIdentity,
-              data: null
+              data: null,
             };
             socket.send(JSON.stringify(reply));
-          }
-          else if (parsedMsg.type === WSAuthEventTypes.CLIENT_OAUTH_REQUEST_STATUS) {
+          } else if (parsedMsg.type === WSAuthEventTypes.CLIENT_OAUTH_REQUEST_STATUS) {
             if (secondRequest === false) {
               const reply: WSAuthMessage = {
                 type: WSAuthEventTypes.SERVER_OAUTH_PENDING,
                 clientIdentity: clientIdentity,
-                data: null
+                data: null,
               };
               socket.send(JSON.stringify(reply));
               secondRequest = true;
-            }
-            else {
+            } else {
               const theData: UserRegistration = {
                 fullName: 'John Doe',
                 companyName: null,
@@ -230,21 +230,21 @@ describe('AuthService', () => {
                 phoneNumber: '555-555-5454',
                 userName: '',
                 password: '',
-                role: ''
+                role: '',
               };
               const reply: WSAuthMessage = {
                 type: WSAuthEventTypes.SERVER_OAUTH_COMPLETED,
                 clientIdentity: clientIdentity,
-                data: theData
+                data: theData,
               };
               socket.send(JSON.stringify(reply));
             }
           }
-        })
+        });
       });
     });
 
-    it('waits and retrieves the user profile information claims', (done) => {
+    it('waits and retrieves the user profile information claims', done => {
       spyOn(cookieService, 'get').and.callThrough();
 
       const sendToSocket = new Subject<WSAuthMessage>();
@@ -256,17 +256,18 @@ describe('AuthService', () => {
           if (message.type === WSAuthEventTypes.SERVER_CONNECTION_ESTABLISHED) {
             authService.sendWSAuthStart(sendToSocket);
             expect(cookieService.get).toHaveBeenCalled();
-          }
-          else if (message.type === WSAuthEventTypes.SERVER_OAUTH_STARTED || message.type === WSAuthEventTypes.SERVER_OAUTH_PENDING) {
+          } else if (
+            message.type === WSAuthEventTypes.SERVER_OAUTH_STARTED ||
+            message.type === WSAuthEventTypes.SERVER_OAUTH_PENDING
+          ) {
             expect(clientIdentity).toEqual('123');
             const reply: WSAuthMessage = {
               type: WSAuthEventTypes.CLIENT_OAUTH_REQUEST_STATUS,
               clientIdentity: clientIdentity,
-              data: null
+              data: null,
             };
             sendToSocket.next(reply);
-          }
-          else if (message.type === WSAuthEventTypes.SERVER_OAUTH_COMPLETED) {
+          } else if (message.type === WSAuthEventTypes.SERVER_OAUTH_COMPLETED) {
             expect(message.data).not.toBeNull();
             expect(message.data).toBeDefined();
             const theData: UserRegistration = message.data;
@@ -277,7 +278,7 @@ describe('AuthService', () => {
             done();
           }
         }
-      })
+      });
     });
 
     afterEach(() => {

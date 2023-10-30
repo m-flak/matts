@@ -25,9 +25,7 @@ import { CommonModule } from '@angular/common';
 import { EmployerDashboardComponent } from './employer-dashboard.component';
 
 @NgModule({
-  declarations: [
-    EmployerDashboardComponent
-  ],
+  declarations: [EmployerDashboardComponent],
   imports: [
     CommonModule,
     MatCardModule,
@@ -37,8 +35,6 @@ import { EmployerDashboardComponent } from './employer-dashboard.component';
     ComponentsModule,
     PipesModule,
   ],
-  exports: [
-    EmployerDashboardComponent
-  ],
+  exports: [EmployerDashboardComponent],
 })
 export class EmployerDashboardModule {}

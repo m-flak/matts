@@ -18,7 +18,7 @@
 import { Component, Inject, InjectionToken, Input, OnInit } from '@angular/core';
 
 export interface SideMenuItem {
-  text: string; 
+  text: string;
   image: string;
   imageHint: string;
   route: string;
@@ -31,7 +31,7 @@ export const SIDE_MENU_CONFIG = new InjectionToken<SideMenuConfig>('SideMenuConf
 @Component({
   selector: 'app-side-menu',
   templateUrl: './side-menu.component.html',
-  styleUrls: ['./side-menu.component.scss']
+  styleUrls: ['./side-menu.component.scss'],
 })
 export class SideMenuComponent implements OnInit {
   readonly _menuSections: Array<{ items: SideMenuItem[] }>;
@@ -42,17 +42,14 @@ export class SideMenuComponent implements OnInit {
   @Input()
   expanded: boolean = true;
 
-  constructor(
-    @Inject(SIDE_MENU_CONFIG) config: SideMenuConfig
-  ) { 
+  constructor(@Inject(SIDE_MENU_CONFIG) config: SideMenuConfig) {
     this._menuSections = config.sections;
   }
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
   isActiveMenuItem(sectionIndex: number, itemIndex: number): boolean {
-    return ( this.activeSection === sectionIndex && this.activeItem === itemIndex );
+    return this.activeSection === sectionIndex && this.activeItem === itemIndex;
   }
 
   setActiveMenuItem(sectionIndex: number, itemIndex: number): void {

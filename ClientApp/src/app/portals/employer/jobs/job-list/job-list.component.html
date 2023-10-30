@@ -1,6 +1,8 @@
 <div class="home-container under-toolbar">
   <mat-card [ngClass]="'positions-card'" appearance="outlined">
-    <mat-card-header><mat-card-title><h1>All Positions:</h1></mat-card-title></mat-card-header>
+    <mat-card-header
+      ><mat-card-title><h1>All Positions:</h1></mat-card-title></mat-card-header
+    >
     <mat-card-content>
       <cmp-job-list [jobs]="this.jobs" (selectedJob)="onSelectJob($event)"></cmp-job-list>
     </mat-card-content>

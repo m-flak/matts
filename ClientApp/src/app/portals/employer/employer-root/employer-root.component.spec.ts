@@ -27,13 +27,9 @@ describe('EmployerRootComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        RouterTestingModule.withRoutes([]),
-        ComponentsModule
-      ],
-      declarations: [ EmployerRootComponent ]
-    })
-    .compileComponents();
+      imports: [RouterTestingModule.withRoutes([]), ComponentsModule],
+      declarations: [EmployerRootComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(EmployerRootComponent);
     component = fixture.componentInstance;

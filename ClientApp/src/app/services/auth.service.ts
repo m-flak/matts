@@ -23,7 +23,7 @@ import { JwtHelperService } from '@auth0/angular-jwt';
 import { User, UserRegistration, WSAuthEventTypes, WSAuthMessage } from '../models';
 import { Observable, Subject, Subscription, catchError, map, of, share, switchMap, tap, throwError } from 'rxjs';
 import { CookieService } from 'ngx-cookie-service';
-import makeWebSocketObservable, { GetWebSocketResponses  } from 'rxjs-websockets';
+import makeWebSocketObservable, { GetWebSocketResponses } from 'rxjs-websockets';
 
 export interface CurrentUser extends User {
   applicantId: string | null;
@@ -143,12 +143,15 @@ export class AuthService {
     sendToSocket.next({
       type: WSAuthEventTypes.CLIENT_OAUTH_START,
       clientIdentity: this.cookieService.get('XSRF-TOKEN'),
-      data: null
+      data: null,
     });
   }
 
   getWSAuthStream(sendToSocket: Subject<WSAuthMessage>) {
-    this._oauthSocket$ = (this._oauthSocket$ !== null) ? this._oauthSocket$ : makeWebSocketObservable(Location.joinWithSlash(this.wsBaseUrl, '/ws/oauth/linkedin'));
+    this._oauthSocket$ =
+      this._oauthSocket$ !== null
+        ? this._oauthSocket$
+        : makeWebSocketObservable(Location.joinWithSlash(this.wsBaseUrl, '/ws/oauth/linkedin'));
 
     return this._oauthSocket$.pipe(
       switchMap((getResponses: GetWebSocketResponses) => {
@@ -159,7 +162,7 @@ export class AuthService {
       catchError(e => {
         console.error('OAuth WS error: ', e);
         return [];
-      })
+      }),
     );
   }
 }

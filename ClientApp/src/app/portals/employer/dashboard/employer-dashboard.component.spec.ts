@@ -9,12 +9,9 @@ describe('EmployerDashboardComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        MatCardModule
-      ],
-      declarations: [ EmployerDashboardComponent ]
-    })
-    .compileComponents();
+      imports: [MatCardModule],
+      declarations: [EmployerDashboardComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(EmployerDashboardComponent);
     component = fixture.componentInstance;
