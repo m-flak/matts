@@ -68,9 +68,13 @@ $section-bg-color: mat.get-color-from-palette($primary-palette, darker-3-t25);
 
 .active-item {
     margin: 0.25rem 0.25rem 0.25rem 0;
-    width: 1px;
+    width: 8px;
     height: 2em;
-    border: 4px #397367 solid;
+
+    &.active {
+        width: 1px !important;
+        border: 4px #397367 solid;
+    }
 }
 
 div.section-text-container {

@@ -1,4 +1,4 @@
-<mat-list>
+<mat-list [style.--num-job-list-items]="jobs.length" [style.--num-job-list-item-rows]="hideApplicantCount ? 2 : 3">
   <mat-list-item lines="3" [ngClass]="'job-list-item'" *ngFor="let job of jobs; index as i" (click)="onClick(job)">
     <img matListItemAvatar class="job-list-item-icon" src="assets/briefcase.svg" alt="Job" [title]="job.name" />
     <div>

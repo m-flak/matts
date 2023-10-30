@@ -21,7 +21,7 @@
     </section>
     <section *ngFor="let section of _menuSections; index as i">
         <div *ngFor="let item of section.items; index as j" (click)="setActiveMenuItem(i, j)" [routerLink]="[item.route]">
-            <div [style.display]="isActiveMenuItem(i, j) ? 'block' : 'none'" class="active-item"></div>
+            <div [class.active]="isActiveMenuItem(i, j)" class="active-item"></div>
             <div class="section-text-container">
                 <span class="menu-text">{{ item.text }}</span>
             </div>

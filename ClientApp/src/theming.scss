@@ -216,3 +216,5 @@ $altTheme: (
   foreground: $mat-dark-theme-foreground,
   background: $mat-dark-theme-background,
 );
+
+$typography: mat.define-typography-config();
