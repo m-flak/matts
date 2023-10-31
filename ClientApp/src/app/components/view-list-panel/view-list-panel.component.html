@@ -22,7 +22,9 @@
         </ng-container>
         <ng-container *ngIf="selectedDetails !== null && selectedDetails !== undefined" ngbNavItem="selected">
             <ng-template ngbNavContent>
-                <ng-container *ngTemplateOutlet="detailsTemplate; context: { $implicit: selectedDetails.details }"></ng-container>
+                <div class="details">
+                    <ng-container *ngTemplateOutlet="detailsTemplate; context: { $implicit: selectedDetails.details }"></ng-container>
+                </div>
             </ng-template>
             <a 
                 class="vlp-tab"

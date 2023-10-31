@@ -35,6 +35,13 @@ export class EmployerDashboardComponent implements OnInit {
       description: "Task 2 requires your attention."
     }
   ];
+  
+  messages = [
+    {
+      from: "Renee K.",
+      body: "Fill out this checklist for me!"
+    }
+  ];
 
   ngOnInit(): void {}
 }

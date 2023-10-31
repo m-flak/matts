@@ -27,7 +27,26 @@
     <mat-card-header
       ><mat-card-title><h1>My Messages:</h1></mat-card-title></mat-card-header
     >
-    <mat-card-content></mat-card-content>
+    <mat-card-content>
+      <cmp-view-list-panel
+        itemsName="Messages"
+        detailNameField="from"
+        [items]="messages"
+      >
+        <ng-template let-message cmpTemplate="item">
+          <div>
+            <p> {{ message.from }}</p>
+            <p> {{ message.body }}</p>
+          </div>
+        </ng-template>
+        <ng-template let-message cmpTemplate="details">
+          <div>
+            <h4> {{ message.from }}</h4>
+            <p> {{ message.body }}</p>
+          </div>
+        </ng-template>
+      </cmp-view-list-panel>
+    </mat-card-content>
   </mat-card>
   <mat-card [ngClass]="'interviews-card'" appearance="outlined">
     <mat-card-header
