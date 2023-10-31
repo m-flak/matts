@@ -1,0 +1,32 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
+@use '../../../theming.scss';
+
+$config: mat.get-color-config(theming.$theme);
+$accent-palette: map.get($config, 'accent');
+$foreground-palette: map.get($config, 'foreground');
+
+$accent-color: mat.get-color-from-palette($accent-palette, main);
+$accent-color-darker: mat.get-color-from-palette($accent-palette, darker);
+$active-tab-text-color: mat.get-color-from-palette($foreground-palette, base);
+$unfocused-tab-text-color: mat.get-color-from-palette($foreground-palette, disabled-text);
+
+.vlp-panel {
+    border: 1px solid theming.$light-bg-borderline;
+
+    background: theming.$light-bg-shaded;
+
+    overflow-y: scroll;
+}
+
+.vlp-tab {
+    line-height: 0.8;
+    font-weight: bold;
+    color: $active-tab-text-color;
+    border-top: 2px solid $accent-color-darker;
+
+    &.unfocused {
+        color: $unfocused-tab-text-color;
+        border-top: 2px solid $accent-color;
+    }
+}

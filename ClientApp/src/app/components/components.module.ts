@@ -7,7 +7,7 @@ import { JobListComponent } from './job-list/job-list.component';
 import { HttpClientModule } from '@angular/common/http';
 import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
-import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbNavModule, NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
 import { MatButtonModule } from '@angular/material/button';
 import { ToastsContainerComponent } from './toasts-container/toasts-container.component';
 import { MatIconLinkDirective } from './mat-icon-link/mat-icon-link.directive';
@@ -16,6 +16,8 @@ import { BrandingContainerComponent } from '../components/branding-container/bra
 import { BrandingNoneDefaultDirective, BrandingWithBrandDirective } from './branding-container/branding.directives';
 import { SideMenuComponent } from '../components/side-menu/side-menu.component';
 import { RouterModule } from '@angular/router';
+import { ComponentTemplateDirective } from './directives';
+import { ViewListPanelComponent } from './view-list-panel/view-list-panel.component';
 
 @NgModule({
   declarations: [
@@ -29,6 +31,8 @@ import { RouterModule } from '@angular/router';
     BrandingWithBrandDirective,
     BrandingNoneDefaultDirective,
     SideMenuComponent,
+    ComponentTemplateDirective,
+    ViewListPanelComponent
   ],
   imports: [
     CommonModule,
@@ -36,6 +40,7 @@ import { RouterModule } from '@angular/router';
     HttpClientModule,
     MatIconModule,
     NgbToastModule,
+    NgbNavModule,
     MatButtonModule,
     RouterModule,
   ],
@@ -49,6 +54,8 @@ import { RouterModule } from '@angular/router';
     BrandingWithBrandDirective,
     BrandingNoneDefaultDirective,
     SideMenuComponent,
+    ComponentTemplateDirective,
+    ViewListPanelComponent
   ],
 })
 export class ComponentsModule {

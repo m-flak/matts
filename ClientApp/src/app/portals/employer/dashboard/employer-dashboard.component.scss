@@ -24,6 +24,15 @@ mat-card {
   height: 23.125em;
   min-width: 24.375em;
   flex-grow: 1;
+
+  mat-card-content {
+    height: 21em;
+  }
+
+  cmp-view-list-panel {
+    height: 100%;
+    display: block;
+  }
 }
 
 .interviews-card {

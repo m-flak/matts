@@ -3,7 +3,25 @@
     <mat-card-header
       ><mat-card-title><h1>My Tasks:</h1></mat-card-title></mat-card-header
     >
-    <mat-card-content></mat-card-content>
+    <mat-card-content>
+      <cmp-view-list-panel
+        itemsName="Tasks"
+        [items]="tasks"
+      >
+        <ng-template let-task cmpTemplate="item">
+          <div>
+            <p> {{ task.name }}</p>
+            <p> {{ task.description }}</p>
+          </div>
+        </ng-template>
+        <ng-template let-task cmpTemplate="details">
+          <div>
+            <h4> {{ task.name }}</h4>
+            <p> {{ task.description }}</p>
+          </div>
+        </ng-template>
+      </cmp-view-list-panel>
+    </mat-card-content>
   </mat-card>
   <mat-card [ngClass]="'messages-card'" appearance="outlined">
     <mat-card-header

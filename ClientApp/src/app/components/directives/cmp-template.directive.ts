@@ -15,26 +15,20 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **/
-import { Component, OnInit } from '@angular/core';
+import { Directive, Input, TemplateRef } from "@angular/core";
 
-@Component({
-  selector: 'app-dashboard',
-  templateUrl: './employer-dashboard.component.html',
-  styleUrls: ['./employer-dashboard.component.scss'],
+@Directive({
+    selector: '[cmpTemplate]',
+    host: {}
 })
-export class EmployerDashboardComponent implements OnInit {
-  constructor() {}
+export class ComponentTemplateDirective {
+    @Input() type: string | undefined;
 
-  tasks = [
-    {
-      name: "Task 1",
-      description: "Task 1 requires your attention."
-    },
-    {
-      name: "Task 2",
-      description: "Task 2 requires your attention."
+    @Input('cmpTemplate') name: string | undefined;
+
+    constructor(public template: TemplateRef<any>) {}
+
+    getType(): string {
+        return this.name!;
     }
-  ];
-
-  ngOnInit(): void {}
 }
