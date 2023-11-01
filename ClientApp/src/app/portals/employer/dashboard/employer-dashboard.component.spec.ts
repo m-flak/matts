@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { EmployerDashboardComponent } from './employer-dashboard.component';
 import { MatCardModule } from '@angular/material/card';
 import { ComponentsModule } from 'src/app/components/components.module';
+import { MatTableModule } from '@angular/material/table';
 
 describe('EmployerDashboardComponent', () => {
   let component: EmployerDashboardComponent;
@@ -10,7 +11,7 @@ describe('EmployerDashboardComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MatCardModule, ComponentsModule],
+      imports: [MatCardModule, MatTableModule, ComponentsModule],
       declarations: [EmployerDashboardComponent],
     }).compileComponents();
 

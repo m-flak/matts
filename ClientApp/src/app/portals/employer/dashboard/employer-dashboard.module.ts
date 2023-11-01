@@ -18,6 +18,7 @@
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
+import { MatTableModule } from '@angular/material/table';
 import { ComponentsModule } from 'src/app/components/components.module';
 import { PipesModule } from 'src/app/pipes/pipes.module';
 import { EmployerDashboardRouteModule } from './employer-dashboard-route.module';
@@ -29,6 +30,7 @@ import { EmployerDashboardComponent } from './employer-dashboard.component';
   imports: [
     CommonModule,
     MatCardModule,
+    MatTableModule,
     HttpClientModule,
     // Our modules start below
     EmployerDashboardRouteModule,

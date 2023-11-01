@@ -2,7 +2,7 @@
 @use '@angular/material' as mat;
 @use 'theming.scss';
 
-@include mat.core();
+@include mat.core(theming.$typography);
 
 $color-config: mat.get-color-config(theming.$theme);
 $primary-palette: map.get($color-config, 'primary');

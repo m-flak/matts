@@ -28,6 +28,8 @@ import { VlpProviderService } from 'src/app/components/view-list-panel';
   ]
 })
 export class EmployerDashboardComponent implements OnInit {
+  displayedColumns: string[] = ['applicant', 'interviewer', 'position', 'actions'];
+
   constructor(
     private viewListPanelsData: VlpProviderService
   ) {}
