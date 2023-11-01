@@ -15,15 +15,22 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **/
-import { AfterContentInit, Component, ContentChildren, Input, OnInit, QueryList, TemplateRef } from '@angular/core';
+import { AfterContentInit, Component, ContentChildren, Input, OnDestroy, OnInit, Optional, QueryList, TemplateRef } from '@angular/core';
 import { ComponentTemplateDirective } from '../directives';
+import { VlpProviderService } from './vlp-provider.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'cmp-view-list-panel',
   templateUrl: './view-list-panel.component.html',
   styleUrls: ['./view-list-panel.component.scss']
 })
-export class ViewListPanelComponent implements OnInit, AfterContentInit {
+export class ViewListPanelComponent implements OnInit, OnDestroy, AfterContentInit {
+  private _itemsSubscription: Subscription | null = null;
+
+  @Input()
+  providerName = '';
+
   @Input()
   items: any[] = [];
 
@@ -42,9 +49,25 @@ export class ViewListPanelComponent implements OnInit, AfterContentInit {
   itemTemplate: TemplateRef<any> | null = null;
   detailsTemplate: TemplateRef<any> | null = null;
 
-  constructor() { }
+  constructor(
+    @Optional() private providerService: VlpProviderService | null
+  ) { }
 
   ngOnInit(): void {
+    if (this.providerService !== null && this.providerName !== '') {
+      const provider = this.providerService.providers.get(this.providerName);
+      if (provider === undefined) {
+        throw new ReferenceError(`The VlpProviderService is missing a provider with the tag '${this.providerName}'.`);
+      }
+
+      this._itemsSubscription = provider.getItemsViewData().subscribe(d => this.items = d);
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this._itemsSubscription !== null) {
+      this._itemsSubscription.unsubscribe();
+    }
   }
 
   ngAfterContentInit(): void {
