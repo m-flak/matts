@@ -245,8 +245,8 @@ builder.Services.AddSingleton<CSP>(implementationFactory: provider =>
     var policy = CSP.DefaultPolicy.Clone();
 
     policy.ConnectSrc = CSP.Self;
-    // FIXME: Setup script nonces
-    policy.ScriptSrc = $"{policy.ScriptSrc} {CSP.UnsafeInline}";
+    // The hash is the sha256 hash of the inline script within ClientApp/src/index.html
+    policy.ScriptSrc = $"{policy.ScriptSrc} 'sha256-Vywrtc+OVj0nO9NJ0FmjzNfROZD38W0ll9q3KcU4Huk='";
     policy.Sandbox = $"{policy.Sandbox} allow-downloads allow-popups allow-popups-to-escape-sandbox";
     policy.BaseUri = string.Empty;
 

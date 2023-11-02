@@ -59,7 +59,7 @@ If you can't run as admin, change the certstore location to `CurrentUser`.
 
 ```powershell
 # Cert Path Setup
-$certsFolder = "$(If ($env:HOME -ne $null) {$env:HOME}/.devcerts Else {$env:USERPROFILE})\.devcerts"
+$certsFolder = "$(If ($env:HOME -ne $null) {$env:HOME+'/.devcerts'} Else {$env:USERPROFILE+'\.devcerts'})"
 New-Item -Force -ItemType "directory" -Path $certsFolder
 $certKeyPath = "$certsFolder\matts-localhost.pfx"
 
@@ -96,7 +96,7 @@ docker-compose --env-file ./docker.development.env -f docker-compose.yml -f dock
 This is all that's required once the initial secrets setup & cert generation has been performed.
 
 ```powershell
-$certsFolder = "$(If ($env:HOME -ne $null) {$env:HOME}/.devcerts Else {$env:USERPROFILE})\.devcerts"
+$certsFolder = "$(If ($env:HOME -ne $null) {$env:HOME+'/.devcerts'} Else {$env:USERPROFILE+'\.devcerts'})"
 $env:MATTS_DEVCERT_FOLDER = $certsFolder
 docker-compose --env-file ./docker.development.env -f docker-compose.yml -f docker-compose.development.yml up --build matts
 ```

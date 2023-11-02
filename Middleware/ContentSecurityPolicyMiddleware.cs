@@ -15,6 +15,8 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
+using System.Net.Mime;
+
 namespace matts.Middleware;
 
 public class ContentSecurityPolicyMiddleware
@@ -33,12 +35,34 @@ public class ContentSecurityPolicyMiddleware
     public async Task Invoke(HttpContext context)
     {
         var requestPath = context.Request.Path.Value;
-        if (!(requestPath?.StartsWith("/ws", StringComparison.OrdinalIgnoreCase) ?? false))
+        if (
+            context.Request.Method == HttpMethod.Get.Method
+            && !(requestPath?.StartsWith("/ws", StringComparison.OrdinalIgnoreCase) ?? false)
+           )
         {
-            if (!context.Response.Headers.ContainsKey(CSP_HEADER))
+            context.Response.OnStarting(state =>
             {
-                context.Response.Headers.Add(CSP_HEADER, _cspPolicy.ToString());
-            }
+                var httpContext = (HttpContext)state;
+
+                if (httpContext.Response.ContentType?.StartsWith(MediaTypeNames.Text.Html) == true)
+                {
+                    string nonce = CSP.CreateNonce();
+                    var policy = _cspPolicy.Clone();
+                    policy.AddScriptSrc($"'nonce-{nonce}'");
+
+                    httpContext.Response.Cookies.Append("CSP-NONCE", nonce,
+                        new CookieOptions { HttpOnly = false, IsEssential = true, Secure = true });
+
+                    if (!httpContext.Response.Headers.ContainsKey(CSP_HEADER))
+                    {
+                        httpContext.Response.Headers.Add(CSP_HEADER, policy.ToString());
+                    }
+
+                    policy = null;
+                }
+
+                return Task.CompletedTask;
+            }, context);
         }
 
         await _next(context);

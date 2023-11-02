@@ -12,10 +12,11 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   </head>
   <body class="mat-typography">
-    <app-root>
+    <app-root id="app-root" ngCspNonce="">
       <svg id="preLoadSpinner" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
         <circle cx="50" cy="50" r="45"/>
       </svg>
     </app-root>
+    <script>function getCookie(t){let e=t+"=",o=document.cookie.split(";");for(let r=0;r<o.length;r++){let n=o[r];for(;" "==n.charAt(0);)n=n.substring(1);if(0==n.indexOf(e))return n.substring(e.length,n.length)}return""}document.querySelector("#app-root").setAttribute("ngCspNonce",decodeURIComponent(getCookie("CSP-NONCE")));</script>
   </body>
 </html>

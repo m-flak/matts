@@ -338,10 +338,12 @@ public class LinkedinOAuthService : ILinkedinOAuthService
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error while saving and mapping the final profile information for client {ID}", TruncateClientId(client));
+                _logger.LogError(ex, "Helper Threads: Error while saving and mapping the final profile information for client {ID}", TruncateClientId(client));
                 HandleFailure(client, ex);
             }
         }
+
+        _logger.LogInformation("Helper Threads: Shutting Down...");
     }
 #pragma warning restore VSTHRD002
 

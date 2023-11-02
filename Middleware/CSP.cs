@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **/
 using System.Collections;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 
 namespace matts.Middleware;
@@ -26,14 +27,25 @@ namespace matts.Middleware;
 /// <summary>Content Security Policy https://content-security-policy.com/</summary>
 public class CSP : IEnumerable<string>, ICloneable
 {
+    private static readonly RandomNumberGenerator Rng = RandomNumberGenerator.Create();
+
+    /// <summary>Create a new nonce. Essentially creates an 16 byte length array (128 bit) and converts to base64 string.</summary>
+    public static string CreateNonce(int length = 128)
+    {
+        var bytes = new byte[length / 8];
+        Rng.GetBytes(bytes);
+        return Convert.ToBase64String(bytes);
+    }
+
     /// <summary>Default policy.</summary>
-    public static readonly CSP DefaultPolicy = new() {
-        DefaultSrc = $"{Self}",
-        ObjectSrc = $"{None}",
-        BaseUri = $"{Self}",
-        FrameAncestors = $"{None}",
-        Sandbox = $"allow-forms allow-same-origin allow-scripts",
-        ScriptSrc = $"{Self}",
+    public static readonly CSP DefaultPolicy = new()
+    {
+        DefaultSrc = Self,
+        ObjectSrc = None,
+        BaseUri = Self,
+        FrameAncestors = None,
+        Sandbox = "allow-forms allow-same-origin allow-scripts",
+        ScriptSrc = Self,
         FontSrc = $"{Self} fonts.googleapis.com fonts.gstatic.com",
         ImgSrc = $"{Wildcard} {Data}",
         StyleSrc = $"{Self} {UnsafeInline} fonts.googleapis.com"
@@ -80,7 +92,8 @@ public class CSP : IEnumerable<string>, ICloneable
     /// JavaScript, Images, CSS, Fonts, AJAX requests, Frames, HTML5 Media. <br/>
     /// Not all directives fallback to default-src. See the Source List Reference for possible values.
     /// </summary>
-    public string DefaultSrc {
+    public string DefaultSrc
+    {
         get => GetValueOrDefault(nameof(DefaultSrc));
         set => SetValue(nameof(DefaultSrc), value);
     }
@@ -88,7 +101,8 @@ public class CSP : IEnumerable<string>, ICloneable
     /// <em>[CSP Level 1]</em><br/>
     /// Defines valid sources of JavaScript.
     /// </summary>
-    public string ScriptSrc {
+    public string ScriptSrc
+    {
         get => GetValueOrDefault(nameof(ScriptSrc));
         set => SetValue(nameof(ScriptSrc), value);
     }
@@ -96,7 +110,8 @@ public class CSP : IEnumerable<string>, ICloneable
     /// <em>[CSP Level 1]</em><br/>
     ///Defines valid sources of stylesheets or CSS.
     /// </summary>
-    public string StyleSrc {
+    public string StyleSrc
+    {
         get => GetValueOrDefault(nameof(StyleSrc));
         set => SetValue(nameof(StyleSrc), value);
     }
@@ -104,7 +119,8 @@ public class CSP : IEnumerable<string>, ICloneable
     /// <em>[CSP Level 1]</em><br/>
     /// Defines valid sources of images.
     /// </summary>
-    public string ImgSrc {
+    public string ImgSrc
+    {
         get => GetValueOrDefault(nameof(ImgSrc));
         set => SetValue(nameof(ImgSrc), value);
     }
@@ -114,7 +130,8 @@ public class CSP : IEnumerable<string>, ICloneable
     /// Applies to XMLHttpRequest (AJAX), WebSocket, fetch(), &lt;a ping&gt; or EventSource. <br/>
     /// If not allowed the browser emulates a 400 HTTP status code.
     /// </summary>
-    public string ConnectSrc {
+    public string ConnectSrc
+    {
         get => GetValueOrDefault(nameof(ConnectSrc));
         set => SetValue(nameof(ConnectSrc), value);
     }
@@ -123,7 +140,8 @@ public class CSP : IEnumerable<string>, ICloneable
     /// <em>[CSP Level 1]</em><br/>
     /// Content Security Policy regarding font sources.
     /// </summary>
-    public string FontSrc {
+    public string FontSrc
+    {
         get => GetValueOrDefault(nameof(FontSrc));
         set => SetValue(nameof(FontSrc), value);
     }
@@ -132,7 +150,8 @@ public class CSP : IEnumerable<string>, ICloneable
     /// <em>[CSP Level 1]</em><br/>
     /// Specifies valid sources for the &lt;object&gt;, &lt;embed&gt;, and &lt;applet&gt; elements.
     /// </summary>
-    public string ObjectSrc {
+    public string ObjectSrc
+    {
         get => GetValueOrDefault(nameof(ObjectSrc));
         set => SetValue(nameof(ObjectSrc), value);
     }
@@ -141,7 +160,8 @@ public class CSP : IEnumerable<string>, ICloneable
     /// <em>[CSP Level 1]</em><br/>
     /// Defines valid sources of audio and video, eg HTML5 &lt;audio&gt;, &lt;video&gt; elements.
     /// </summary>
-    public string MediaSrc {
+    public string MediaSrc
+    {
         get => GetValueOrDefault(nameof(MediaSrc));
         set => SetValue(nameof(MediaSrc), value);
     }
@@ -151,7 +171,8 @@ public class CSP : IEnumerable<string>, ICloneable
     /// Defines valid sources for loading frames. In CSP Level 2 frame-src was deprecated in favor of the child-src directive. <br/>
     /// CSP Level 3, has undeprecated frame-src and it will continue to defer to child-src if not present.
     /// </summary>
-    public string FrameSrc {
+    public string FrameSrc
+    {
         get => GetValueOrDefault(nameof(FrameSrc));
         set => SetValue(nameof(FrameSrc), value);
     }
@@ -164,7 +185,8 @@ public class CSP : IEnumerable<string>, ICloneable
     /// allow-forms allow-same-origin allow-scripts allow-popups, allow-modals, allow-orientation-lock, <br/>
     /// allow-pointer-lock, allow-presentation, allow-popups-to-escape-sandbox, and allow-top-navigation
     /// </summary>
-    public string Sandbox {
+    public string Sandbox
+    {
         get => GetValueOrDefault(nameof(Sandbox));
         set => SetValue(nameof(Sandbox), value);
     }
@@ -175,7 +197,8 @@ public class CSP : IEnumerable<string>, ICloneable
     /// You can also use Content-Security-Policy-Report-Only as the HTTP header name to instruct the browser to only send reports (does not block anything). <br/>
     /// This directive is deprecated in CSP Level 3 in favor of the report-to directive.
     /// </summary>
-    public string ReportUri {
+    public string ReportUri
+    {
         get => GetValueOrDefault(nameof(ReportUri));
         set => SetValue(nameof(ReportUri), value);
     }
@@ -184,7 +207,8 @@ public class CSP : IEnumerable<string>, ICloneable
     /// <em>[CSP Level 2]</em><br/>
     /// Defines valid sources for web workers and nested browsing contexts loaded using elements such as &lt;frame&gt; and &lt;iframe&gt;
     /// </summary>
-    public string ChildSrc {
+    public string ChildSrc
+    {
         get => GetValueOrDefault(nameof(ChildSrc));
         set => SetValue(nameof(ChildSrc), value);
     }
@@ -193,7 +217,8 @@ public class CSP : IEnumerable<string>, ICloneable
     /// <em>[CSP Level 2]</em><br/>
     /// Defines valid sources that can be used as an HTML &lt;form&gt; action.
     /// </summary>
-    public string FormAction {
+    public string FormAction
+    {
         get => GetValueOrDefault(nameof(FormAction));
         set => SetValue(nameof(FormAction), value);
     }
@@ -203,7 +228,8 @@ public class CSP : IEnumerable<string>, ICloneable
     /// Defines valid sources for embedding the resource using &lt;frame&gt; &lt;iframe&gt; &lt;object&gt; &lt;embed&gt; &lt;applet&gt;. <br/>
     /// Setting this directive to 'none' should be roughly equivalent to X-Frame-Options: DENY
     /// </summary>
-    public string FrameAncestors {
+    public string FrameAncestors
+    {
         get => GetValueOrDefault(nameof(FrameAncestors));
         set => SetValue(nameof(FrameAncestors), value);
     }
@@ -213,7 +239,8 @@ public class CSP : IEnumerable<string>, ICloneable
     /// Defines valid MIME types for plugins invoked via &lt;object&gt; and &lt;embed&gt;. <br/>
     /// To load an &lt;applet&gt; you must specify application/x-java-applet.
     /// </summary>
-    public string PluginTypes {
+    public string PluginTypes
+    {
         get => GetValueOrDefault(nameof(PluginTypes));
         set => SetValue(nameof(PluginTypes), value);
     }
@@ -222,7 +249,8 @@ public class CSP : IEnumerable<string>, ICloneable
     /// <em>[CSP Level 2]</em><br/>
     /// Defines a set of allowed URLs which can be used in the src attribute of a HTML base tag.
     /// </summary>
-    public string BaseUri {
+    public string BaseUri
+    {
         get => GetValueOrDefault(nameof(BaseUri));
         set => SetValue(nameof(BaseUri), value);
     }
@@ -231,7 +259,8 @@ public class CSP : IEnumerable<string>, ICloneable
     /// <em>[CSP Level 3]</em><br/>
     /// Defines a reporting group name defined by a Report-To HTTP response header. See the Reporting API for more info.
     /// </summary>
-    public string ReportTo {
+    public string ReportTo
+    {
         get => GetValueOrDefault(nameof(ReportTo));
         set => SetValue(nameof(ReportTo), value);
     }
@@ -240,7 +269,8 @@ public class CSP : IEnumerable<string>, ICloneable
     /// <em>[CSP Level 3]</em><br/>
     /// Restricts the URLs which may be loaded as a Worker, SharedWorker or ServiceWorker.
     /// </summary>
-    public string WorkerSrc {
+    public string WorkerSrc
+    {
         get => GetValueOrDefault(nameof(WorkerSrc));
         set => SetValue(nameof(WorkerSrc), value);
     }
@@ -249,7 +279,8 @@ public class CSP : IEnumerable<string>, ICloneable
     /// <em>[CSP Level 3]</em><br/>
     /// Restricts the URLs that application manifests can be loaded.
     /// </summary>
-    public string ManifestSrc {
+    public string ManifestSrc
+    {
         get => GetValueOrDefault(nameof(ManifestSrc));
         set => SetValue(nameof(ManifestSrc), value);
     }
@@ -258,7 +289,8 @@ public class CSP : IEnumerable<string>, ICloneable
     /// <em>[CSP Level 3]</em><br/>
     /// Defines valid sources for request prefetch and prerendering, for example via the link tag with rel="prefetch" or rel="prerender":
     /// </summary>
-    public string PrefetchSrc {
+    public string PrefetchSrc
+    {
         get => GetValueOrDefault(nameof(PrefetchSrc));
         set => SetValue(nameof(PrefetchSrc), value);
     }
@@ -269,7 +301,8 @@ public class CSP : IEnumerable<string>, ICloneable
     /// a form is submitted, or window.location is invoked. <br/>
     /// If form-action is present then this directive is ignored for form submissions.
     /// </summary>
-    public string NavigateTo {
+    public string NavigateTo
+    {
         get => GetValueOrDefault(nameof(NavigateTo));
         set => SetValue(nameof(NavigateTo), value);
     }
@@ -278,21 +311,29 @@ public class CSP : IEnumerable<string>, ICloneable
     /// <param name="key">The key to ammend.</param>
     /// <param name="value">The value to add.</param>
     /// <returns>Returns the current instance of the Content Security Policy.</returns>
-    public CSP Add(string key, string value) {
-        if (key.Contains('-')) {
+    public CSP Add(string key, string value)
+    {
+        if (key.Contains('-'))
+        {
             // this is url casing.
             key = GetPascalCasing(key);
         }
-        if (_values.ContainsKey(key)) {
-            if (_values[key] == null) {
+        if (_values.ContainsKey(key))
+        {
+            if (string.IsNullOrEmpty(_values[key]))
+            {
                 _values[key] = value;
-            } else if (!_values[key].Contains(value)) {
+            }
+            else if (!_values[key].Contains(value))
+            {
                 _values[key] += $" {value}";
                 // If the directive contains 'none' but a value is allowed then we have to remove the 'none' value.
                 // To do: Maybe we should consider removing all existing value if 'none' is added.
                 _values[key] = _values[key].Replace($"{None} ", string.Empty);
             }
-        } else {
+        }
+        else
+        {
             _values.Add(key, value);
         }
         return this;
@@ -447,7 +488,7 @@ public class CSP : IEnumerable<string>, ICloneable
 
     /// <summary>Gets the <see cref="IEnumerator{T}"/> to iterate the underliing values for each policy part.</summary>
     /// <returns></returns>
-    public IEnumerator<string> GetEnumerator() => _values.Where(x => x.Value != null && x.Value != string.Empty).Select(x => $"{GetUrlCasing(x.Key)} {x.Value}").GetEnumerator();
+    public IEnumerator<string> GetEnumerator() => _values.Where(x => !string.IsNullOrEmpty(x.Value)).Select(x => $"{GetUrlCasing(x.Key)} {x.Value}").GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -455,24 +496,23 @@ public class CSP : IEnumerable<string>, ICloneable
     /// <returns></returns>
     public override string ToString() => string.Join("; ", this);
 
-    private string GetValueOrDefault(string key) => _values.ContainsKey(key) ? _values[key] : string.Empty;
+    private string GetValueOrDefault(string key) => _values.TryGetValue(key, out string? value) ? value : string.Empty;
 
-    private void SetValue(string key, string value) {
-        if (_values.ContainsKey(key)) {
-            _values[key] = value;
-        } else {
-            _values.Add(key, value);
-        }
+    private void SetValue(string key, string value)
+    {
+        _values[key] = value;
     }
 
     internal static string GetUrlCasing(string pascalCasing) => Regex.Replace(pascalCasing, "([A-Z][a-z]+)", "-$1", RegexOptions.Compiled).Trim().ToLowerInvariant().TrimStart('-');
 
-    internal static string GetPascalCasing(string urlCasing) => string.Join("", urlCasing.ToLowerInvariant().Split('-').Select(x => char.ToUpperInvariant(x[0]) + x[1..]));
+    internal static string GetPascalCasing(string urlCasing) => string.Concat(urlCasing.ToLowerInvariant().Split('-').Select(x => char.ToUpperInvariant(x[0]) + x[1..]));
 
     /// <summary>Clone the CSP into a new instance.</summary>
     /// <returns></returns>
-    public CSP Clone() {
-        return new CSP {
+    public CSP Clone()
+    {
+        return new CSP
+        {
             // level1
             DefaultSrc = DefaultSrc,
             ScriptSrc = ScriptSrc,
