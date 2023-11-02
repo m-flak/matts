@@ -101,6 +101,11 @@ public class LinkedinOAuthService : ILinkedinOAuthService
         if (disposing)
         {
             Cancellation.Cancel();
+            foreach (var t in Threads)
+            {
+                _logger.LogInformation("Helper Threads: Shutting down thread {id}...", t.ManagedThreadId);
+            }
+
             _httpClient.Dispose();
         }
 
@@ -342,8 +347,6 @@ public class LinkedinOAuthService : ILinkedinOAuthService
                 HandleFailure(client, ex);
             }
         }
-
-        _logger.LogInformation("Helper Threads: Shutting Down...");
     }
 #pragma warning restore VSTHRD002
 
