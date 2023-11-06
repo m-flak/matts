@@ -1,4 +1,4 @@
-/* matts
+﻿/* matts
  * "Matthew's ATS" - Portfolio Project
  * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
  * 
@@ -522,9 +522,9 @@ public abstract class DaoAbstractBase<T> : IDataAccessObject<T> where T : class
         {
             throw new MissingMemberException("Unable to find the property with DbNodeUuidAttribute attached to the object/type.", ioe);
         }
-        catch (MissingMemberException mme)
+        catch (MissingMemberException)
         {
-            throw mme;
+            throw;
         }
 
         return infos;

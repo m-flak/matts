@@ -1,4 +1,4 @@
-/* matts
+﻿/* matts
  * "Matthew's ATS" - Portfolio Project
  * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
  * 
@@ -25,7 +25,8 @@ public class ICalResult : ActionResult
 {
     private readonly Calendar _calendar;
 
-    public ICalResult(Calendar calendar) : base()
+    public ICalResult(Calendar calendar)
+        : base()
     {
         _calendar = calendar;
     }
@@ -39,6 +40,6 @@ public class ICalResult : ActionResult
         
         return response
             .WriteAsync(serializer.SerializeToString(_calendar))
-            .ContinueWith((_) => response.CompleteAsync());
+            .ContinueWith((_) => response.CompleteAsync(), scheduler: TaskScheduler.Current);
     }
 }

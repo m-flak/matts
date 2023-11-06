@@ -72,15 +72,14 @@ public class EmployerRepository : IEmployerRepository
             }
             return createdOrExisted;
         }
-        else
+
+        bool removedOrDeleted = !hasRelationship;
+        if (!removedOrDeleted)
         {
-            bool removedOrDeleted = !hasRelationship;
-            if (!removedOrDeleted)
-            {
-                removedOrDeleted = await _daoEmp.DeleteRelationshipBetween(createRelationship, employer, null, typeof(ApplicantDb));
-            }
-            return removedOrDeleted;
+            removedOrDeleted = await _daoEmp.DeleteRelationshipBetween(createRelationship, employer, null, typeof(ApplicantDb));
         }
+
+        return removedOrDeleted;
     }
 
     public async Task<Employer> GetEmployerInterviewingWith(string applicantInterviewingWith)

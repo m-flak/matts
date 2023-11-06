@@ -127,7 +127,7 @@ public class SasController : ControllerBase
             else
             {
                 _logger.LogError("Unable to handle encountered RequestFailedException", rfe);
-                throw rfe;
+                throw;
             }
         }
         
