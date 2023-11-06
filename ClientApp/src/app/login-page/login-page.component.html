@@ -7,9 +7,6 @@
   title="Loading..."
 ></div>
 <div class="container login-container login-bg pt-5">
-  <ngb-alert *ngIf="loginFailure" type="danger" [dismissible]="false">
-    <p>Invalid credentials. Unable to login.</p>
-  </ngb-alert>
   <ngb-alert *ngIf="registrationSuccessful" type="success" [dismissible]="false">
     <p>
       Registration Successful! You may now login with your account through
