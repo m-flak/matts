@@ -15,29 +15,16 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-using matts.Configuration;
-using matts.Utils;
-using Microsoft.AspNetCore.Authorization;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 
-namespace matts.Controllers;
+namespace matts.Utils;
 
-[ApiController]
-[VersionedApiRoute(1, "[controller]")]
-public class ConfigController : ControllerBase
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
+public class VersionedApiRouteAttribute : RouteAttribute
 {
-    private readonly IOptions<ClientAppConfiguration> _configuration;
-
-    public ConfigController(IOptions<ClientAppConfiguration> configuration)
+    public VersionedApiRouteAttribute(int version, [StringSyntax("Route")] string template)
+        : base($"/api/v{version}/{template}")
     {
-        _configuration = configuration;
-    }
-
-    [HttpGet]
-    [AllowAnonymous]
-    public ClientAppConfiguration Get()
-    {
-        return _configuration.Value;
     }
 }

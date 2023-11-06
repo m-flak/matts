@@ -42,7 +42,7 @@ public class WebsocketIntegrationTests : IDisposable
     [Fact]
     public async Task LinkedIn_UponConnect_OnlyAcceptsWebSocket()
     {
-        var response = await _client.GetAsync("/ws/oauth/linkedin");
+        var response = await _client.GetAsync("/api/v1/ws/oauth/linkedin");
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
@@ -52,7 +52,7 @@ public class WebsocketIntegrationTests : IDisposable
         dynamic? message = null;
 
         var client = _factory.Server.CreateWebSocketClient();
-        var socket = await client.ConnectAsync(_factory.GetWebsocketUri("/ws/oauth/linkedin"), CancellationToken.None);
+        var socket = await client.ConnectAsync(_factory.GetWebsocketUri("/api/v1/ws/oauth/linkedin"), CancellationToken.None);
         await socket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes("{}")), WebSocketMessageType.Text, true, CancellationToken.None);
         var responseBytes = new byte[1024];
         var response = await socket.ReceiveAsync(new ArraySegment<byte>(responseBytes), CancellationToken.None);
@@ -71,7 +71,7 @@ public class WebsocketIntegrationTests : IDisposable
     public async Task LinkedIn_WithClientMessage_RespondsAppropriately(WSAuthEventTypes clientCode, string clientId, WSAuthEventTypes srvCode)
     {
         var client = _factory.Server.CreateWebSocketClient();
-        var socket = await client.ConnectAsync(_factory.GetWebsocketUri("/ws/oauth/linkedin"), CancellationToken.None);
+        var socket = await client.ConnectAsync(_factory.GetWebsocketUri("/api/v1/ws/oauth/linkedin"), CancellationToken.None);
 
         var options = new JsonSerializerOptions
         {
@@ -119,7 +119,7 @@ public class WebsocketIntegrationTests : IDisposable
     public async Task LinkedIn_WithoutClientIdentity_ClosesConnection(WSAuthEventTypes clientCode, string? clientId)
     {
         var client = _factory.Server.CreateWebSocketClient();
-        var socket = await client.ConnectAsync(_factory.GetWebsocketUri("/ws/oauth/linkedin"), CancellationToken.None);
+        var socket = await client.ConnectAsync(_factory.GetWebsocketUri("/api/v1/ws/oauth/linkedin"), CancellationToken.None);
 
         var options = new JsonSerializerOptions
         {
@@ -176,7 +176,7 @@ public class WebsocketIntegrationTests : IDisposable
                 );
 
         var client = _factory.Server.CreateWebSocketClient();
-        var socket = await client.ConnectAsync(_factory.GetWebsocketUri("/ws/oauth/linkedin"), CancellationToken.None);
+        var socket = await client.ConnectAsync(_factory.GetWebsocketUri("/api/v1/ws/oauth/linkedin"), CancellationToken.None);
 
         var options = new JsonSerializerOptions
         {
@@ -247,7 +247,7 @@ public class WebsocketIntegrationTests : IDisposable
         });
         var redirectUriBuilder = new UriBuilder(_factory.Server.BaseAddress)
         {
-            Path = "/auth/linkedin/callback",
+            Path = "/api/v1/auth/linkedin/callback",
             Query = await queryContent.ReadAsStringAsync()
         };
 
@@ -300,7 +300,7 @@ public class WebsocketIntegrationTests : IDisposable
             .ReturnsResponse(HttpStatusCode.InternalServerError);
 
         var client = _factory.Server.CreateWebSocketClient();
-        var socket = await client.ConnectAsync(_factory.GetWebsocketUri("/ws/oauth/linkedin"), CancellationToken.None);
+        var socket = await client.ConnectAsync(_factory.GetWebsocketUri("/api/v1/ws/oauth/linkedin"), CancellationToken.None);
 
         var options = new JsonSerializerOptions
         {
@@ -371,7 +371,7 @@ public class WebsocketIntegrationTests : IDisposable
         });
         var redirectUriBuilder = new UriBuilder(_factory.Server.BaseAddress)
         {
-            Path = "/auth/linkedin/callback",
+            Path = "/api/v1/auth/linkedin/callback",
             Query = await queryContent.ReadAsStringAsync()
         };
 

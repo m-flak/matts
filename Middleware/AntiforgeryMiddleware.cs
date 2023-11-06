@@ -35,8 +35,8 @@ public class AntiforgeryMiddleware
         var requestPath = context.Request.Path.Value;
         bool condition = string.Equals(requestPath, "/", StringComparison.OrdinalIgnoreCase)
             || string.Equals(requestPath, "/index.html", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(requestPath, "/config/", StringComparison.OrdinalIgnoreCase)
-            || (requestPath?.StartsWith("/jobs", StringComparison.OrdinalIgnoreCase) ?? false);
+            || string.Equals(requestPath, "/api/v1/config/", StringComparison.OrdinalIgnoreCase)
+            || (requestPath?.StartsWith("/api/v1/jobs", StringComparison.OrdinalIgnoreCase) ?? false);
 
         if (requestPath is not null && condition)
         {

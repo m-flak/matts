@@ -1,4 +1,4 @@
-/* matts
+﻿/* matts
  * "Matthew's ATS" - Portfolio Project
  * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
  * 
@@ -26,12 +26,13 @@ using matts.Interfaces;
 using matts.Models;
 using matts.Constants;
 using matts.Controllers.ActionResults;
+using matts.Utils;
 
 namespace matts.Controllers;
 
 [Authorize(Policy = "LoggedInUsers")]
 [ApiController]
-[Route("[controller]")]
+[VersionedApiRoute(1, "[controller]")]
 public class JobsController : ControllerBase
 {
     private readonly IValidator<ApplyToJob> _applyValidator;

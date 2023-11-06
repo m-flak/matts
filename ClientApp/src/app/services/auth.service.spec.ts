@@ -103,7 +103,7 @@ describe('AuthService', () => {
       done();
     });
 
-    const request = httpMock.expectOne('https://localhost/auth/login');
+    const request = httpMock.expectOne('https://localhost/api/v1/auth/login');
     request.flush(DUMMY_TOKEN);
 
     httpMock.verify();
@@ -124,7 +124,7 @@ describe('AuthService', () => {
       done();
     });
 
-    const request = httpMock.expectOne('https://localhost/auth/login');
+    const request = httpMock.expectOne('https://localhost/api/v1/auth/login');
     request.flush(DUMMY_TOKEN);
 
     httpMock.verify();
@@ -142,7 +142,7 @@ describe('AuthService', () => {
       done();
     });
 
-    const request = httpMock.expectOne('https://localhost/auth/login');
+    const request = httpMock.expectOne('https://localhost/api/v1/auth/login');
     request.flush(DUMMY_TOKEN);
 
     httpMock.verify();
@@ -178,7 +178,7 @@ describe('AuthService', () => {
       done();
     });
 
-    const request = httpMock.expectOne('https://localhost/auth/register');
+    const request = httpMock.expectOne('https://localhost/api/v1/auth/register');
     request.flush(null, { status: 200, statusText: 'OK' });
 
     httpMock.verify();
@@ -191,7 +191,7 @@ describe('AuthService', () => {
     beforeEach(() => {
       cookieService.set('XSRF-TOKEN', '123');
       secondRequest = false;
-      websocketServer = new Server(Location.joinWithSlash(WEB_SOCKET_URL, '/ws/oauth/linkedin'));
+      websocketServer = new Server(Location.joinWithSlash(WEB_SOCKET_URL, '/api/v1/ws/oauth/linkedin'));
       websocketServer.on('connection', socket => {
         socket.send(
           JSON.stringify({

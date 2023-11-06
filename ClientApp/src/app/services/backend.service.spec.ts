@@ -73,7 +73,7 @@ describe('BackendService', () => {
       done();
     });
 
-    const request = httpMock.expectOne('/jobs/getjobs');
+    const request = httpMock.expectOne('/api/v1/jobs/getjobs');
     request.flush(jobs);
 
     httpMock.verify();
@@ -104,7 +104,7 @@ describe('BackendService', () => {
       done();
     });
 
-    const request = httpMock.expectOne('/jobs/getappliedjobs?applicantId=applicantId');
+    const request = httpMock.expectOne('/api/v1/jobs/getappliedjobs?applicantId=applicantId');
     request.flush(appliedJobs);
 
     httpMock.verify();
@@ -126,7 +126,7 @@ describe('BackendService', () => {
       done();
     });
 
-    const request = httpMock.expectOne('/jobs/jobdetails/3ebb58d3-a24c-499b-8c65-75636e7b57de');
+    const request = httpMock.expectOne('/api/v1/jobs/jobdetails/3ebb58d3-a24c-499b-8c65-75636e7b57de');
     request.flush(job);
 
     httpMock.verify();
@@ -143,7 +143,7 @@ describe('BackendService', () => {
       done();
     });
 
-    const request = httpMock.expectOne('/jobs/applytojob');
+    const request = httpMock.expectOne('/api/v1/jobs/applytojob');
     request.flush(null, { status: 200, statusText: 'OK' });
 
     httpMock.verify();
@@ -162,7 +162,7 @@ describe('BackendService', () => {
       done();
     });
 
-    const request = httpMock.expectOne('/jobs/updatejob');
+    const request = httpMock.expectOne('/api/v1/jobs/updatejob');
     request.flush(null, { status: 200, statusText: 'OK' });
 
     httpMock.verify();
@@ -179,7 +179,7 @@ describe('BackendService', () => {
       done();
     });
 
-    const request = httpMock.expectOne('/jobs/postnewjob');
+    const request = httpMock.expectOne('/api/v1/jobs/postnewjob');
     request.flush(null, { status: 200, statusText: 'OK' });
 
     httpMock.verify();
@@ -194,7 +194,7 @@ describe('BackendService', () => {
       done();
     });
 
-    const request = httpMock.expectOne(`/jobs/reject/${jobUuid}/${applicantUuid}?rejected=true`);
+    const request = httpMock.expectOne(`/api/v1/jobs/reject/${jobUuid}/${applicantUuid}?rejected=true`);
     request.flush(null, { status: 200, statusText: 'OK' });
 
     httpMock.verify();
@@ -215,7 +215,7 @@ describe('BackendService', () => {
     });
 
     const request = httpMock.expectOne(
-      `/jobs/ics/${jobUuid}/${applicantUuid}?y=${today.getFullYear()}&m=${today.getMonth() + 1}&d=${getDate(
+      `/api/v1/jobs/ics/${jobUuid}/${applicantUuid}?y=${today.getFullYear()}&m=${today.getMonth() + 1}&d=${getDate(
         today,
       )}&h=${today.getHours()}&mm=${today.getMinutes()}`,
     );

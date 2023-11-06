@@ -45,7 +45,7 @@ describe('ConfigService', () => {
   it('can populate the configuration after the get', () => {
     const promise = configService.loadConfig();
 
-    const request = httpMock.expectOne('/config/');
+    const request = httpMock.expectOne('/api/v1/config/');
     request.flush(configJson);
 
     httpMock.verify();

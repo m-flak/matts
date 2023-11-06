@@ -98,7 +98,7 @@ export class AuthService {
       return of(currentToken).pipe(tap(token => this._populateCurrentUser()));
     }
 
-    const endpoint = '/auth/login';
+    const endpoint = '/api/v1/auth/login';
     return this.http.post(Location.joinWithSlash(this.baseUrl, endpoint), user, { responseType: 'text' }).pipe(
       catchError((e: HttpErrorResponse) => throwError(() => new Error(e?.error))),
       tap(token => localStorage.setItem('access_token', token)),
@@ -107,7 +107,7 @@ export class AuthService {
   }
 
   registerUser(newUser: UserRegistration): Observable<HttpResponse<any>> {
-    const endpoint = `/auth/register`;
+    const endpoint = `/api/v1/auth/register`;
 
     const httpHeaders = new HttpHeaders({
       'Content-Type': 'application/json',
@@ -151,7 +151,7 @@ export class AuthService {
     this._oauthSocket$ =
       this._oauthSocket$ !== null
         ? this._oauthSocket$
-        : makeWebSocketObservable(Location.joinWithSlash(this.wsBaseUrl, '/ws/oauth/linkedin'));
+        : makeWebSocketObservable(Location.joinWithSlash(this.wsBaseUrl, '/api/v1/ws/oauth/linkedin'));
 
     return this._oauthSocket$.pipe(
       switchMap((getResponses: GetWebSocketResponses) => {

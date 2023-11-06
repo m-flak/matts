@@ -31,12 +31,13 @@ using matts.Constants;
 using matts.Models;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.InteropServices;
+using matts.Utils;
 
 namespace matts.Controllers;
 
 [ApiController]
 [IgnoreAntiforgeryToken]
-[Route("[controller]")]
+[VersionedApiRoute(1, "[controller]")]
 public class AuthController : ControllerBase
 {
     private readonly IValidator<User> _validator;

@@ -1,4 +1,4 @@
-/* matts
+﻿/* matts
  * "Matthew's ATS" - Portfolio Project
  * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
  * 
@@ -27,11 +27,12 @@ using Azure.Storage.Blobs.Specialized;
 using Azure.Storage.Sas;
 using Azure.Storage;
 using Azure;
+using matts.Utils;
 
 namespace matts.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[VersionedApiRoute(1, "[controller]")]
 public class SasController : ControllerBase
 {
     private readonly ILogger<SasController> _logger;
