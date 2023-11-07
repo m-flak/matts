@@ -31,6 +31,11 @@
               "src/styles.scss",
               "src/fonts.css"
             ],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "node_modules/sass-rando/"
+              ]
+            },
             "scripts": [
             ]
           },
@@ -105,6 +110,11 @@
             "styles": [
               "src/styles.scss"
             ],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "node_modules/sass-rando/"
+              ]
+            },
             "scripts": [
               "node_modules/object-hash/dist/object_hash.js"
             ]

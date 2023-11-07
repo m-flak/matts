@@ -1,14 +1,59 @@
 @use 'sass:map';
+@use 'sass:list';
 @use '@angular/material' as mat;
+@use 'sass/index' as rando;
 @use '../../../theming.scss';
+
+@function get-random-circle-color($color_list) {
+    @return list.nth($color_list, rando.rando-roll(1d8));
+}
 
 $config: mat.get-color-config(theming.$theme);
 $primary-palette: map.get($config, 'primary');
 $border-color: mat.get-color-from-palette($primary-palette, darker-2);
 
-// TODO: Figure out how to randomize these like MS Teams does
-$circle-fill: #EEFFEB;
-$circle-text: #7CA888;
+$color-list: 
+    ("circle": #EEFFEB, "text": #7CA888), // GREEN
+    ("circle": #AAD278, "text": #477E34), // GREEN 2
+    ("circle": #EBDAC2, "text": #D08513), // ORANGE 
+    ("circle": #F2F0AF, "text": #B8B551), // YELLOW
+    ("circle": #F79AEC, "text": #983F84), // PINK   
+    ("circle": #D0E0FF, "text": #8584B8), // BLUE
+    ("circle": #AFFAFF, "text": #74A2A5), // BLUE 2
+    ("circle": #F9CDCD, "text": #9E5656); // RED
+
+$random-color: get-random-circle-color($color-list);
+
+@mixin random-fill-rule($selector, $type, $stroke_color:null) {
+    $circle-fill-color: map.get($random-color, $type);
+
+    @if $type == circle {
+        #{$selector} {
+            fill: $circle-fill-color;
+            @if $stroke_color {
+                stroke: $stroke_color;
+            }
+
+            @content;
+        }
+    }
+    @else if $type == text {
+        #{$selector} {
+            color: $circle-fill-color;
+
+            @content;
+        }
+    }
+}
+
+// Since above is compile-time, provide the colors as vars
+// The component can update its color, e.g.: multiple on a page.
+@mixin all-colors-vars() {
+    @for $i from 1 through list.length($color-list) {
+        --avatar-color-circle-#{$i}: #{ map.get(list.nth($color-list, $i), circle) };
+        --avatar-color-text-#{$i}: #{ map.get(list.nth($color-list, $i), text) };
+    }
+}
 
 .avatar-image {
     width: 3em;
@@ -32,11 +77,9 @@ div.avatar-image {
     }
 }
 
-svg.avatar-image > circle {
-    fill: $circle-fill;
-    stroke: $border-color;
+@include random-fill-rule('svg.avatar-image > circle', circle, $border-color) {
     stroke-width: 2px;
-}
+};
 
 .avatar {
     @extend .avatar-image;
@@ -46,8 +89,7 @@ svg.avatar-image > circle {
     align-items: center;
 }
 
-.avatar-name-initials {
-    color: $circle-text;
+@include random-fill-rule('.avatar-name-initials', text) {
     font-family: GTAmericaUltraLight;
     font-size: 36px;
     font-style: normal;
@@ -56,5 +98,6 @@ svg.avatar-image > circle {
 
     position: absolute;
     top: calc(48px/2 - 24px/2);
-    left: calc(48px/2 - var(--first-initial-width)/2);
+    left: calc(1px + 48px/2 - var(--first-initial-width)/2);
+    padding: 2px;
 }
