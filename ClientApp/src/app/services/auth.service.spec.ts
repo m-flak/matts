@@ -121,6 +121,7 @@ describe('AuthService', () => {
       expect(c_user?.userName).toEqual(user.userName);
       expect(c_user?.password).toEqual('');
       expect(c_user?.role).toEqual(user.role);
+      expect(c_user?.name).toEqual('John Doe'); // This is in the testing JWT at the top of the file
       done();
     });
 

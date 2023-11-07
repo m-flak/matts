@@ -10,3 +10,7 @@
   font-family: GTAmericaRegular;
   src: url(assets/GT-America-Condensed-Regular-Trial.otf) format('opentype');
 }
+@font-face {
+  font-family: GTAmericaUltraLight;
+  src: url(assets/GT-America-Condensed-Ultra-Light-Trial.otf) format('opentype');
+}

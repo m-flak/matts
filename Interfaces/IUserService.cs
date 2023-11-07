@@ -1,4 +1,4 @@
-/* matts
+﻿/* matts
  * "Matthew's ATS" - Portfolio Project
  * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
  * 
@@ -25,7 +25,11 @@ public interface IUserService
 
     public Task<string> GetUserApplicantId(User user);
 
+    public Task<Applicant> GetApplicantForUser(User user);
+
     public Task<string> GetUserEmployerId(User user);
+
+    public Task<Employer> GetEmployerForUser(User user);
 
     public Task<bool> RegisterNewUser(UserRegistration user);
 }

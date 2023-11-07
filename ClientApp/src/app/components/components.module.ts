@@ -18,6 +18,7 @@ import { SideMenuComponent } from '../components/side-menu/side-menu.component';
 import { RouterModule } from '@angular/router';
 import { ComponentTemplateDirective } from './directives';
 import { ViewListPanelComponent } from './view-list-panel/view-list-panel.component';
+import { AvatarComponent } from './avatar/avatar.component';
 
 @NgModule({
   declarations: [
@@ -32,7 +33,8 @@ import { ViewListPanelComponent } from './view-list-panel/view-list-panel.compon
     BrandingNoneDefaultDirective,
     SideMenuComponent,
     ComponentTemplateDirective,
-    ViewListPanelComponent
+    ViewListPanelComponent,
+    AvatarComponent
   ],
   imports: [
     CommonModule,
@@ -55,7 +57,8 @@ import { ViewListPanelComponent } from './view-list-panel/view-list-panel.compon
     BrandingNoneDefaultDirective,
     SideMenuComponent,
     ComponentTemplateDirective,
-    ViewListPanelComponent
+    ViewListPanelComponent,
+    AvatarComponent
   ],
 })
 export class ComponentsModule {

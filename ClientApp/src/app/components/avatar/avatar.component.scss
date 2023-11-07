@@ -1,0 +1,60 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
+@use '../../../theming.scss';
+
+$config: mat.get-color-config(theming.$theme);
+$primary-palette: map.get($config, 'primary');
+$border-color: mat.get-color-from-palette($primary-palette, darker-2);
+
+// TODO: Figure out how to randomize these like MS Teams does
+$circle-fill: #EEFFEB;
+$circle-text: #7CA888;
+
+.avatar-image {
+    width: 3em;
+    height: 3em;
+}
+
+img.avatar-image {
+    border: 2px solid $border-color;
+    border-radius: 50%;
+}
+
+div.avatar-image {
+    position: relative;
+
+    & > svg {
+        z-index: 50;
+    }
+
+    & > span {
+        z-index: 100;
+    }
+}
+
+svg.avatar-image > circle {
+    fill: $circle-fill;
+    stroke: $border-color;
+    stroke-width: 2px;
+}
+
+.avatar {
+    @extend .avatar-image;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.avatar-name-initials {
+    color: $circle-text;
+    font-family: GTAmericaUltraLight;
+    font-size: 36px;
+    font-style: normal;
+    font-weight: 200;
+    line-height: 24px;
+
+    position: absolute;
+    top: calc(48px/2 - 24px/2);
+    left: calc(48px/2 - var(--first-initial-width)/2);
+}

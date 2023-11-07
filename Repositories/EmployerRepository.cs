@@ -36,6 +36,12 @@ public class EmployerRepository : IEmployerRepository
         _mapper = mapper;
     }
 
+    public async Task<Employer> GetEmployerByUuid(string uuid)
+    {
+        var emp = await _daoEmp.GetByUuid(uuid);
+        return _mapper.Map<Employer>(emp);
+    }
+
     public async Task<bool> CreateOrRemoveInterviewingWith(bool remove, string? interviewerUuid, string intervieweeUuid)
     {
         if (interviewerUuid == null && !remove)

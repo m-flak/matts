@@ -115,11 +115,15 @@ public class AuthController : ControllerBase
 
         if (user.Role == UserRoleConstants.USER_ROLE_APPLICANT)
         {
-            claims.Add(new Claim("applicantId", await _userService.GetUserApplicantId(user)));
+            var applicant = await _userService.GetApplicantForUser(user);
+            claims.Add(new Claim("applicantId", applicant.Uuid!));
+            claims.Add(new Claim(JwtRegisteredClaimNames.Name, applicant.Name!));
         }
         else if (user.Role == UserRoleConstants.USER_ROLE_EMPLOYER)
         {
-            claims.Add(new Claim("employerId", await _userService.GetUserEmployerId(user)));
+            var employer = await _userService.GetEmployerForUser(user);
+            claims.Add(new Claim("employerId", employer.Uuid!));
+            claims.Add(new Claim(JwtRegisteredClaimNames.Name, employer.Name!));
         }
 
         var tokenDescriptor = new SecurityTokenDescriptor

@@ -26,6 +26,7 @@ import { CookieService } from 'ngx-cookie-service';
 import makeWebSocketObservable, { GetWebSocketResponses } from 'rxjs-websockets';
 
 export interface CurrentUser extends User {
+  name: string | null;
   applicantId: string | null;
   employerId: string | null;
 }
@@ -56,6 +57,7 @@ export class AuthService {
   private _populateCurrentUser() {
     const decodedToken: any = this.jwtHelper.decodeToken();
     let name: string | null = null;
+    let userName: string | null = null;
     let role: string | null = null;
     let applicantId: string | null = null;
     let employerId: string | null = null;
@@ -64,7 +66,10 @@ export class AuthService {
       role = decodedToken.role as string;
     }
     if (decodedToken !== null && decodedToken.hasOwnProperty('sub')) {
-      name = decodedToken.sub as string;
+      userName = decodedToken.sub as string;
+    }
+    if (decodedToken !== null && decodedToken.hasOwnProperty('name')) {
+      name = decodedToken.name as string;
     }
     if (decodedToken !== null && decodedToken.hasOwnProperty('applicantId')) {
       applicantId = decodedToken.applicantId as string;
@@ -73,9 +78,10 @@ export class AuthService {
       employerId = decodedToken.employerId as string;
     }
 
-    if (name !== null && role !== null) {
+    if (userName !== null && role !== null) {
       this.currentUser = {
-        userName: name,
+        name: name,
+        userName: userName,
         password: '',
         role: role,
         applicantId: applicantId,
