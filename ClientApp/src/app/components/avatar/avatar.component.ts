@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **/
 import { AfterViewInit, Component, ElementRef, HostBinding, Input, OnInit, ViewChild } from '@angular/core';
+import random from 'lodash.random';
 
 @Component({
   selector: 'cmp-avatar',
@@ -34,10 +35,19 @@ export class AvatarComponent implements OnInit, AfterViewInit {
 
   @Input()
   avatarName = '';
+
+  @Input()
+  randomizeColor = false;
+
+  @Input()
+  colorIndex = 0; // scss index starts at 1
   
   constructor() { }
 
   ngOnInit(): void {
+    if (this.randomizeColor) {
+      this.randomizeColors();
+    }
   }
 
   ngAfterViewInit(): void {
@@ -47,5 +57,31 @@ export class AvatarComponent implements OnInit, AfterViewInit {
         this.firstInitialWidth = window.getComputedStyle(this.firstInitialText!.nativeElement)?.getPropertyValue('width');
       });
     }
+  }
+
+  randomizeColors(): void {
+    this.colorIndex = random(1, 8, false);
+  }
+
+  _createOverrideCircleFill(): string | null {
+    if (this.colorIndex < 1 && !this.randomizeColor) {
+      return null;                           // neither index or 2nd pass randomization enabled. Use defaults.
+    }
+    else if (this.colorIndex < 1 && this.randomizeColor) {
+      this.randomizeColors();                // 2nd pass randomization
+    }
+
+    return `var(--avatar-color-circle-${this.colorIndex}) !important`;
+  }
+
+  _createOverrideTextFill(): string | null {
+    if (this.colorIndex < 1 && !this.randomizeColor) {
+      return null;                           // neither index or 2nd pass randomization enabled. Use defaults.
+    }
+    else if (this.colorIndex < 1 && this.randomizeColor) {
+      this.randomizeColors();                // 2nd pass randomization
+    }
+
+    return `var(--avatar-color-text-${this.colorIndex}) !important`;
   }
 }

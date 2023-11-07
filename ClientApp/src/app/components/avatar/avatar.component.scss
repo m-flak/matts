@@ -83,6 +83,7 @@ div.avatar-image {
 
 .avatar {
     @extend .avatar-image;
+    @include all-colors-vars();
 
     display: flex;
     justify-content: center;
