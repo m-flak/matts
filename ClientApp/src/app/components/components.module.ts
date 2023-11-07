@@ -19,6 +19,7 @@ import { RouterModule } from '@angular/router';
 import { ComponentTemplateDirective } from './directives';
 import { ViewListPanelComponent } from './view-list-panel/view-list-panel.component';
 import { AvatarComponent } from './avatar/avatar.component';
+import { SessionMenuComponent } from './session-menu/session-menu.component';
 
 @NgModule({
   declarations: [
@@ -34,7 +35,8 @@ import { AvatarComponent } from './avatar/avatar.component';
     SideMenuComponent,
     ComponentTemplateDirective,
     ViewListPanelComponent,
-    AvatarComponent
+    AvatarComponent,
+    SessionMenuComponent
   ],
   imports: [
     CommonModule,
@@ -58,7 +60,8 @@ import { AvatarComponent } from './avatar/avatar.component';
     SideMenuComponent,
     ComponentTemplateDirective,
     ViewListPanelComponent,
-    AvatarComponent
+    AvatarComponent,
+    SessionMenuComponent
   ],
 })
 export class ComponentsModule {

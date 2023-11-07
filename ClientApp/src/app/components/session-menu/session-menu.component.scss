@@ -1,0 +1,55 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
+@use '../../../theming.scss';
+
+// Bootstrap
+@import "../../../../node_modules/bootstrap/scss/functions"; //required
+@import "../../../../node_modules/bootstrap/scss/variables"; //required
+@import "../../../../node_modules/bootstrap/scss/mixins"; //required
+@import "../../../../node_modules/bootstrap/scss/containers"; //what we want
+
+$config: mat.get-color-config(theming.$theme);
+$primary-palette: map.get($config, 'primary');
+$hover-color: mat.get-color-from-palette($primary-palette, lighter);
+$text-color: #7A7A7A;
+$expand-color-fill1: #D9D9D9;
+$expand-color-fill2: $text-color;
+
+.session-menu-container {
+    cursor: pointer;
+    display: flex;
+    //height: 50px;
+    padding: 4px 16px;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+
+    border: 1px solid theming.$light-bg-borderline;
+
+    &:hover {
+        background-color: $hover-color;
+    }
+}
+
+.user-name-text {
+    color: $text-color;
+    font-family: GTAmericaRegular;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 24px;
+    display: none;
+}
+@include media-breakpoint-up(sm) {
+    .user-name-text {
+        display: block;
+    }
+}
+
+svg.expand-menu rect {
+    fill: $expand-color-fill1;
+}
+
+svg.expand-menu path {
+    fill: $expand-color-fill2;
+}

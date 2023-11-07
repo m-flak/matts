@@ -5,7 +5,7 @@
         <a class="navbar-brand" branding-none-default [routerLink]="['/']">Matthew's ATS</a>
         <img class="navbar-brand" branding-with-brand [routerLink]="['/']" title="Powered by Matthew's ATS" />
       </cmp-branding-container>
-      <button
+      <!-- <button
         class="navbar-toggler"
         type="button"
         data-toggle="collapse"
@@ -33,6 +33,12 @@
             >
           </li>
         </ul>
+      </div> -->
+      <div
+        class="d-sm-inline-flex justify-content-end"
+        [ngClass]="{ 'nav-items__hide': hideNavItems }"
+      >
+        <cmp-session-menu [userFullName]="homeUser"></cmp-session-menu>
       </div>
     </div>
   </nav>
