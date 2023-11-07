@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { SessionMenuComponent } from './session-menu.component';
 import { ComponentsModule } from '../components.module';
+import { MatMenuModule } from '@angular/material/menu';
 
 describe('SessionMenuComponent', () => {
   let component: SessionMenuComponent;
@@ -9,7 +10,7 @@ describe('SessionMenuComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ ComponentsModule ],
+      imports: [ ComponentsModule, MatMenuModule ],
       declarations: [ SessionMenuComponent ]
     })
     .compileComponents();

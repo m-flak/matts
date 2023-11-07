@@ -1,4 +1,4 @@
-<div class="session-menu-container">
+<div class="session-menu-container" [matMenuTriggerFor]="menu" aria-label="Session Menu">
     <cmp-avatar
         [avatarName]="userFullName"
         [avatarImage]="userProfilePic"
@@ -14,3 +14,9 @@
         </g>
     </svg>
 </div>
+<mat-menu #menu="matMenu">
+    <button mat-menu-item (click)="clickLogout.emit()">
+        <div class="session-menu-width"></div>
+        <span>Log Out</span>
+    </button>
+</mat-menu>

@@ -38,7 +38,11 @@
         class="d-sm-inline-flex justify-content-end"
         [ngClass]="{ 'nav-items__hide': hideNavItems }"
       >
-        <cmp-session-menu [userFullName]="homeUser"></cmp-session-menu>
+        <cmp-session-menu 
+          [userFullName]="homeUser"
+          (clickLogout)="performLogout()"
+        >
+        </cmp-session-menu>
       </div>
     </div>
   </nav>

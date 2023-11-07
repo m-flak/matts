@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatListModule } from '@angular/material/list';
+import { MatMenuModule } from '@angular/material/menu';
 import { ApplicantsPickerComponent } from './applicants-picker/applicants-picker.component';
 import { ApplicantComponent } from './applicants-picker/applicant/applicant.component';
 import { JobListComponent } from './job-list/job-list.component';
@@ -46,6 +47,7 @@ import { SessionMenuComponent } from './session-menu/session-menu.component';
     NgbToastModule,
     NgbNavModule,
     MatButtonModule,
+    MatMenuModule,
     RouterModule,
   ],
   exports: [

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 @Component({
   selector: 'cmp-session-menu',
@@ -11,6 +11,9 @@ export class SessionMenuComponent implements OnInit {
 
   @Input()
   userProfilePic = '';
+
+  @Output()
+  clickLogout: EventEmitter<void> = new EventEmitter();
 
   constructor() { }
 

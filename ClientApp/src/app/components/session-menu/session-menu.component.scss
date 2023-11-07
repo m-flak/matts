@@ -53,3 +53,21 @@ svg.expand-menu rect {
 svg.expand-menu path {
     fill: $expand-color-fill2;
 }
+
+.session-menu-width {
+    width: 84px !important;
+}
+@include media-breakpoint-up(sm) {
+    .session-menu-width {
+        width: 158px !important;
+    }
+}
+
+button.mat-menu-item {
+    & > span {
+        float: right;
+    }
+    &:hover {
+        background-color: $hover-color;
+    }
+}
