@@ -7,7 +7,26 @@
 
 $config: mat.get-color-config(theming.$theme);
 $primary-palette: map.get($config, 'primary');
+$accent-palette: map.get($config, 'accent');
 $hover-color: mat.get-color-from-palette($primary-palette, lighter);
+$title-bg-color: mat.get-color-from-palette($primary-palette, darker-3-t25);
+$item-side-deco-color: mat.get-color-from-palette($accent-palette, main);
+$list-gap: 0.5rem;
+$item-bord-sz: 1px;
+$item-padding-sz: 0.2rem;
+$item-top-margin: 2rem;
+$item-line-sz: mat.line-height(theming.$typography, 'body-1');
+$item-title-sz: 24px; // can't use typography config for this one...
+
+// Employer has 3 rows, while applicant has two.
+// Want to calculate properly so the list looks okay
+@function margin_calc($num-rows) {
+  @if $num-rows == 3 {
+    @return calc($item-top-margin * 0.167); // 1/6
+  } @else {
+    @return calc($item-top-margin * 0.67); // 2/3
+  }
+}
 
 matListItemTitle {
   font-weight: bold;
@@ -22,7 +41,7 @@ matListItemTitle {
 }
 
 .job-list-item {
-  margin-top: 2rem;
+  margin-top: $item-top-margin;
 
   div {
     margin-left: 0.5rem;
@@ -30,6 +49,7 @@ matListItemTitle {
     flex-direction: column;
 
     span.job-list-item-title {
+      background-color: $title-bg-color;
       font-weight: bold;
       font-family: GTAmericaBlack !important;
       text-transform: uppercase;
@@ -42,14 +62,52 @@ matListItemTitle {
   }
 }
 
+mat-list {
+  border: 1px solid theming.$light-bg-borderline;
+
+  background: theming.$light-bg-shaded;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: $list-gap;
+
+  height: calc(
+    var(--num-job-list-items) *
+      (
+        margin_calc(var(--num-job-list-item-rows)) + $item-title-sz +
+          calc(var(--num-job-list-item-rows) * $item-line-sz) + $item-bord-sz + $item-padding-sz
+      )
+  );
+}
+
 mat-list-item {
-  &:hover {
+  &:hover,
+  & div:hover {
     background-color: $hover-color;
   }
   &:hover,
   span:hover {
     cursor: pointer;
   }
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+
+  background-color: theming.$light-bg-bright;
+  & div {
+    border: $item-bord-sz solid $item-side-deco-color !important;
+    background-color: #fcfbf7;
+    width: 100%;
+    padding: $item-padding-sz;
+  }
+
+  border-top: 1px solid $item-side-deco-color !important;
+  border-bottom: 1px solid $item-side-deco-color !important;
+  border-right: 1rem solid $item-side-deco-color !important;
+  border-left: 1rem solid $item-side-deco-color !important;
 }
 
 .applied-to-checkmark {

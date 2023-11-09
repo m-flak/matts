@@ -1,0 +1,32 @@
+<div class="side-menu mat-app-background" [class.expanded]="expanded" [class.collapsed]="!expanded">
+  <section class="expand-collapse">
+    <div class="icon-container collapse" (click)="collapseExpand()">
+      <span>
+        <img src="assets/sm-collapse.svg" alt="Collapse" title="Collapse Menu" />
+      </span>
+    </div>
+    <div class="icon-container expand" (click)="collapseExpand()">
+      <span>
+        <img src="assets/sm-expand.svg" alt="Expand" title="Expand Menu" />
+      </span>
+    </div>
+  </section>
+  <section *ngFor="let section of _menuSections; index as i">
+    <div *ngFor="let item of section.items; index as j" (click)="setActiveMenuItem(i, j)" [routerLink]="[item.route]">
+      <div [class.active]="isActiveMenuItem(i, j)" class="active-item"></div>
+      <div class="section-text-container">
+        <span class="menu-text">{{ item.text }}</span>
+      </div>
+      <div class="icon-container">
+        <span>
+          <img
+            [ngClass]="_createIconClassName(i,j)"
+            [attr.src]="item.image"
+            [attr.alt]="item.imageHint"
+            [attr.title]="item.imageHint"
+          />
+        </span>
+      </div>
+    </div>
+  </section>
+</div>

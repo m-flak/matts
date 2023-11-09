@@ -21,6 +21,7 @@ namespace matts.Interfaces;
 
 public interface IEmployerRepository
 {
+    public Task<Employer> GetEmployerByUuid(string uuid);
     public Task<bool> CreateOrRemoveInterviewingWith(bool remove, string? interviewerUuid, string intervieweeUuid);
     public Task<Employer> GetEmployerInterviewingWith(string applicantInterviewingWith);
 }

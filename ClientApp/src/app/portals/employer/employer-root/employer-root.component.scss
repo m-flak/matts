@@ -1,0 +1,16 @@
+.employer-root {
+  display: flex;
+  width: 100%;
+}
+
+app-side-menu {
+  flex-shrink: 0;
+  max-width: 15.6875em;
+}
+
+// FIXME / TODO: Remove once there's a cohesive set of icons
+::ng-deep .side-menu__icon-s1-i0,
+::ng-deep .side-menu__icon-s1-i1 {
+  width: 1.5em !important;
+  height: 1.5em !important;
+}

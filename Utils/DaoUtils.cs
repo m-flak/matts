@@ -29,7 +29,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Reflection;
 
-
 internal sealed class DaoUtils
 {
     internal static T MapRowWithRelationships<T>(IReadOnlyDictionary<string, object> row, string tKey, string relationship, string? optionalRelationship, string relPrefix, string? optRelPrefix)
@@ -81,12 +80,11 @@ internal sealed class DaoUtils
             rowData = row[tKey].As<INode>().Properties;
         }
 
-
         TypeAdapterConfig<IReadOnlyDictionary<string, object>, T>.NewConfig()
                         .NameMatchingStrategy(NameMatchingStrategy.FromCamelCase)
                         .Compile();
 
-        return TypeAdapter.Adapt<IReadOnlyDictionary<string, object>, T>(rowData);
+        return rowData.Adapt<IReadOnlyDictionary<string, object>, T>();
     }
 
     internal static T MapSimpleRow<T>(INode rowNode)
@@ -95,7 +93,7 @@ internal sealed class DaoUtils
             .NameMatchingStrategy(NameMatchingStrategy.FromCamelCase)
             .Compile();
 
-        T result = TypeAdapter.Adapt<IReadOnlyDictionary<string, object>, T>(rowNode.Properties);
+        T result = rowNode.Properties.Adapt<IReadOnlyDictionary<string, object>, T>();
         return result;
     }
 
@@ -112,22 +110,21 @@ internal sealed class DaoUtils
 
             if (typeof(string).IsEquivalentTo(type))
             {
-                Regex trailingSlashes = new(@"(?<=.+)/+");
-                Regex quotes = new(@"'");
+                Regex trailingSlashes = new("(?<=.+)/+");
+                Regex quotes = new("'");
                 string cleanValue = trailingSlashes.Replace( ((string?) value ?? ""), "");
                 cleanValue = quotes.Replace(cleanValue, quote => quote.Value.Insert(0, "\\"));
 
-                builder.Append($"{prefix}.{keys[i]} = '{cleanValue}'");
+                builder.Append(prefix).Append('.').Append(keys[i]).Append(" = '").Append(cleanValue).Append('\'');
             }
             else if (typeof(bool).IsEquivalentTo(type))
             {
-                builder.Append($"{prefix}.{keys[i]} = {value?.ToString()?.ToLower()}");
+                builder.Append(prefix).Append('.').Append(keys[i]).Append(" = ").Append(value?.ToString()?.ToLower());
             }
             else
             {
-                builder.Append($"{prefix}.{keys[i]} = {value}");
+                builder.Append(prefix).Append('.').Append(keys[i]).Append(" = ").Append(value);
             }
-
 
             if (i + 1 != keys.Count)
             {
@@ -230,7 +227,7 @@ internal sealed class DaoUtils
         builder.Append("{ ");
         for (int i = 0; i < keys.Count; ++i)
         {
-            builder.Append($"{keys[i]}: ${keys[i]}");
+            builder.Append(keys[i]).Append(": $").Append(keys[i]);
 
             if (i + 1 != keys.Count)
             {
@@ -249,7 +246,7 @@ internal sealed class DaoUtils
 
         for (int i = 0; i < keys.Count; ++i)
         {
-            builder.Append($"SET {prefix}.{keys[i]} = ${keys[i]} ");
+            builder.Append("SET ").Append(prefix).Append('.').Append(keys[i]).Append(" = $").Append(keys[i]).Append(' ');
         }
 
         return builder.ToString();

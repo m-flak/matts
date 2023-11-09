@@ -20,11 +20,13 @@ import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class HttpXsrfInterceptor implements HttpInterceptor {
-  constructor(private tokenExtractor: HttpXsrfTokenExtractor, @Inject('BASE_URL') private baseUrl: string) {
-  }
+  constructor(
+    private tokenExtractor: HttpXsrfTokenExtractor,
+    @Inject('BASE_URL') private baseUrl: string,
+  ) {}
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const headerName = 'X-XSRF-TOKEN';
     let token = this.tokenExtractor.getToken() as string;

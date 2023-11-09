@@ -1,0 +1,9 @@
+<div class="avatar">
+    <img *ngIf="avatarImage !== ''" class="avatar-image" [attr.src]="avatarImage" alt="Avatar" />
+    <div *ngIf="avatarImage === ''" class="avatar-image">
+        <svg class="avatar-image" width="50" height="50" viewBox="0 0 50 50" fill="none">
+            <circle [style.fill]="_createOverrideCircleFill()" cx="25" cy="25" r="24.5" />
+        </svg>
+        <span #firstInitial [style.color]="_createOverrideTextFill()" class="avatar-name-initials">{{ avatarName | titlecase | slice:0:1 }}</span>
+    </div>
+</div>

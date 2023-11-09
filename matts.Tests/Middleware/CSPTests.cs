@@ -44,4 +44,12 @@ public class CSPTests
         string cspString = jangoFett.ToString();
         Assert.DoesNotContain(CSP.GetUrlCasing("BaseUri"), cspString);
     }
+
+    [Fact]
+    public void CSP_AddsKebabKeys()
+    {
+        CSP jangoFett = CSP.DefaultPolicy.Clone();
+        jangoFett.Add("navigate-to", "kamino");
+        Assert.Equal("kamino", jangoFett.NavigateTo);
+    }
 }

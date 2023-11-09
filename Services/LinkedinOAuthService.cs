@@ -101,6 +101,11 @@ public class LinkedinOAuthService : ILinkedinOAuthService
         if (disposing)
         {
             Cancellation.Cancel();
+            foreach (var t in Threads)
+            {
+                _logger.LogInformation("Helper Threads: Shutting down thread {id}...", t.ManagedThreadId);
+            }
+
             _httpClient.Dispose();
         }
 
@@ -173,7 +178,7 @@ public class LinkedinOAuthService : ILinkedinOAuthService
         Data.AddOrUpdate(clientId, AddValueFactory, UpdateValueFactory, profileInformation);
         Pending.TryRemove(clientId, out var _);
 
-        _logger.LogInformation("LinkedIn OAuth Flow Completed for: '{Client}'.", clientId);
+        _logger.LogInformation("LinkedIn OAuth Flow Completed for: '{Client}'.", TruncateClientId(clientId));
     }
 
 // dedicated thread
@@ -338,7 +343,7 @@ public class LinkedinOAuthService : ILinkedinOAuthService
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error while saving and mapping the final profile information for client {ID}", TruncateClientId(client));
+                _logger.LogError(ex, "Helper Threads: Error while saving and mapping the final profile information for client {ID}", TruncateClientId(client));
                 HandleFailure(client, ex);
             }
         }

@@ -18,23 +18,28 @@
 
 import { RouterModule, Routes } from '@angular/router';
 import { UserRoleConstants } from 'src/app/constants';
-import { HomeComponent, HomeComponentResolver } from './home/home.component';
-import { JobPageComponent } from './job-page/job-page.component';
 import { NgModule } from '@angular/core';
 import { AuthGuard } from 'src/app/guards/auth.guard';
 import { HomeGuard } from 'src/app/guards/home.guard';
+import { EmployerRootComponent } from './employer-root/employer-root.component';
 
 export const EMPLOYER_ROUTES: Routes = [
   {
     path: '',
-    component: HomeComponent,
-    resolve: { jobList: HomeComponentResolver },
+    component: EmployerRootComponent,
     data: { role: UserRoleConstants.USER_ROLE_EMPLOYER },
     canActivate: [AuthGuard, HomeGuard],
     children: [
       {
-        path: 'viewJob/:id',
-        component: JobPageComponent,
+        path: '',
+        pathMatch: 'full',
+        loadChildren: () => import('./dashboard/employer-dashboard.module').then(m => m.EmployerDashboardModule),
+        canMatch: [AuthGuard],
+      },
+      {
+        path: 'jobs',
+        loadChildren: () => import('./jobs/employer-jobs.module').then(m => m.EmployerJobsModule),
+        canMatch: [AuthGuard],
       },
     ],
   },

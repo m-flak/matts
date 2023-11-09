@@ -1,0 +1,6 @@
+@use '../../../../styles/home-common.scss' as home;
+
+@include home.home-container;
+@include home.cards;
+@include home.under-toolbar;
+@include home.detail-card-msg;

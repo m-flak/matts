@@ -17,7 +17,6 @@
 **/
 namespace matts.Configuration;
 
-
 public sealed class Neo4JConfiguration
 {
     public Uri? ConnectionURL { get; set; }

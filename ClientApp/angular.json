@@ -24,7 +24,7 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.app.json",
             "allowedCommonJsDependencies": [
-              "oidc-client"
+              "lodash.random"
             ],
             "assets": [
               "src/assets"
@@ -34,6 +34,11 @@
               "src/styles.scss",
               "src/fonts.css"
             ],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "node_modules/sass-rando/"
+              ]
+            },
             "scripts": [
             ]
           },
@@ -57,7 +62,12 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "optimization": {
+                "styles": {
+                  "inlineCritical": false
+                }
+              }
             },
             "development": {
               "buildOptimizer": false,
@@ -103,6 +113,11 @@
             "styles": [
               "src/styles.scss"
             ],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "node_modules/sass-rando/"
+              ]
+            },
             "scripts": [
               "node_modules/object-hash/dist/object_hash.js"
             ]

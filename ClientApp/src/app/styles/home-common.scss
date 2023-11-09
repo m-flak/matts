@@ -1,22 +1,30 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
 @use 'layouts.scss';
+@use '../../theming.scss';
+
+$config: mat.get-color-config(theming.$theme);
+$accent-palette: map.get($config, 'accent');
+$card-border-color: mat.get-color-from-palette($accent-palette, main);
 
 @mixin home-container {
   .home-container {
     @include layouts.flex(false);
 
-    min-height: 100%;
-    height: 100%;
-    padding-bottom: 4em;
+    min-height: 98%;
+    height: 98%;
+    padding-bottom: 0.1em;
+    gap: 1em;
   }
 }
 
 @mixin cards {
   .positions-card,
   .details-card {
+    @include mat.elevation(0);
+    border-radius: unset;
+    border: 1px solid $card-border-color;
     min-width: 48%;
-  }
-  .positions-card + .details-card {
-    margin-left: 2rem;
   }
 
   .details-card mat-card-content {
@@ -35,4 +43,10 @@
     text-align: center;
     margin-top: 16%;
   }
+}
+
+@mixin card-appearance {
+  @include mat.elevation(0);
+  border-radius: unset;
+  border: 1px solid $card-border-color;
 }

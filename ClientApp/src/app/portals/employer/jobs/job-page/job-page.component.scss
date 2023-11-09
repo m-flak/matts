@@ -1,0 +1,38 @@
+@use '../../../../styles/text.scss';
+@use '../../../../styles/job-page-common.scss' as job;
+
+@include text.emphasis;
+@include text.italicized;
+@include text.thick-headings34;
+
+@include job.job-page-container;
+@include job.job-page-header;
+@include job.job-page-footer;
+@include job.job-desc-body;
+
+.calendar-container {
+  background-color: rgba(128, 128, 128, 0.1);
+  padding: 0.25rem;
+}
+
+.action-buttons {
+  margin-top: 2rem;
+  width: 100%;
+  flex-wrap: wrap;
+  flex-direction: row-reverse;
+
+  button {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+  }
+}
+
+.job-status {
+  padding: 0.33rem;
+
+  @include text.job-status-text;
+}
+
+.applicant-info-container {
+  display: grid;
+}

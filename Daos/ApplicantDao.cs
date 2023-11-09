@@ -29,7 +29,8 @@ namespace matts.Daos;
 
 public class ApplicantDao : DaoAbstractBase<ApplicantDb>
 {
-    public ApplicantDao(IDriver driver) : base(driver)
+    public ApplicantDao(IDriver driver)
+        : base(driver)
     {
     }
 
@@ -39,5 +40,4 @@ public class ApplicantDao : DaoAbstractBase<ApplicantDb>
         createWhatCopy.Uuid = System.Guid.NewGuid().ToString();
         return await this.CreateNewImpl(createWhatCopy);
     }
-
 }

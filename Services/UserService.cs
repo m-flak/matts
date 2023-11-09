@@ -1,4 +1,4 @@
-/* matts
+﻿/* matts
  * "Matthew's ATS" - Portfolio Project
  * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
  * 
@@ -29,14 +29,24 @@ public class UserService : IUserService
     private readonly IConfiguration _configuration;
     private readonly ILogger<UserService> _logger;
     private readonly IUserRepository _repository;
+    private readonly IApplicantRepository _appRepository;
+    private readonly IEmployerRepository _empRepository;
 
     private bool _useDummyData;
 
-    public UserService(IConfiguration configuration, ILogger<UserService> logger, IUserRepository repository)
+    public UserService(
+        IConfiguration configuration,
+        ILogger<UserService> logger,
+        IUserRepository repository,
+        IApplicantRepository appRepository,
+        IEmployerRepository empRepository
+        )
     {
         _configuration = configuration;
         _logger = logger;
         _repository = repository;
+        _appRepository = appRepository;
+        _empRepository = empRepository;
 
         ConfigureService();
     }
@@ -70,6 +80,23 @@ public class UserService : IUserService
         return await _repository.GetApplicantIdForUserByUserName(user.UserName!);
     }
 
+    public async Task<Applicant> GetApplicantForUser(User user)
+    {
+        if (_useDummyData)
+        {
+            return new Applicant()
+            {
+                Uuid = System.Guid.NewGuid().ToString(),
+                Name = "Dummy Datason",
+                PhoneNumber = "1234567890",
+                Email = "dummy.datason@johndoecorp.com"
+            };
+        }
+
+        string uuid = await GetUserApplicantId(user);
+        return await _appRepository.GetApplicantByUuid(uuid);
+    }
+
     public async Task<string> GetUserEmployerId(User user)
     {
         if (_useDummyData)
@@ -78,6 +105,24 @@ public class UserService : IUserService
         }
 
         return await _repository.GetEmployerIdForUserByUserName(user.UserName!);
+    }
+
+    public async Task<Employer> GetEmployerForUser(User user)
+    {
+        if (_useDummyData)
+        {
+            return new Employer()
+            {
+                Uuid = System.Guid.NewGuid().ToString(),
+                CompanyName = "John Doe Corporation",
+                Name = "Dummy Datason",
+                PhoneNumber = "1234567890",
+                Email = "dummy.datason@johndoecorp.com",
+            };
+        }
+
+        string uuid = await GetUserEmployerId(user);
+        return await _empRepository.GetEmployerByUuid(uuid);
     }
 
     public async Task<bool> RegisterNewUser(UserRegistration user)

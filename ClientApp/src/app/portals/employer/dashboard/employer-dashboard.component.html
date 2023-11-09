@@ -1,0 +1,82 @@
+<div class="dashboard-container under-toolbar">
+  <mat-card [ngClass]="'tasks-card'" appearance="outlined">
+    <mat-card-header
+      ><mat-card-title><h1>My Tasks:</h1></mat-card-title></mat-card-header
+    >
+    <mat-card-content>
+      <cmp-view-list-panel
+        itemsName="Tasks"
+        providerName="tasks"
+      >
+        <ng-template let-task cmpTemplate="item">
+          <div>
+            <p> {{ task.name }}</p>
+            <p> {{ task.description }}</p>
+          </div>
+        </ng-template>
+        <ng-template let-task cmpTemplate="details">
+          <div>
+            <h4> {{ task.name }}</h4>
+            <p> {{ task.description }}</p>
+          </div>
+        </ng-template>
+      </cmp-view-list-panel>
+    </mat-card-content>
+  </mat-card>
+  <mat-card [ngClass]="'messages-card'" appearance="outlined">
+    <mat-card-header
+      ><mat-card-title><h1>My Messages:</h1></mat-card-title></mat-card-header
+    >
+    <mat-card-content>
+      <cmp-view-list-panel
+        itemsName="Messages"
+        detailNameField="from"
+        providerName="messages"
+      >
+        <ng-template let-message cmpTemplate="item">
+          <div>
+            <p> {{ message.from }}</p>
+            <p> {{ message.body }}</p>
+          </div>
+        </ng-template>
+        <ng-template let-message cmpTemplate="details">
+          <div>
+            <h4> {{ message.from }}</h4>
+            <p> {{ message.body }}</p>
+          </div>
+        </ng-template>
+      </cmp-view-list-panel>
+    </mat-card-content>
+  </mat-card>
+  <mat-card [ngClass]="'interviews-card'" appearance="outlined">
+    <mat-card-header
+      ><mat-card-title><h1>Interviews:</h1></mat-card-title></mat-card-header
+    >
+    <mat-card-content>
+      <table mat-table class="mat-elevation-z0">
+        <ng-container matColumnDef="applicant">
+          <th mat-header-cell *matHeaderCellDef> Applicant </th>
+          <td mat-cell *matCellDef="let element"> {{element.applicant}} </td>
+        </ng-container>
+      
+        <ng-container matColumnDef="interviewer">
+          <th mat-header-cell *matHeaderCellDef> Interviewer </th>
+          <td mat-cell *matCellDef="let element"> {{element.interviewer}} </td>
+        </ng-container>
+      
+        <ng-container matColumnDef="position">
+          <th mat-header-cell *matHeaderCellDef> Position </th>
+          <td mat-cell *matCellDef="let element"> {{element.position}} </td>
+        </ng-container>
+      
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef> Actions </th>
+          <td mat-cell *matCellDef="let element"> ACTION BUTTONS </td>
+        </ng-container>
+      
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </mat-card-content>
+  </mat-card>
+</div>

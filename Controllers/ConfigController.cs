@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 using matts.Configuration;
+using matts.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -23,7 +24,7 @@ using Microsoft.Extensions.Options;
 namespace matts.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[VersionedApiRoute(1, "[controller]")]
 public class ConfigController : ControllerBase
 {
     private readonly IOptions<ClientAppConfiguration> _configuration;

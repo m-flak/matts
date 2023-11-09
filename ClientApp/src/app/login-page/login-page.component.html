@@ -7,9 +7,6 @@
   title="Loading..."
 ></div>
 <div class="container login-container login-bg pt-5">
-  <ngb-alert *ngIf="loginFailure" type="danger" [dismissible]="false">
-    <p>Invalid credentials. Unable to login.</p>
-  </ngb-alert>
   <ngb-alert *ngIf="registrationSuccessful" type="success" [dismissible]="false">
     <p>
       Registration Successful! You may now login with your account through
@@ -160,11 +157,8 @@
         <section *ngSwitchCase="REGISTRATION_TYPE_APPLICANT">
           <h3 class="registration-section-header">Applicants:</h3>
           <a mat-flat-button color="primary" (click)="setRegistrationMode(-1)">&#x21FD; Back</a>
-          <br>
-          <button 
-            class="linkedin-signup-button"
-            (click)="clickApplicantLinkedinButton()"
-          >
+          <br />
+          <button class="linkedin-signup-button" (click)="clickApplicantLinkedinButton()">
             <img src="assets/linkedin.svg" alt="IN" />
             <span>Sign Up with LinkedIn</span>
           </button>
@@ -245,3 +239,11 @@
     </mat-expansion-panel>
   </mat-accordion>
 </div>
+<footer class="copyright-footer p-3">
+  <div class="p-sm-1 p-md-2 p-lg-2">
+    <p>
+      &#169; 2023 Matthew Kehrer. Matthew's ATS is licensed under the GNU Affero General Public License (AGPLv3).
+      <a href="https://github.com/m-flak/matts">A copy of the source code may be found here.</a>
+    </p>
+  </div>
+</footer>

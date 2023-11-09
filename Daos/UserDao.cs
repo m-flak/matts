@@ -30,7 +30,8 @@ namespace matts.Daos;
 
 public class UserDao : DaoAbstractBase<User>
 {
-    public UserDao(IDriver driver) : base(driver)
+    public UserDao(IDriver driver)
+        : base(driver)
     {
     }
 

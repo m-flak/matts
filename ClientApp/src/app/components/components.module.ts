@@ -1,45 +1,69 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatListModule } from '@angular/material/list';
+import { MatMenuModule } from '@angular/material/menu';
 import { ApplicantsPickerComponent } from './applicants-picker/applicants-picker.component';
 import { ApplicantComponent } from './applicants-picker/applicant/applicant.component';
 import { JobListComponent } from './job-list/job-list.component';
 import { HttpClientModule } from '@angular/common/http';
 import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
-import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbNavModule, NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
 import { MatButtonModule } from '@angular/material/button';
-import { EmployerToolbarComponent } from '../components/employer-toolbar/employer-toolbar.component';
 import { ToastsContainerComponent } from './toasts-container/toasts-container.component';
 import { MatIconLinkDirective } from './mat-icon-link/mat-icon-link.directive';
 import { MonitoredMatButtonDirective } from './monitored-component/monitored-mat-button.directive';
 import { BrandingContainerComponent } from '../components/branding-container/branding-container.component';
 import { BrandingNoneDefaultDirective, BrandingWithBrandDirective } from './branding-container/branding.directives';
+import { SideMenuComponent } from '../components/side-menu/side-menu.component';
+import { RouterModule } from '@angular/router';
+import { ComponentTemplateDirective } from './directives';
+import { ViewListPanelComponent } from './view-list-panel/view-list-panel.component';
+import { AvatarComponent } from './avatar/avatar.component';
+import { SessionMenuComponent } from './session-menu/session-menu.component';
 
 @NgModule({
   declarations: [
     ApplicantsPickerComponent,
     ApplicantComponent,
     JobListComponent,
-    EmployerToolbarComponent,
     ToastsContainerComponent,
     MatIconLinkDirective,
     MonitoredMatButtonDirective,
     BrandingContainerComponent,
     BrandingWithBrandDirective,
     BrandingNoneDefaultDirective,
+    SideMenuComponent,
+    ComponentTemplateDirective,
+    ViewListPanelComponent,
+    AvatarComponent,
+    SessionMenuComponent
   ],
-  imports: [CommonModule, MatListModule, HttpClientModule, MatIconModule, NgbToastModule, MatButtonModule],
+  imports: [
+    CommonModule,
+    MatListModule,
+    HttpClientModule,
+    MatIconModule,
+    NgbToastModule,
+    NgbNavModule,
+    MatButtonModule,
+    MatMenuModule,
+    RouterModule,
+  ],
   exports: [
     ApplicantsPickerComponent,
     JobListComponent,
-    EmployerToolbarComponent,
     ToastsContainerComponent,
     MatIconLinkDirective,
     MonitoredMatButtonDirective,
     BrandingContainerComponent,
     BrandingWithBrandDirective,
     BrandingNoneDefaultDirective,
+    SideMenuComponent,
+    ComponentTemplateDirective,
+    ViewListPanelComponent,
+    AvatarComponent,
+    SessionMenuComponent
   ],
 })
 export class ComponentsModule {

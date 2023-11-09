@@ -27,7 +27,7 @@ import { lastValueFrom, take, tap } from 'rxjs';
 })
 export class ConfigService {
   private _config!: Configuration;
-  
+
   get config() {
     return this._config;
   }
@@ -46,7 +46,7 @@ export class ConfigService {
 
   async loadConfig(): Promise<any> {
     return lastValueFrom(
-      this.http.get<Configuration>(Location.joinWithSlash(this.baseUrl, '/config/')).pipe(
+      this.http.get<Configuration>(Location.joinWithSlash(this.baseUrl, '/api/v1/config/')).pipe(
         take(1),
         tap(c => (this._config = c)),
       ),

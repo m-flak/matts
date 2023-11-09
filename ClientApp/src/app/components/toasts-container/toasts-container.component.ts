@@ -33,6 +33,7 @@ import { ToastService } from '../../services/toast.service';
 			(hidden)="toastService.remove(toast)"
 			[attr.aria-live]="toast?.ariaLive ?? ariaLive"
 		>
+      <a style="cursor: pointer; float: right" (click)="toastService.remove(toast)">X</a>
 			<ng-template [ngIf]="isTemplate(toast)" [ngIfElse]="text">
 				<ng-template [ngTemplateOutlet]="toast.textOrTpl"></ng-template>
 			</ng-template>
@@ -43,7 +44,7 @@ import { ToastService } from '../../services/toast.service';
   host: {
     '[attr.aria-live]': 'ariaLive',
     class: 'toast-container end-0',
-    style: 'z-index: 1200',
+    style: 'z-index: 1200; top: 4.25em',
   },
 })
 export class ToastsContainerComponent {

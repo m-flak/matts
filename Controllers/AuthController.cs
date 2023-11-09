@@ -31,12 +31,14 @@ using matts.Constants;
 using matts.Models;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.InteropServices;
+using matts.Utils;
+using matts.Middleware.Filters;
 
 namespace matts.Controllers;
 
 [ApiController]
 [IgnoreAntiforgeryToken]
-[Route("[controller]")]
+[VersionedApiRoute(1, "[controller]")]
 public class AuthController : ControllerBase
 {
     private readonly IValidator<User> _validator;
@@ -114,11 +116,15 @@ public class AuthController : ControllerBase
 
         if (user.Role == UserRoleConstants.USER_ROLE_APPLICANT)
         {
-            claims.Add(new Claim("applicantId", await _userService.GetUserApplicantId(user)));
+            var applicant = await _userService.GetApplicantForUser(user);
+            claims.Add(new Claim("applicantId", applicant.Uuid!));
+            claims.Add(new Claim(JwtRegisteredClaimNames.Name, applicant.Name!));
         }
         else if (user.Role == UserRoleConstants.USER_ROLE_EMPLOYER)
         {
-            claims.Add(new Claim("employerId", await _userService.GetUserEmployerId(user)));
+            var employer = await _userService.GetEmployerForUser(user);
+            claims.Add(new Claim("employerId", employer.Uuid!));
+            claims.Add(new Claim(JwtRegisteredClaimNames.Name, employer.Name!));
         }
 
         var tokenDescriptor = new SecurityTokenDescriptor
@@ -161,6 +167,7 @@ public class AuthController : ControllerBase
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [LinkedinResultFilter("mode", "LGN")]
     [Route("linkedin/callback")]
     public IActionResult LinkedinCallback(
         [Required][FromQuery] string code,

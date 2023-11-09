@@ -1,0 +1,60 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
+@use '../../../theming.scss';
+
+$config: mat.get-color-config(theming.$theme);
+$accent-palette: map.get($config, 'accent');
+$primary-palette: map.get($config, 'primary');
+$foreground-palette: map.get($config, 'foreground');
+
+$hover-color: mat.get-color-from-palette($primary-palette, lighter);
+$accent-color: mat.get-color-from-palette($accent-palette, main);
+$accent-color-darker: mat.get-color-from-palette($accent-palette, darker);
+$active-tab-text-color: mat.get-color-from-palette($foreground-palette, base);
+$unfocused-tab-text-color: mat.get-color-from-palette($foreground-palette, disabled-text);
+
+.vlp-panel {
+    border: 1px solid theming.$light-bg-borderline;
+
+    background: theming.$light-bg-shaded;
+
+    overflow-y: scroll;
+}
+
+.vlp-tab {
+    line-height: 0.8;
+    font-weight: bold;
+    color: $active-tab-text-color;
+    border-top: 2px solid $accent-color-darker;
+
+    &.unfocused {
+        color: $unfocused-tab-text-color;
+        border-top: 2px solid $accent-color;
+    }
+
+    &:hover {
+        background-color: $hover-color;
+    }
+}
+
+ul {
+    list-style-type: none;
+    padding: 0 !important;
+}
+
+li {
+    cursor: pointer;
+    border-bottom: 1px solid theming.$light-bg-borderline;
+
+    &:hover {
+        background-color: $hover-color;
+    }
+
+    :host ::ng-deep & > * {
+        padding-left: 0.5rem;
+    }
+}
+
+:host ::ng-deep div.details > * {
+    padding-left: 0.5rem;
+}

@@ -1,4 +1,4 @@
-/* matts
+﻿/* matts
  * "Matthew's ATS" - Portfolio Project
  * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
  * 
@@ -106,9 +106,7 @@ public class ApplicantRepository : IApplicantRepository
             }
             return createdOrExisted;
         }
-        else
-        {
-            return await _daoApp.DeleteRelationshipBetween(createRelationship, applicant, null, typeof(EmployerDb));
-        }
+
+        return await _daoApp.DeleteRelationshipBetween(createRelationship, applicant, null, typeof(EmployerDb));
     }
 }

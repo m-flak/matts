@@ -1,0 +1,137 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
+@use '../../../theming.scss';
+
+$config: mat.get-color-config(theming.$theme);
+$primary-palette: map.get($config, 'primary');
+$border-color: mat.get-color-from-palette($primary-palette, darker-2);
+$hover-color: mat.get-color-from-palette($primary-palette, lighter);
+$section-bg-color: mat.get-color-from-palette($primary-palette, darker-3-t25);
+
+.expanded {
+  .expand {
+    display: none !important;
+  }
+}
+.collapsed {
+  .collapse {
+    display: none !important;
+  }
+
+  div.section-text-container {
+    display: none !important;
+  }
+}
+
+.expand {
+  position: relative;
+  right: 0.375em;
+}
+
+.side-menu {
+  border-right: 3px solid $border-color;
+  height: 100%;
+  max-width: 15.6875em;
+  min-width: 3.125em;
+  margin-right: 1em;
+}
+
+.icon-container {
+  display: flex;
+  width: 2.5em;
+  height: 2.5em;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+
+  & span {
+    width: 2.5em;
+    height: 2.5em;
+    flex-shrink: 0;
+    display: grid;
+
+    img {
+      place-self: center;
+      width: 2em;
+      height: 2em;
+    }
+  }
+}
+
+.menu-text {
+  text-align: right;
+  color: #7a7a7a;
+  font-size: 14pt;
+  font-family: GTAmericaRegular !important;
+  text-transform: uppercase;
+}
+
+.active-item {
+  margin: 0.25rem 0.25rem 0.25rem 0;
+  width: 8px;
+  height: 2em;
+
+  &.active {
+    width: 1px !important;
+    border: 4px #397367 solid;
+  }
+}
+
+div.section-text-container {
+  display: flex;
+  height: 2.5em;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1 0 0;
+
+  span {
+    min-width: 9.125em;
+  }
+}
+
+section {
+  &.expand-collapse {
+    background-color: theming.$light-bg-shaded-2;
+
+    display: flex;
+    width: 100%;
+    height: 2.5em;
+
+    justify-content: flex-end;
+    align-items: flex-start;
+    align-content: flex-start;
+    flex-wrap: wrap;
+
+    div.icon-container {
+      cursor: pointer;
+    }
+  }
+
+  &:not(.expand-collapse) {
+    background-color: $section-bg-color;
+    display: flex;
+    padding: 1.5em 0em;
+    flex-direction: column;
+    align-items: center;
+    gap: 1em;
+
+    border-top: 1px solid $border-color;
+
+    & > div {
+      &:hover {
+        background-color: $hover-color !important;
+      }
+
+      cursor: pointer;
+      background-color: theming.$light-background;
+      display: inline-flex;
+      width: 100%;
+      flex-shrink: 1;
+      flex-basis: min-content;
+    }
+  }
+
+  &:last-child {
+    border-bottom: 1px solid $border-color;
+  }
+}

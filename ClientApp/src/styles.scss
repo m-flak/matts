@@ -2,7 +2,7 @@
 @use '@angular/material' as mat;
 @use 'theming.scss';
 
-@include mat.core();
+@include mat.core(theming.$typography);
 
 $color-config: mat.get-color-config(theming.$theme);
 $primary-palette: map.get($color-config, 'primary');
@@ -60,6 +60,36 @@ body {
   overflow: visible;
 }
 
+app-root-home {
+  height: 100%;
+}
+app-root-home body,
+app-root body {
+  display: flex;
+  flex-direction: column;
+}
+main.app-root-home {
+  flex-grow: 1;
+  display: flex;
+  align-self: stretch;
+  height: auto;
+}
+app-login-page,
+app-home-applicant {
+  flex-grow: 1;
+}
+app-employer-root {
+  align-self: stretch;
+  flex-grow: 1;
+  height: 100%;
+  display: flex;
+}
+app-jobs-joblist,
+app-jobs-new-job-page,
+app-dashboard {
+  width: 100%;
+}
+
 footer.copyright-footer {
   position: relative;
   width: 100%;
@@ -82,7 +112,8 @@ h4,
   text-transform: uppercase !important;
 }
 
-button, a.mat-flat-button {
+button,
+a.mat-flat-button {
   font-family: GTAmericaMedium !important;
   text-transform: uppercase !important;
 

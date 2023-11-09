@@ -1,0 +1,21 @@
+<div class="home-container under-toolbar">
+  <mat-card [ngClass]="'positions-card'" appearance="outlined">
+    <mat-card-header
+      ><mat-card-title><h1>All Positions:</h1></mat-card-title></mat-card-header
+    >
+    <mat-card-content>
+      <cmp-job-list [jobs]="this.jobs" (selectedJob)="onSelectJob($event)"></cmp-job-list>
+    </mat-card-content>
+  </mat-card>
+  <mat-card [ngClass]="'details-card'" appearance="outlined">
+    <mat-card-content>
+      <div *ngIf="this.showDetailCardMsg" class="d-flex align-items-center justify-content-center">
+        <span class="detail-card-msg"
+          >You haven't selected a job yet. <br />
+          Choose an existing position or create a new one from the toolbar.</span
+        >
+      </div>
+      <router-outlet (activate)="initialActivate($event)" (deactivate)="deactivate($event)"></router-outlet>
+    </mat-card-content>
+  </mat-card>
+</div>

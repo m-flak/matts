@@ -35,7 +35,7 @@ export class BackendService {
   ) {}
 
   getAllJobs(): Observable<Job[]> {
-    const endpoint = '/jobs/getjobs';
+    const endpoint = '/api/v1/jobs/getjobs';
     return this.http.get(Location.joinWithSlash(this.baseUrl, endpoint)).pipe(
       catchError((e: HttpErrorResponse) => throwError(() => new Error(e?.error))),
       map((r: any) => r || []),
@@ -43,7 +43,7 @@ export class BackendService {
   }
 
   getAllAppliedJobs(applicantId: string): Observable<Job[]> {
-    const endpoint = '/jobs/getappliedjobs';
+    const endpoint = '/api/v1/jobs/getappliedjobs';
     return this.http
       .get(Location.joinWithSlash(this.baseUrl, endpoint), { params: new HttpParams().set('applicantId', applicantId) })
       .pipe(
@@ -53,7 +53,7 @@ export class BackendService {
   }
 
   getJobDetails(jobUuid: string): Observable<Job> {
-    const endpoint = `/jobs/jobdetails/${jobUuid}`;
+    const endpoint = `/api/v1/jobs/jobdetails/${jobUuid}`;
     return this.http.get(Location.joinWithSlash(this.baseUrl, endpoint)).pipe(
       catchError((e: HttpErrorResponse) => throwError(() => new Error(e?.error))),
       map((j: any) => j || {}),
@@ -61,7 +61,7 @@ export class BackendService {
   }
 
   applyToJob(applyToJob: ApplyToJob): Observable<HttpResponse<any>> {
-    const endpoint = `/jobs/applytojob`;
+    const endpoint = `/api/v1/jobs/applytojob`;
 
     const httpHeaders = new HttpHeaders({
       'Content-Type': 'application/json',
@@ -73,7 +73,7 @@ export class BackendService {
   }
 
   postNewJob(job: Job): Observable<HttpResponse<any>> {
-    const endpoint = `/jobs/postnewjob`;
+    const endpoint = `/api/v1/jobs/postnewjob`;
 
     const httpHeaders = new HttpHeaders({
       'Content-Type': 'application/json',
@@ -85,7 +85,7 @@ export class BackendService {
   }
 
   updateJob(job: Job): Observable<HttpResponse<any>> {
-    const endpoint = `/jobs/updatejob`;
+    const endpoint = `/api/v1/jobs/updatejob`;
 
     const httpHeaders = new HttpHeaders({
       'Content-Type': 'application/json',
@@ -97,7 +97,7 @@ export class BackendService {
   }
 
   rejectForJob(jobUuid: string, applicantUuid: string, isRejected: boolean): Observable<HttpResponse<any>> {
-    const endpoint = `/jobs/reject/${jobUuid}/${applicantUuid}`;
+    const endpoint = `/api/v1/jobs/reject/${jobUuid}/${applicantUuid}`;
 
     return this.http
       .post(Location.joinWithSlash(this.baseUrl, endpoint), null, {
@@ -108,7 +108,7 @@ export class BackendService {
   }
 
   downloadIcs(jobUuid: string, applicantUuid: string, interviewDate: Date): Observable<Blob> {
-    const endpoint = `/jobs/ics/${jobUuid}/${applicantUuid}`;
+    const endpoint = `/api/v1/jobs/ics/${jobUuid}/${applicantUuid}`;
     const params = new HttpParams({
       fromObject: {
         y: interviewDate.getFullYear(),

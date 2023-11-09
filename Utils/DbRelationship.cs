@@ -1,4 +1,4 @@
-/* matts
+﻿/* matts
  * "Matthew's ATS" - Portfolio Project
  * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
  * 
@@ -69,7 +69,8 @@ public class DbRelationship
         RightType = typeof(object);
     }
 
-    public DbRelationship(string name, Cardinality cardinality) : this(name, "", cardinality)
+    public DbRelationship(string name, Cardinality cardinality)
+        : this(name, "", cardinality)
     {
     }
 
@@ -106,10 +107,8 @@ public class DbRelationship
             {
                 return $"-[{Selector}:{Name} ]-";
             }
-            else
-            {
-                return $"-[{Selector}:{Name} ]->";
-            }
+
+            return $"-[{Selector}:{Name} ]->";
         }
 
         return $"[{Selector}:{Name} ]";
@@ -138,25 +137,25 @@ public class DbRelationship
 
             if (typeof(string).IsEquivalentTo(type))
             {
-                Regex trailingSlashes = new(@"(?<=.+)/+");
-                Regex quotes = new(@"'");
+                Regex trailingSlashes = new("(?<=.+)/+");
+                Regex quotes = new("'");
                 string cleanValue = trailingSlashes.Replace( ((string?) value ?? ""), "");
                 cleanValue = quotes.Replace(cleanValue, quote => quote.Value.Insert(0, "\\"));
 
-                builder.Append($"{keys[i]}: '{cleanValue}'");
+                builder.Append(keys[i]).Append(": '").Append(cleanValue).Append('\'');
             }
             else if (typeof(bool).IsEquivalentTo(type))
             {
-                builder.Append($"{keys[i]}: {value?.ToString()?.ToLower()}");
+                builder.Append(keys[i]).Append(": ").Append(value?.ToString()?.ToLower());
             }
             else if (typeof(DateTime).IsEquivalentTo(type))
             {
                 var date = (DateTime?) value ?? DateTime.UtcNow;
-                builder.Append($"{keys[i]}: '{date.ToUniversalTime().ToString("O")}'");
+                builder.Append(keys[i]).Append(": '").Append(date.ToUniversalTime().ToString("O")).Append('\'');
             }
             else
             {
-                builder.Append($"{keys[i]}: {value}");
+                builder.Append(keys[i]).Append(": ").Append(value);
             }
 
             if (i + 1 != keys.Count)
@@ -172,25 +171,29 @@ public class DbRelationship
 
 public class DbRelationship<LEFT, RIGHT> : DbRelationship
 {
-    public DbRelationship(string name) : base(name)
+    public DbRelationship(string name)
+        : base(name)
     {
         LeftType = typeof(LEFT);
         RightType = typeof(RIGHT);
     }
 
-    public DbRelationship(string name, string selector) : base(name, selector)
+    public DbRelationship(string name, string selector)
+        : base(name, selector)
     {
         LeftType = typeof(LEFT);
         RightType = typeof(RIGHT);
     }
 
-    public DbRelationship(string name, string selector, Cardinality cardinality) : base(name, selector, cardinality)
+    public DbRelationship(string name, string selector, Cardinality cardinality)
+        : base(name, selector, cardinality)
     {
         LeftType = typeof(LEFT);
         RightType = typeof(RIGHT);
     }
 
-    public DbRelationship(string name, Cardinality cardinality) : base(name, cardinality)
+    public DbRelationship(string name, Cardinality cardinality)
+        : base(name, cardinality)
     {
         LeftType = typeof(LEFT);
         RightType = typeof(RIGHT);

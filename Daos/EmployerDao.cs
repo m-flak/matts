@@ -1,4 +1,4 @@
-/* matts
+﻿/* matts
  * "Matthew's ATS" - Portfolio Project
  * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
  * 
@@ -28,7 +28,8 @@ namespace matts.Daos;
 
 public class EmployerDao : DaoAbstractBase<EmployerDb>
 {
-    public EmployerDao(IDriver driver) : base(driver)
+    public EmployerDao(IDriver driver)
+        : base(driver)
     {
     }
 
@@ -38,5 +39,4 @@ public class EmployerDao : DaoAbstractBase<EmployerDb>
         createWhatCopy.Uuid = System.Guid.NewGuid().ToString();
         return await this.CreateNewImpl(createWhatCopy);
     }
-
 }

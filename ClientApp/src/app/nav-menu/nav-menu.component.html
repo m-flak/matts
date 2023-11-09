@@ -1,13 +1,11 @@
 <header>
-  <nav
-    class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light mat-app-background border-bottom box-shadow mb-3"
-  >
+  <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light mat-app-background">
     <div class="container">
       <cmp-branding-container configEntry="navBrandingImage">
         <a class="navbar-brand" branding-none-default [routerLink]="['/']">Matthew's ATS</a>
         <img class="navbar-brand" branding-with-brand [routerLink]="['/']" title="Powered by Matthew's ATS" />
       </cmp-branding-container>
-      <button
+      <!-- <button
         class="navbar-toggler"
         type="button"
         data-toggle="collapse"
@@ -35,6 +33,16 @@
             >
           </li>
         </ul>
+      </div> -->
+      <div
+        class="d-sm-inline-flex justify-content-end"
+        [ngClass]="{ 'nav-items__hide': hideNavItems }"
+      >
+        <cmp-session-menu 
+          [userFullName]="homeUser"
+          (clickLogout)="performLogout()"
+        >
+        </cmp-session-menu>
       </div>
     </div>
   </nav>

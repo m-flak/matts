@@ -1,3 +1,3 @@
-export * from './home/home.component';
-export * from './job-page/job-page.component';
-export * from './new-job-page/new-job-page.component';
+export * from './employer-root/employer-root.component';
+export * from './jobs/employer-jobs.module';
+export * from './employer-portal.module';

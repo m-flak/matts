@@ -22,7 +22,7 @@ export class NavMenuComponent implements OnInit {
 
   ngOnInit(): void {
     this.homeTitle = this.authService.currentUser?.role ?? '';
-    this.homeUser = this.authService.currentUser?.userName ?? '';
+    this.homeUser = this.authService.currentUser?.name ?? '';
   }
 
   collapse() {

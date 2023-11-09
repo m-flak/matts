@@ -28,7 +28,8 @@ namespace matts.Daos;
 
 public class JobDao : DaoAbstractBase<JobDb>
 {
-    public JobDao(IDriver driver) : base(driver)
+    public JobDao(IDriver driver)
+        : base(driver)
     {
     }
 
@@ -61,7 +62,7 @@ public class JobDao : DaoAbstractBase<JobDb>
                                 .NameMatchingStrategy(NameMatchingStrategy.FromCamelCase)
                                 .Compile();
 
-                            JobDb result = TypeAdapter.Adapt<IReadOnlyDictionary<string, object>, JobDb>(job.Properties);
+                            JobDb result = job.Properties.Adapt<IReadOnlyDictionary<string, object>, JobDb>();
                             result.ApplicantCount = applicantCount;
                             return result;
                         })

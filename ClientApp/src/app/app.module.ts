@@ -2,7 +2,12 @@ import { BrowserModule } from '@angular/platform-browser';
 import { Location } from '@angular/common';
 import { APP_INITIALIZER, InjectionToken, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HTTP_INTERCEPTORS, HttpClientModule, HttpClientXsrfModule, HttpXsrfTokenExtractor } from '@angular/common/http';
+import {
+  HTTP_INTERCEPTORS,
+  HttpClientModule,
+  HttpClientXsrfModule,
+  HttpXsrfTokenExtractor,
+} from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -121,7 +126,7 @@ export const WS_BASE_URL = new InjectionToken<string>('WS_BASE_URL');
     { provide: HTTP_INTERCEPTORS, useExisting: HttpXsrfInterceptor, multi: true },
     { provide: HttpXsrfTokenExtractor, useClass: HttpXsrfCookieExtractor },
     { provide: LOADING_BAR_CONFIG, useValue: { latencyThreshold: 125 } },
-    CookieService
+    CookieService,
   ],
   bootstrap: [AppComponent],
 })

@@ -1,0 +1,77 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
+@use '../../../styles/home-common.scss' as home;
+@use '../../../../theming.scss';
+
+$config: mat.get-color-config(theming.$theme);
+$accent-palette: map.get($config, 'accent');
+$foreground-palette: map.get($config, 'foreground');
+
+$accent-color: mat.get-color-from-palette($accent-palette, main);
+
+$table-theme: map.merge(theming.$theme, (
+  "foreground": map.merge($foreground-palette, (
+    "divider": $accent-color,
+    "secondary-text": black
+  )),
+));
+$table-typography: map.merge(theming.$typography, (
+  "font-family": 'GTAmericaRegular, Roboto, "Helvetica Neue", sans-serif',
+  "body-2": mat.define-typography-level(inherit, inherit, 600, $font-family: 'GTAmericaRegular'),
+));
+@include mat.table-theme($table-theme);
+@include mat.table-typography($table-typography);
+
+@include home.under-toolbar;
+
+mat-card {
+  @include home.card-appearance;
+}
+
+.dashboard-container {
+  display: flex;
+  padding: 0.5em 0.75em;
+  align-items: flex-start;
+  align-content: flex-start;
+  gap: 1.5em;
+  flex: 1 0 0;
+  align-self: stretch;
+  flex-wrap: wrap;
+  flex-flow: row wrap;
+  width: 100%;
+}
+
+.tasks-card,
+.messages-card {
+  height: 23.125em;
+  min-width: 24.375em;
+  flex-grow: 1;
+
+  mat-card-content {
+    height: 21em;
+  }
+
+  cmp-view-list-panel {
+    height: 100%;
+    display: block;
+  }
+}
+
+.interviews-card {
+  width: 100%;
+  height: 25em;
+  flex-grow: 1;
+  display: inline-flex;
+  flex-direction: column;
+
+  mat-card-content {
+    border: 1px solid theming.$light-bg-borderline;
+
+    display: flex;
+    flex-grow: 1;
+
+    table {
+      flex-grow: 1;
+    }
+  }
+}

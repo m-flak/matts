@@ -19,13 +19,14 @@ using matts.Constants;
 using matts.Controllers.Handlers;
 using matts.Interfaces;
 using matts.Models;
+using matts.Utils;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.WebSockets;
 
 namespace matts.Controllers;
 
 [IgnoreAntiforgeryToken]
-[Route("[controller]")]
+[VersionedApiRoute(1, "[controller]")]
 public class WsController : ControllerBase
 {
     private readonly ILogger<WsController> _logger;

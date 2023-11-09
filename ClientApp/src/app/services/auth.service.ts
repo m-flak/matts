@@ -23,9 +23,10 @@ import { JwtHelperService } from '@auth0/angular-jwt';
 import { User, UserRegistration, WSAuthEventTypes, WSAuthMessage } from '../models';
 import { Observable, Subject, Subscription, catchError, map, of, share, switchMap, tap, throwError } from 'rxjs';
 import { CookieService } from 'ngx-cookie-service';
-import makeWebSocketObservable, { GetWebSocketResponses  } from 'rxjs-websockets';
+import makeWebSocketObservable, { GetWebSocketResponses } from 'rxjs-websockets';
 
 export interface CurrentUser extends User {
+  name: string | null;
   applicantId: string | null;
   employerId: string | null;
 }
@@ -56,6 +57,7 @@ export class AuthService {
   private _populateCurrentUser() {
     const decodedToken: any = this.jwtHelper.decodeToken();
     let name: string | null = null;
+    let userName: string | null = null;
     let role: string | null = null;
     let applicantId: string | null = null;
     let employerId: string | null = null;
@@ -64,7 +66,10 @@ export class AuthService {
       role = decodedToken.role as string;
     }
     if (decodedToken !== null && decodedToken.hasOwnProperty('sub')) {
-      name = decodedToken.sub as string;
+      userName = decodedToken.sub as string;
+    }
+    if (decodedToken !== null && decodedToken.hasOwnProperty('name')) {
+      name = decodedToken.name as string;
     }
     if (decodedToken !== null && decodedToken.hasOwnProperty('applicantId')) {
       applicantId = decodedToken.applicantId as string;
@@ -73,9 +78,10 @@ export class AuthService {
       employerId = decodedToken.employerId as string;
     }
 
-    if (name !== null && role !== null) {
+    if (userName !== null && role !== null) {
       this.currentUser = {
-        userName: name,
+        name: name,
+        userName: userName,
         password: '',
         role: role,
         applicantId: applicantId,
@@ -98,7 +104,7 @@ export class AuthService {
       return of(currentToken).pipe(tap(token => this._populateCurrentUser()));
     }
 
-    const endpoint = '/auth/login';
+    const endpoint = '/api/v1/auth/login';
     return this.http.post(Location.joinWithSlash(this.baseUrl, endpoint), user, { responseType: 'text' }).pipe(
       catchError((e: HttpErrorResponse) => throwError(() => new Error(e?.error))),
       tap(token => localStorage.setItem('access_token', token)),
@@ -107,7 +113,7 @@ export class AuthService {
   }
 
   registerUser(newUser: UserRegistration): Observable<HttpResponse<any>> {
-    const endpoint = `/auth/register`;
+    const endpoint = `/api/v1/auth/register`;
 
     const httpHeaders = new HttpHeaders({
       'Content-Type': 'application/json',
@@ -143,12 +149,15 @@ export class AuthService {
     sendToSocket.next({
       type: WSAuthEventTypes.CLIENT_OAUTH_START,
       clientIdentity: this.cookieService.get('XSRF-TOKEN'),
-      data: null
+      data: null,
     });
   }
 
   getWSAuthStream(sendToSocket: Subject<WSAuthMessage>) {
-    this._oauthSocket$ = (this._oauthSocket$ !== null) ? this._oauthSocket$ : makeWebSocketObservable(Location.joinWithSlash(this.wsBaseUrl, '/ws/oauth/linkedin'));
+    this._oauthSocket$ =
+      this._oauthSocket$ !== null
+        ? this._oauthSocket$
+        : makeWebSocketObservable(Location.joinWithSlash(this.wsBaseUrl, '/api/v1/ws/oauth/linkedin'));
 
     return this._oauthSocket$.pipe(
       switchMap((getResponses: GetWebSocketResponses) => {
@@ -159,7 +168,7 @@ export class AuthService {
       catchError(e => {
         console.error('OAuth WS error: ', e);
         return [];
-      })
+      }),
     );
   }
 }

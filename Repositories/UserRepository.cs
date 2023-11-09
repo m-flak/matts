@@ -105,7 +105,6 @@ public class UserRepository : IUserRepository
             return false;
         }
 
-
         return await _daoUser.CreateRelationshipBetween(new DbRelationship(RelationshipConstants.IS_USER_FOR), createdUser, createdEmployer, typeof(EmployerDb));
     }
 }

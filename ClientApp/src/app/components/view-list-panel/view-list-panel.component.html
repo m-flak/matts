@@ -1,0 +1,37 @@
+<div class="d-flex flex-column h-100">
+    <div [ngbNavOutlet]="nav" class="vlp-panel flex-grow-1"></div>
+    <nav ngbNav #nav="ngbNav" [destroyOnHide]="false" [(activeId)]="activeTab" class="justify-content-end">
+        <ng-container ngbNavItem="all">
+            <ng-template ngbNavContent>
+                <ul>
+                    <li *ngFor="let item of items"
+                        (click)="onItemClick(item, detailNameField); nav.select('selected')"
+                    >
+                        <ng-container *ngTemplateOutlet="itemTemplate; context: { $implicit: item }"></ng-container>
+                    </li>
+                </ul>
+            </ng-template>
+            <a 
+                ngbNavLink
+                class="vlp-tab"
+                [class.unfocused]="activeTab !== 'all'"
+                (click)="onItemsTabClick()"
+            >
+                {{ itemsName }}
+            </a>
+        </ng-container>
+        <ng-container *ngIf="selectedDetails !== null && selectedDetails !== undefined" ngbNavItem="selected">
+            <ng-template ngbNavContent>
+                <div class="details">
+                    <ng-container *ngTemplateOutlet="detailsTemplate; context: { $implicit: selectedDetails.details }"></ng-container>
+                </div>
+            </ng-template>
+            <a 
+                class="vlp-tab"
+                ngbNavLink
+            >
+                {{ selectedDetails.name }}
+            </a>
+        </ng-container>
+    </nav>
+</div>
