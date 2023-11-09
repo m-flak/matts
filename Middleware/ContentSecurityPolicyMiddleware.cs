@@ -37,7 +37,8 @@ public class ContentSecurityPolicyMiddleware
         var requestPath = context.Request.Path.Value;
         if (
             context.Request.Method == HttpMethod.Get.Method
-            && !(requestPath?.StartsWith("/ws", StringComparison.OrdinalIgnoreCase) ?? false)
+            && !(requestPath?.StartsWith("/api/v1/ws", StringComparison.OrdinalIgnoreCase) ?? false)
+            && !(requestPath?.StartsWith("/api/v1/auth", StringComparison.OrdinalIgnoreCase) ?? false)
            )
         {
             context.Response.OnStarting(state =>

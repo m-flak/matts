@@ -32,6 +32,7 @@ using matts.Models;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.InteropServices;
 using matts.Utils;
+using matts.Middleware.Filters;
 
 namespace matts.Controllers;
 
@@ -166,6 +167,7 @@ public class AuthController : ControllerBase
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [LinkedinResultFilter("mode", "LGN")]
     [Route("linkedin/callback")]
     public IActionResult LinkedinCallback(
         [Required][FromQuery] string code,

@@ -277,7 +277,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
     });
 
     const linkedinUrl = `https://www.linkedin.com/oauth/v2/authorization?${params.toString()}`;
-    window.open(linkedinUrl, '_blank');
+    let windowPop = window.open(linkedinUrl, '_blank');
 
     const sendToSocket = new Subject<WSAuthMessage>();
     const socketMessages = this.authService.getWSAuthStream(sendToSocket);
@@ -324,6 +324,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
     });
 
     this._subscription4 = obs.subscribe(data => {
+      windowPop?.close();
       this.applicantRegistrationForm.controls.fullName.setValue(data.fullName);
       this.applicantRegistrationForm.controls.email.setValue(data.email);
       this.applicantRegistrationForm.controls.phoneNumber.setValue(data.phoneNumber);
