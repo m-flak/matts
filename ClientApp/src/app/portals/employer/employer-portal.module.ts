@@ -22,9 +22,10 @@ import { PipesModule } from 'src/app/pipes/pipes.module';
 import { EmployerPortalRouteModule } from './employer-portal-route.module';
 import { CommonModule } from '@angular/common';
 import { EmployerRootComponent } from './employer-root/employer-root.component';
+import { UnderConstructionComponent } from './under-construction.component';
 
 @NgModule({
-  declarations: [EmployerRootComponent],
+  declarations: [EmployerRootComponent, UnderConstructionComponent],
   imports: [
     CommonModule,
     HttpClientModule,
@@ -33,6 +34,6 @@ import { EmployerRootComponent } from './employer-root/employer-root.component';
     ComponentsModule,
     PipesModule,
   ],
-  exports: [EmployerRootComponent],
+  exports: [EmployerRootComponent, UnderConstructionComponent],
 })
 export class EmployerPortalModule {}
