@@ -19,7 +19,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 
 import { ApplyJobPageComponent } from './apply-job-page.component';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { from, of } from 'rxjs';
+import { from, of, throwError } from 'rxjs';
 import { Job, configurationFixure } from '../../../models';
 import { BackendService } from '../../../services/backend.service';
 import { AuthService, CurrentUser } from '../../../services/auth.service';
@@ -41,6 +41,7 @@ import {
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ApplicantPortalModule } from '../applicant-portal.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ToastService } from 'src/app/services/toast.service';
 
 const jobData: Job = {
   'id': 1,
@@ -113,6 +114,7 @@ describe('ApplyJobPageComponent', () => {
   let component: ApplyJobPageComponent;
   let fixture: ComponentFixture<ApplyJobPageComponent>;
   let applicantDataService: ApplicantDataService;
+  let toastService: ToastService;
 
   let loader: HarnessLoader;
 
@@ -138,10 +140,12 @@ describe('ApplyJobPageComponent', () => {
         },
         ApplicantDataService,
         { provide: ConfigService, useValue: FakeConfigService },
+        ToastService
       ],
     }).compileComponents();
 
     applicantDataService = TestBed.inject(ApplicantDataService);
+    toastService = TestBed.inject(ToastService);
 
     fixture = TestBed.createComponent(ApplyJobPageComponent);
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -228,5 +232,37 @@ describe('ApplyJobPageComponent', () => {
     await fixture.whenStable();
     expect(applicantDataService.applyToJob).toHaveBeenCalledTimes(1);
     expect(applicantDataService.getOpenAndAppliedJobs).toHaveBeenCalledTimes(1);
+  }));
+
+  it('should respond to upload failure of the files from the form', fakeAsync(async () => {
+    spyOn(toastService, 'show').and.stub();
+    spyOn(applicantDataService, 'isJobAppliedFor').and.returnValue(false);
+    spyOn(applicantDataService, 'applyToJob').and.returnValue(throwError(() => new Error('Failure to upload!')));
+    spyOn(applicantDataService, 'getOpenAndAppliedJobs').and.stub();
+    component.ngOnInit();
+    tick(2);
+    fixture.detectChanges();
+
+    await fixture.whenStable();
+    const file = new File([''], 'resume.docx');
+    component.applyToJobForm.setValue({
+      resumeFile: new FileInput([file]),
+    });
+    fixture.detectChanges();
+
+    const button = await loader.getHarness(MatButtonHarness);
+    await button.click();
+    tick(6);
+    fixture.detectChanges();
+    
+    await fixture.whenStable();
+    //expected
+    expect(applicantDataService.applyToJob).toHaveBeenCalledTimes(1);
+    expect(toastService.show).toHaveBeenCalled();
+    expect(component.uploadStarted).toBe(false);
+    const buttonText = await button.getText();
+    expect(buttonText.includes('Apply Now')).toBe(true);
+    //not expected
+    expect(applicantDataService.getOpenAndAppliedJobs).not.toHaveBeenCalled();
   }));
 });
