@@ -22,6 +22,7 @@ import { NgModule } from '@angular/core';
 import { AuthGuard } from 'src/app/guards/auth.guard';
 import { HomeGuard } from 'src/app/guards/home.guard';
 import { EmployerRootComponent } from './employer-root/employer-root.component';
+import { UnderConstructionComponent } from './under-construction.component';
 
 export const EMPLOYER_ROUTES: Routes = [
   {
@@ -41,6 +42,11 @@ export const EMPLOYER_ROUTES: Routes = [
         loadChildren: () => import('./jobs/employer-jobs.module').then(m => m.EmployerJobsModule),
         canMatch: [AuthGuard],
       },
+      {
+        path: '**',
+        component: UnderConstructionComponent,
+        canMatch: [AuthGuard],
+      }
     ],
   },
 ];

@@ -162,6 +162,13 @@
             <img src="assets/linkedin.svg" alt="IN" />
             <span>Sign Up with LinkedIn</span>
           </button>
+          <br />
+          <span
+            *ngIf="retrievingInformation == true"
+            class="emphasis please-wait"
+          >
+          Please wait while your profile information is being retrieved...
+          </span>
           <form
             [formGroup]="applicantRegistrationForm"
             class="d-flex flex-column"
@@ -220,7 +227,7 @@
             <a class="registration-mode__applicant" (click)="setRegistrationMode(REGISTRATION_TYPE_APPLICANT)">
               <h2>New Applicant</h2>
               <img
-                src="assets/registration-applicant.png"
+                src="assets/new-applicant-user_web.svg"
                 title="Register a New Applicant User"
                 alt="Applicant Registration"
               />
@@ -228,7 +235,7 @@
             <a class="registration-mode__employer" (click)="setRegistrationMode(REGISTRATION_TYPE_EMPLOYER)">
               <h2>New Employer</h2>
               <img
-                src="assets/registration-employer.png"
+                src="assets/new-employer-user_web.svg"
                 title="Register a New Employer User"
                 alt="Employer Registration"
               />

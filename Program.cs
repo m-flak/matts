@@ -244,7 +244,7 @@ builder.Services.AddSingleton<CSP>(implementationFactory: provider =>
 {
     var policy = CSP.DefaultPolicy.Clone();
 
-    policy.ConnectSrc = CSP.Self;
+    policy.ConnectSrc = $"{CSP.Self} matthews-ats-funcs-staging.azurewebsites.net";
     // The hash is the sha256 hash of the inline script within ClientApp/src/index.html
     policy.ScriptSrc = $"{policy.ScriptSrc} 'sha256-Vywrtc+OVj0nO9NJ0FmjzNfROZD38W0ll9q3KcU4Huk='";
     policy.Sandbox = $"{policy.Sandbox} allow-downloads allow-popups allow-popups-to-escape-sandbox";

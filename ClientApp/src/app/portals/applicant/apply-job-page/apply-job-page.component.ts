@@ -26,6 +26,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FileInput, FileValidator } from 'ngx-material-file-input';
 import { ConfigService } from '../../../services/config.service';
 import { HttpEventType } from '@angular/common/http';
+import { ToastService } from 'src/app/services/toast.service';
 
 @Component({
   selector: 'app-apply-job-page',
@@ -55,6 +56,7 @@ export class ApplyJobPageComponent implements OnInit, OnDestroy {
     private backendService: BackendService,
     private authService: AuthService,
     private configService: ConfigService,
+    private toastService: ToastService,
   ) {
     this.applyToJobForm = new FormGroup([]);
   }
@@ -124,15 +126,26 @@ export class ApplyJobPageComponent implements OnInit, OnDestroy {
           ),
         ),
       )
-      .subscribe(async response => {
-        this.uploadStarted = false;
-        this.uploadingMsg = 'Uploading...';
-        if (response.status === 200) {
-          const jobs = await lastValueFrom(
-            this.applicantDataService.getOpenAndAppliedJobs(this.authService.currentUser?.applicantId as string),
-          );
-          this.applicantDataService.jobsListSubject.next(jobs);
-          this.currentJob = { ...this.currentJob, hasAppliedTo: true };
+      .subscribe({
+        next: async response => {
+          this.uploadStarted = false;
+          this.uploadingMsg = 'Uploading...';
+          if (response.status === 200) {
+            const jobs = await lastValueFrom(
+              this.applicantDataService.getOpenAndAppliedJobs(this.authService.currentUser?.applicantId as string),
+            );
+            this.applicantDataService.jobsListSubject.next(jobs);
+            this.currentJob = { ...this.currentJob, hasAppliedTo: true };
+          }
+        },
+        error: _ => {
+          this.uploadStarted = false;
+          this.uploadingMsg = 'Uploading...';
+          this.toastService.show('There was a problem uploading your resume. Please try again.', {
+            classname: 'bg-danger text-light',
+            delay: 15000,
+            ariaLive: 'assertive',
+          });
         }
       });
   }

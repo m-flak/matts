@@ -46,6 +46,10 @@ section {
   height: calc(100% - 256px);
   padding: 2em;
 
+  &:hover {
+    background-color: #7a7a7a1d;
+  }
+
   &,
   & a {
     color: $registration-buttons-color2;
@@ -93,4 +97,8 @@ $linkedin-color: #007fb1;
   &:active {
     background-color: darken($linkedin-color, 5%);
   }
+}
+
+span.please-wait {
+  color: #007fff;
 }
