@@ -329,7 +329,7 @@ export class JobPageComponent implements OnInit, OnDestroy {
   }
 
   _makeResumeDownloadLink(): string {
-    return Location.joinWithSlash(this.baseUrl, `/sas/resume/${this.currentJob?.uuid}/${this.currentApplicant?.uuid}`);
+    return Location.joinWithSlash(this.baseUrl, `/api/v1/sas/resume/${this.currentJob?.uuid}/${this.currentApplicant?.uuid}`);
   }
 
   private _mapInterviewDateToCalendarEvent(interviewDate: InterviewDate): CalendarEvent {
