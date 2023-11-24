@@ -162,6 +162,13 @@
             <img src="assets/linkedin.svg" alt="IN" />
             <span>Sign Up with LinkedIn</span>
           </button>
+          <br />
+          <span
+            *ngIf="retrievingInformation == true"
+            class="emphasis please-wait"
+          >
+          Please wait while your profile information is being retrieved...
+          </span>
           <form
             [formGroup]="applicantRegistrationForm"
             class="d-flex flex-column"

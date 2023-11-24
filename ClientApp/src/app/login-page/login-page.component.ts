@@ -28,6 +28,7 @@ import { LoadingBarService } from '@ngx-loading-bar/core';
 import { ConfigService } from '../services/config.service';
 import { HttpParams } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
+import { ToastService } from '../services/toast.service';
 
 @Component({
   selector: 'app-login-page',
@@ -48,6 +49,8 @@ export class LoginPageComponent implements OnInit, OnDestroy {
 
   loader = this.loadingBar.useRef();
   displayDimmer = false;
+
+  retrievingInformation = false;
 
   loginFailure = false;
   registrationSuccessful = false;
@@ -75,6 +78,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
     private cookieService: CookieService,
     private authService: AuthService,
     private monitorService: MonitorService,
+    private toastService: ToastService,
     private loadingBar: LoadingBarService,
   ) {
     this.employerLoginForm = new FormGroup([]);
@@ -276,6 +280,8 @@ export class LoginPageComponent implements OnInit, OnDestroy {
       },
     });
 
+    this.retrievingInformation = true;
+    this.loader.start();
     const linkedinUrl = `https://www.linkedin.com/oauth/v2/authorization?${params.toString()}`;
     let windowPop = window.open(linkedinUrl, '_blank');
 
@@ -292,6 +298,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
         if (message) {
           if (message.type === WSAuthEventTypes.SERVER_CONNECTION_ESTABLISHED) {
             this.authService.sendWSAuthStart(sendToSocket);
+            this.loader.set(25);
           } else if (
             message.type === WSAuthEventTypes.SERVER_OAUTH_STARTED ||
             message.type === WSAuthEventTypes.SERVER_OAUTH_PENDING
@@ -307,6 +314,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
             subscriber.error();
             sub.unsubscribe();
           } else if (message.type === WSAuthEventTypes.SERVER_OAUTH_COMPLETED) {
+            this.loader.set(50);
             const theData: UserRegistration = message.data;
             subscriber.next(theData);
             this.authService.terminateWSAuthStream(sub, sendToSocket);
@@ -323,11 +331,32 @@ export class LoginPageComponent implements OnInit, OnDestroy {
       });
     });
 
-    this._subscription4 = obs.subscribe(data => {
-      windowPop?.close();
-      this.applicantRegistrationForm.controls.fullName.setValue(data.fullName);
-      this.applicantRegistrationForm.controls.email.setValue(data.email);
-      this.applicantRegistrationForm.controls.phoneNumber.setValue(data.phoneNumber);
+    this._subscription4 = obs.subscribe({
+      next: data => {
+        windowPop?.close();
+        this.loader.set(75);
+
+        this.applicantRegistrationForm.controls.fullName.setValue(data.fullName);
+        this.applicantRegistrationForm.controls.email.setValue(data.email);
+        this.applicantRegistrationForm.controls.phoneNumber.setValue(data.phoneNumber);
+        
+        this.retrievingInformation = false;
+      },
+      error: _ => {
+        this.loader.complete();
+        this.toastService.show('There was a problem retrieving your profile information from LinkedIn. Please try again.', {
+          classname: 'bg-danger text-light',
+          delay: 15000,
+          ariaLive: 'assertive',
+        });
+      },
+      complete: () => {
+        this.loader.complete();
+        this.toastService.show(`Successfully retrieved your profile information from LinkedIn.`, {
+          classname: 'bg-success text-light',
+          delay: 10000,
+        });
+      }
     });
   }
 }
