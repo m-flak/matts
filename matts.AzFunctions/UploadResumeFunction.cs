@@ -1,4 +1,4 @@
-/* matts
+﻿/* matts
  * "Matthew's ATS" - Portfolio Project
  * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
  * 
@@ -21,6 +21,7 @@ using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using HttpMultipartParser;
+using matts.AzFunctions.Utils;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
@@ -41,12 +42,8 @@ public class UploadResumeFunction
     [Function("UploadResumeFunction")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Function, "post", "options", Route="resumes/upload")] HttpRequestData req)
     {
-        if (string.Equals(req.Method, "OPTIONS", StringComparison.OrdinalIgnoreCase))
+        if (HttpUtils.HandleCreateOptionsResponse(req, out var optionsResponse))
         {
-            var optionsResponse = req.CreateResponse();
-            optionsResponse.Headers.Add("Allow", new[] { "POST", "OPTIONS" });
-            optionsResponse.Headers.Add("Access-Control-Allow-Origin", "*");
-            optionsResponse.StatusCode = HttpStatusCode.OK;
             return optionsResponse;
         }
 
@@ -57,24 +54,18 @@ public class UploadResumeFunction
 
         if (fileName == null)
         {
-            var responseBad = req.CreateResponse(HttpStatusCode.BadRequest);
             _logger.LogError("Missing {Field} from Form Data!", nameof(fileName));
-            await responseBad.WriteStringAsync($"Missing {nameof(fileName)} from Form Data!");
-            return responseBad;
+            return await HttpUtils.CreateMessageResponseAsync(req, HttpStatusCode.BadRequest, $"Missing {nameof(fileName)} from Form Data!");
         }
         if (jobUuid == null)
         {
-            var responseBad = req.CreateResponse(HttpStatusCode.BadRequest);
             _logger.LogError("Missing {Field} from Form Data!", nameof(jobUuid));
-            await responseBad.WriteStringAsync($"Missing {nameof(jobUuid)} from Form Data!");
-            return responseBad;
+            return await HttpUtils.CreateMessageResponseAsync(req, HttpStatusCode.BadRequest, $"Missing {nameof(jobUuid)} from Form Data!");
         }
         if (applicantUuid == null) 
         {
-            var responseBad = req.CreateResponse(HttpStatusCode.BadRequest);
             _logger.LogError("Missing {Field} from Form Data!", nameof(applicantUuid));
-            await responseBad.WriteStringAsync($"Missing {nameof(applicantUuid)} from Form Data!");
-            return responseBad;
+            return await HttpUtils.CreateMessageResponseAsync(req, HttpStatusCode.BadRequest, $"Missing {nameof(applicantUuid)} from Form Data!");
         }
 
         BlobContainerClient blobContainerClient = _blobServiceClient.GetBlobContainerClient("resumes");
@@ -91,10 +82,9 @@ public class UploadResumeFunction
             }
             catch (RequestFailedException rfe)
             {
-                _logger.LogError("Unable to create the container when it didn't exist in the first place!", rfe);
-                var responseBad = req.CreateResponse(HttpStatusCode.ServiceUnavailable);
-                await responseBad.WriteStringAsync("Unable to create the container when it didn't exist in the first place!");
-                return responseBad;
+                const string msg = "Unable to create the container when it didn't exist in the first place!";
+                _logger.LogError(msg, rfe);
+                return await HttpUtils.CreateMessageResponseAsync(req, HttpStatusCode.ServiceUnavailable, msg);
             }
         }
 
@@ -123,17 +113,15 @@ public class UploadResumeFunction
         }
         catch (RequestFailedException rfe)
         {
-            _logger.LogError("BLOB CLIENT: Upload failure!", rfe);
-            var responseBad = req.CreateResponse(HttpStatusCode.ServiceUnavailable);
-            await responseBad.WriteStringAsync("BLOB CLIENT: Upload failure!");
-            return responseBad;
+            const string msg = "BLOB CLIENT: Upload failure!";
+            _logger.LogError(msg, rfe);
+            return await HttpUtils.CreateMessageResponseAsync(req, HttpStatusCode.ServiceUnavailable, msg);
         }
         catch (Exception e) // This catch-all should cover the exceptions not thrown by the Azure stuff
         {
-            _logger.LogError("Upload failure!", e);
-            var responseBad = req.CreateResponse(HttpStatusCode.BadRequest);
-            await responseBad.WriteStringAsync("Upload failure!");
-            return responseBad;
+            const string msg = "Upload failure!";
+            _logger.LogError(msg, e);
+            return await HttpUtils.CreateMessageResponseAsync(req, HttpStatusCode.InternalServerError, msg);
         }
 
         _logger.LogInformation("Uploaded file {File} at {Uri}", (string) blobInformation.Name, (Uri) blobInformation.Uri);
@@ -145,7 +133,7 @@ public class UploadResumeFunction
 
     private static string CreateBlobName(string juuid, string auuid, string fileName)
     {
-        string pattern = @"\.\w+$";
+        const string pattern = @"\.\w+$";
         Match m = Regex.Match(fileName, pattern);
         if (!m.Success)
         {
