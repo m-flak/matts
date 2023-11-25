@@ -1,4 +1,4 @@
-/* matts
+﻿/* matts
  * "Matthew's ATS" - Portfolio Project
  * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
  * 
@@ -15,8 +15,10 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
+using Json.Schema;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 string? storageConnString = null;
@@ -40,6 +42,19 @@ var host = new HostBuilder()
             }
 
             c.AddBlobServiceClient(storageConnString);
+            c.AddQueueServiceClient(storageConnString)
+                .ConfigureOptions(qc => qc.MessageEncoding = Azure.Storage.Queues.QueueMessageEncoding.Base64);
+        });
+
+        s.AddSingleton<SchemaRegistry>(implementationFactory: _ =>
+        {
+            var registry = SchemaRegistry.Global;
+            foreach (var file in Directory.GetFiles("schemas", "*.json"))
+            {
+                var schema = JsonSchema.FromFile(file);
+                registry.Register(schema);
+            }
+            return registry;
         });
     })
     .Build();
