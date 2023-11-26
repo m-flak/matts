@@ -148,6 +148,7 @@ public class QueueTaskCreateFunction
                 .Ref(builder.Uri);
 
             JsonDocument json = await JsonDocument.ParseAsync(jsonStream, cancellationToken: ct);
+            jsonStream.Seek(0, SeekOrigin.Begin);
             return taskSchema.Evaluate(json);
         }
 
