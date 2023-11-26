@@ -83,7 +83,7 @@ public class UploadResumeFunction
             catch (RequestFailedException rfe)
             {
                 const string msg = "Unable to create the container when it didn't exist in the first place!";
-                _logger.LogError(msg, rfe);
+                _logger.LogError(rfe, msg);
                 return await HttpUtils.CreateMessageResponseAsync(req, HttpStatusCode.ServiceUnavailable, msg);
             }
         }
@@ -114,13 +114,13 @@ public class UploadResumeFunction
         catch (RequestFailedException rfe)
         {
             const string msg = "BLOB CLIENT: Upload failure!";
-            _logger.LogError(msg, rfe);
+            _logger.LogError(rfe, msg);
             return await HttpUtils.CreateMessageResponseAsync(req, HttpStatusCode.ServiceUnavailable, msg);
         }
         catch (Exception e) // This catch-all should cover the exceptions not thrown by the Azure stuff
         {
             const string msg = "Upload failure!";
-            _logger.LogError(msg, e);
+            _logger.LogError(e, msg);
             return await HttpUtils.CreateMessageResponseAsync(req, HttpStatusCode.InternalServerError, msg);
         }
 
