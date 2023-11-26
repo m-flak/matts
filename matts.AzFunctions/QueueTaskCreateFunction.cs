@@ -40,13 +40,14 @@ public class QueueTaskCreateFunction
     private readonly QueueServiceClient _queueServiceClient;
     private readonly SchemaRegistry _schemaRegistry;
 
-    public string SchemaPath { get; set; } = string.Empty;
+    private string SchemaPath { get; }
 
-    public QueueTaskCreateFunction(ILoggerFactory loggerFactory, QueueServiceClient queueServiceClient, SchemaRegistry schemaRegistry)
+    public QueueTaskCreateFunction(ILoggerFactory loggerFactory, QueueServiceClient queueServiceClient, SchemaRegistry schemaRegistry, Func<string> schemaPath)
     {
         _logger = loggerFactory.CreateLogger<QueueServiceClient>();
         _queueServiceClient = queueServiceClient;
         _schemaRegistry = schemaRegistry;
+        SchemaPath = schemaPath();
     }
 
     [Function("QueueTaskCreateFunction")]
@@ -61,20 +62,6 @@ public class QueueTaskCreateFunction
             const string msg = "Incorrect content type. Content type must be JSON.";
             _logger.LogError(msg);
             return await HttpUtils.CreateMessageResponseAsync(req, HttpStatusCode.BadRequest, msg);
-        }
-
-        if (SchemaPath.Length == 0)
-        {
-            string path = context.FunctionDefinition.PathToAssembly;
-            int iDir = 0;
-            for (int i = 0; i < path.Length; ++i)
-            {
-                if (path[i] == '/' || path[i] == '\\')
-                {
-                    iDir = i;
-                }
-            }
-            SchemaPath = Path.Join(path[..iDir], "schemas");
         }
 
         try

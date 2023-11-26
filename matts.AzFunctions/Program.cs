@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
+using System.Reflection;
 using Json.Schema;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
@@ -55,6 +56,23 @@ var host = new HostBuilder()
                 registry.Register(schema);
             }
             return registry;
+        });
+
+        s.AddSingleton<Func<string>>(implementationFactory: _ =>
+        {
+            return () =>
+            {
+                string path = Assembly.GetExecutingAssembly().Location;
+                int iDir = 0;
+                for (int i = 0; i < path.Length; ++i)
+                {
+                    if (path[i] == '/' || path[i] == '\\')
+                    {
+                        iDir = i;
+                    }
+                }
+                return Path.Join(path[..iDir], "schemas");
+            };
         });
     })
     .Build();
