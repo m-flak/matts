@@ -1,6 +1,6 @@
 {
-  "$schema": "https://json-schema.org/draft-07/schema",
-  "$id": "subject.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "subject.json#",
   "title": "Subject",
   "description": "Represents any additional 'what' or 'whom' that are associated with a given task.",
   "type": "object",

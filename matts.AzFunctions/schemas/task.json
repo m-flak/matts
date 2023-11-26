@@ -1,6 +1,6 @@
 {
-  "$schema": "https://json-schema.org/draft-07/schema",
-  "$id": "task.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "task.json#",
   "title": "Task",
   "description": "Represents a pending business task that end users need to perform.",
   "type": "object",

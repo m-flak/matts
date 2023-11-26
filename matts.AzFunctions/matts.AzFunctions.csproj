@@ -46,8 +46,8 @@
     <Using Include="System.Threading.ExecutionContext" Alias="ExecutionContext" />
   </ItemGroup>
   <ItemGroup>
-      <Folder Include="schemas\">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Folder>
+      <Content Include="schemas\**\*.json" >
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
   </ItemGroup>
 </Project>

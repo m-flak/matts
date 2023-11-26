@@ -40,6 +40,8 @@ public class QueueTaskCreateFunction
     private readonly QueueServiceClient _queueServiceClient;
     private readonly SchemaRegistry _schemaRegistry;
 
+    public string SchemaPath { get; set; } = string.Empty;
+
     public QueueTaskCreateFunction(ILoggerFactory loggerFactory, QueueServiceClient queueServiceClient, SchemaRegistry schemaRegistry)
     {
         _logger = loggerFactory.CreateLogger<QueueServiceClient>();
@@ -61,6 +63,20 @@ public class QueueTaskCreateFunction
             return await HttpUtils.CreateMessageResponseAsync(req, HttpStatusCode.BadRequest, msg);
         }
 
+        if (SchemaPath.Length == 0)
+        {
+            string path = context.FunctionDefinition.PathToAssembly;
+            int iDir = 0;
+            for (int i = 0; i < path.Length; ++i)
+            {
+                if (path[i] == '/' || path[i] == '\\')
+                {
+                    iDir = i;
+                }
+            }
+            SchemaPath = Path.Join(path[..iDir], "schemas");
+        }
+
         try
         {
             EvaluationResults results = await ValidateJsonAsync(req.Body, context.CancellationToken);
@@ -80,7 +96,7 @@ public class QueueTaskCreateFunction
         catch (JsonSchemaException jse)
         {
             const string msg = "Unable to resolve the task.json schema file!";
-            _logger.LogError(msg, jse);
+            _logger.LogError(jse, msg);
             return await HttpUtils.CreateMessageResponseAsync(req, HttpStatusCode.InternalServerError, msg);
         }
 
@@ -98,13 +114,13 @@ public class QueueTaskCreateFunction
         catch (RequestFailedException rfe)
         {
             const string msg = "QUEUE CLIENT: Send Message failure!";
-            _logger.LogError(msg, rfe);
+            _logger.LogError(rfe, msg);
             return await HttpUtils.CreateMessageResponseAsync(req, HttpStatusCode.ServiceUnavailable, msg);
         }
         catch (Exception e)
         {
             const string msg = "Send Message failure!";
-            _logger.LogError(msg, e);
+            _logger.LogError(e, msg);
             return await HttpUtils.CreateMessageResponseAsync(req, HttpStatusCode.InternalServerError, msg);
         }
 
@@ -117,7 +133,10 @@ public class QueueTaskCreateFunction
     {
         var builder = new UriBuilder()
         {
-            Path = "task.json"
+            Scheme = "file",
+            Host = string.Empty,
+            Path = string.Concat('/', Path.Join(SchemaPath, "task.json")),
+            Fragment = "#"
         };
         if (_schemaRegistry.Get(builder.Uri) is IBaseDocument schema)
         {
