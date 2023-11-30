@@ -78,10 +78,11 @@ jobs:
           self-signed-cert: true
 
       - name: Run Tests
-        working-directory: ${{ env.AZURE_FUNCTIONAPP_TESTS_PATH }}
         shell: bash
         run: |
+          pushd './${{ env.AZURE_FUNCTIONAPP_TESTS_PATH }}'
           dotnet test -c Release --results-directory ./testresults ./matts.AzFunctions.Tests.csproj
+          popd
       
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
