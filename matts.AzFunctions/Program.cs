@@ -43,6 +43,7 @@ var host = new HostBuilder()
             }
 
             c.AddBlobServiceClient(storageConnString);
+            c.AddTableServiceClient(storageConnString);
             c.AddQueueServiceClient(storageConnString)
                 .ConfigureOptions(qc => qc.MessageEncoding = Azure.Storage.Queues.QueueMessageEncoding.Base64);
         });
