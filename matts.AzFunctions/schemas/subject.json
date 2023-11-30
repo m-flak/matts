@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "subject.json#",
+  "title": "Subject",
+  "description": "Represents any additional 'what' or 'whom' that are associated with a given task.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "The id of this particular subject object.",
+      "type": "integer"
+    },
+    "subjectType": {
+      "description": "The type of subject.",
+      "type": "string"
+    },
+    "name": {
+      "description": "A display name for this subject.",
+      "type": "string"
+    },
+    "refUuid": {
+      "description": "An optional reference UUID that is a pointer for this subject.",
+      "type": "string",
+      "pattern": "^[a-f\\d]{4}(?:[a-f\\d]{4}-){4}[a-f\\d]{12}$"
+    }
+  },
+  "required": [
+    "id",
+    "subjectType",
+    "name"
+  ]
+}
