@@ -8,6 +8,9 @@ on:
 
 permissions:
   contents: read
+  issues: read
+  checks: write
+  pull-requests: write
 
 # CONFIGURATION
 # For help, go to https://github.com/Azure/Actions
