@@ -3,7 +3,7 @@ name: Deploy AzFunctions to Azure Function App
 on:
   push:
     branches: [ "master" ]
-    paths: [ "matts.AzFunctions/**" ]
+    paths: [ "matts.AzFunctions/**", "matts.AzFunctions.Tests/**" ]
   workflow_dispatch:
 
 permissions:
