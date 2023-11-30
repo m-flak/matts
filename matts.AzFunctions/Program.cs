@@ -1,4 +1,4 @@
-/* matts
+﻿/* matts
  * "Matthew's ATS" - Portfolio Project
  * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
  * 
@@ -40,6 +40,8 @@ var host = new HostBuilder()
             }
 
             c.AddBlobServiceClient(storageConnString);
+
+            c.AddTableServiceClient(storageConnString);
         });
     })
     .Build();

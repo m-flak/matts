@@ -15,11 +15,10 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Azure;
+using System.Security.Cryptography;
+using System.Text.Json;
+using Azure.Data.Tables;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
@@ -28,16 +27,76 @@ namespace matts.AzFunctions;
 public class CreateTaskFunction
 {
     private readonly ILogger _logger;
+    private readonly RandomNumberGenerator _rng;
+    private readonly TableServiceClient _tableServiceClient;
 
-    public CreateTaskFunction(ILoggerFactory loggerFactory)
+    public CreateTaskFunction(ILoggerFactory loggerFactory, TableServiceClient tableServiceClient)
     {
         _logger = loggerFactory.CreateLogger<CreateTaskFunction>();
+        _rng = RandomNumberGenerator.Create();
+        _tableServiceClient = tableServiceClient;
     }
 
     [Function("CreateTaskFunction")]
-    public object Run([QueueTrigger("tasks", Connection = "AzureWebJobsStorage")] string taskJson)
+    [TableOutput("tasks", Connection = "AzureWebJobsStorage")]
+    public async Task<TableEntities.Task> Run([QueueTrigger("tasks", Connection = "AzureWebJobsStorage")] string taskJson, FunctionContext context)
     {
-        _logger.LogInformation("Task: {}", taskJson);
-        return new object();
+        JsonEntities.Task parsedTask;
+        try
+        {
+            parsedTask = JsonSerializer.Deserialize<JsonEntities.Task>(taskJson)!;
+            ArgumentNullException.ThrowIfNull(parsedTask);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deserializing {J}", nameof(taskJson));
+            throw new RequestFailedException("InvalidInput", ex);
+        }
+
+        await _tableServiceClient.CreateTableIfNotExistsAsync("tasks", context.CancellationToken);
+        string rowKey = MakeRowKey();
+
+        // Add subject entities (if any) first
+        TableClient tableClient = _tableServiceClient.GetTableClient("tasks");
+        if (parsedTask.Subjects is List<JsonEntities.Subject> subjects)
+        {
+            foreach (var subject in subjects)
+            {
+                var entity = new TableEntities.Subject()
+                {
+                    PartitionKey = rowKey,  // The rowKey of the parent task
+                    RowKey = subject.Id.ToString(),
+                    Id = subject.Id,
+                    SubjectType = subject.SubjectType,
+                    Name = subject.Name,
+                    RefUuid = subject.RefUuid
+                };
+
+                await tableClient.AddEntityAsync(entity, context.CancellationToken);
+            }
+        }
+
+        return new TableEntities.Task()
+        {
+            PartitionKey = parsedTask.Assignee,
+            RowKey = rowKey,
+            Assignee = parsedTask.Assignee,
+            TaskType = parsedTask.TaskType,
+            Title = parsedTask.Title,
+            Description = parsedTask.Description,
+            TimeCreated = DateTime.UtcNow
+        };
+    }
+
+    private string MakeRowKey()
+    {
+        var bytes = new byte[sizeof(int)];
+        _rng.GetBytes(bytes);
+
+        return string.Concat(
+            DateTimeOffset.Now.ToUnixTimeMilliseconds().ToString(),
+            '_',
+            BitConverter.ToString(bytes).Replace("-", string.Empty)
+            );
     }
 }
