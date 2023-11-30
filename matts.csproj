@@ -53,14 +53,18 @@
   <ItemGroup>
     <!-- Don't publish the SPA source files, but do show them in the project files list -->
     <Compile Remove="matts.AzFunctions\**" />
+      <Compile Remove="matts.AzFunctions.Tests\**" />
     <Compile Remove="matts.Tests\**" />
     <Content Remove="$(SpaRoot)**" />
     <Content Remove="matts.Tests\**" />
     <EmbeddedResource Remove="matts.Tests\**" />
 	<Content Remove="matts.AzFunctions\**" />
+      <Content Remove="matts.AzFunctions.Tests\**" />
 	<EmbeddedResource Remove="matts.AzFunctions\**" />
+     <EmbeddedResource Remove="matts.AzFunctions.Tests\**" />
     <None Remove="$(SpaRoot)**" />
     <None Remove="matts.AzFunctions\**" />
+    <None Remove="matts.AzFunctions.Tests\**" />
     <None Remove="matts.Tests\**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
   </ItemGroup>

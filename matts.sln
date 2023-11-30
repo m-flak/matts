@@ -10,7 +10,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "matts.Tests", "matts.Tests\
 		{13C9383C-BEDA-4425-9A5A-5CC22B8245AE} = {13C9383C-BEDA-4425-9A5A-5CC22B8245AE}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "matts.AzFunctions", "matts.AzFunctions\matts.AzFunctions.csproj", "{F87316C3-3031-43E9-AB20-CB1FB27B8236}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "matts.AzFunctions", "matts.AzFunctions\matts.AzFunctions.csproj", "{F87316C3-3031-43E9-AB20-CB1FB27B8236}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "matts.AzFunctions.Tests", "matts.AzFunctions.Tests\matts.AzFunctions.Tests.csproj", "{18C1F0A3-4F44-4BCB-AFE1-94A4B3FA2E8C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,6 +32,10 @@ Global
 		{F87316C3-3031-43E9-AB20-CB1FB27B8236}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F87316C3-3031-43E9-AB20-CB1FB27B8236}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F87316C3-3031-43E9-AB20-CB1FB27B8236}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18C1F0A3-4F44-4BCB-AFE1-94A4B3FA2E8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18C1F0A3-4F44-4BCB-AFE1-94A4B3FA2E8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18C1F0A3-4F44-4BCB-AFE1-94A4B3FA2E8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18C1F0A3-4F44-4BCB-AFE1-94A4B3FA2E8C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
