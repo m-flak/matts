@@ -51,5 +51,19 @@ internal sealed class HttpUtils
         return responseBad;
     }
 
+    internal static bool IsContentType(HttpRequestData request, string contentType)
+    {
+        bool hasHeader = request.Headers.TryGetValues("Content-Type", out var values);
+        bool matches = false;
+
+        if (hasHeader)
+        {
+            string value = values?.FirstOrDefault(defaultValue: string.Empty) ?? string.Empty;
+            matches = string.Equals(contentType, value, StringComparison.OrdinalIgnoreCase);
+        }
+
+        return hasHeader && matches;
+    }
+
     private HttpUtils() { }
 }

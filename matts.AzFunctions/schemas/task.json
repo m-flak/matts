@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "task.json#",
+  "title": "Task",
+  "description": "Represents a pending business task that end users need to perform.",
+  "type": "object",
+  "properties": {
+    "assignee": {
+      "description": "The assignee of the task. Either an Employer UUID or 'all'.",
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-f\\d]{4}(?:[a-f\\d]{4}-){4}[a-f\\d]{12}$"
+        },
+        {
+          "type": "string",
+          "const": "all"
+        }
+      ]
+    },
+    "taskType": {
+      "description": "The type of task.",
+      "type": "string"
+    },
+    "title": {
+      "description": "The display title of this task.",
+      "type": "string"
+    },
+    "description": {
+      "description": "Describes what needs to be done for this task.",
+      "type": "string"
+    },
+    "timeCreated": {
+      "description": "Creation time of this task. Either a date-time string or a unix epoch.",
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "integer"
+        }
+      ]
+    },
+    "subjects": {
+      "description": "Objects that represent any additional 'what' or 'whom' that are associated with a given task.",
+      "type": "array",
+      "items": {
+        "$ref": "subject.json#"
+      }
+    }
+  },
+  "required": [
+    "assignee",
+    "taskType",
+    "title",
+    "description"
+  ]
+}
