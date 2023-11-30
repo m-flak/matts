@@ -41,6 +41,7 @@ public class CreateTaskFunction
     [TableOutput("tasks", Connection = "AzureWebJobsStorage")]
     public async Task<TableEntities.Task> Run([QueueTrigger("tasks", Connection = "AzureWebJobsStorage")] string taskJson, FunctionContext context)
     {
+        bool hasSubjects = false;
         JsonEntities.Task parsedTask;
         try
         {
@@ -60,6 +61,8 @@ public class CreateTaskFunction
         TableClient tableClient = _tableServiceClient.GetTableClient("tasks");
         if (parsedTask.Subjects is List<JsonEntities.Subject> subjects)
         {
+            hasSubjects = subjects.Any();
+
             foreach (var subject in subjects)
             {
                 var entity = new TableEntities.Subject()
@@ -84,7 +87,8 @@ public class CreateTaskFunction
             TaskType = parsedTask.TaskType,
             Title = parsedTask.Title,
             Description = parsedTask.Description,
-            TimeCreated = DateTime.UtcNow
+            TimeCreated = DateTime.UtcNow,
+            HasSubjects = hasSubjects
         };
     }
 

@@ -37,4 +37,5 @@ public record Task : ITableEntity
     public required string Title { get; set; }
     public required string Description { get; set; }
     public required DateTimeOffset TimeCreated { get; set; }
+    public required bool HasSubjects { get; set; }
 }
