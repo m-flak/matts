@@ -87,12 +87,10 @@ jobs:
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
-        env:
-          PROJECT_PATH: ${{ env.AZURE_FUNCTIONAPP_TESTS_PATH }}
         with:
           compare_to_earlier_commit: false
           files: |
-            testresults/**/*.trx
+            ${{ env.AZURE_FUNCTIONAPP_TESTS_PATH }}/testresults/**/*.trx
 ## DEPLOY
   deploy:
     name: Deploy
