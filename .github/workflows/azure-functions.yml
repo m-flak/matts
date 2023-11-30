@@ -49,7 +49,6 @@ jobs:
           name: my-function
           path: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output/
           retention-days: 1
-
 ## TEST
   test:
     name: Test
@@ -76,8 +75,22 @@ jobs:
         uses: potatoqualitee/azuright@main
         with:
           self-signed-cert: true
-    # TODO: TESTING
-    #
+
+      - name: Run Tests
+        working-directory: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+        shell: bash
+        run: |
+          dotnet test -c Release --results-directory ./testresults ./matts.AzFunctions.Tests.csproj
+      
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        env:
+          PROJECT_PATH: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+        with:
+          compare_to_earlier_commit: false
+          files: |
+            testresults/**/*.trx
 ## DEPLOY
   deploy:
     name: Deploy
