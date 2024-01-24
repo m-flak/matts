@@ -19,7 +19,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 using Azure.Storage.Queues;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -44,7 +43,7 @@ public class QueueTaskCreateFunction
 
     public QueueTaskCreateFunction(ILoggerFactory loggerFactory, QueueServiceClient queueServiceClient, SchemaRegistry schemaRegistry, Func<string> schemaPath)
     {
-        _logger = loggerFactory.CreateLogger<QueueServiceClient>();
+        _logger = loggerFactory.CreateLogger<QueueTaskCreateFunction>();
         _queueServiceClient = queueServiceClient;
         _schemaRegistry = schemaRegistry;
         SchemaPath = schemaPath();
@@ -80,7 +79,7 @@ public class QueueTaskCreateFunction
                 return await HttpUtils.CreateMessageResponseAsync(req, HttpStatusCode.BadRequest, string.Concat(msg, errors));
             }
         }
-        catch (JsonSchemaException jse)
+        catch (Exception jse) when (jse is JsonSchemaException || jse is JsonException)
         {
             const string msg = "Unable to resolve the task.json schema file!";
             _logger.LogError(jse, msg);
