@@ -18,30 +18,13 @@
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using matts.AzFunctions;
 
-string? storageConnString = null;
-
+var startup = new Startup();
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
-    .ConfigureAppConfiguration(builder =>
-    {
-        builder.AddJsonFile("local.settings.json", optional: true, reloadOnChange: true).AddEnvironmentVariables();
-        var config = builder.Build();
-
-        storageConnString = config.GetValue<string>("AzureWebJobsStorage");
-    })
-    .ConfigureServices(s =>
-    {
-        s.AddAzureClients(c =>
-        {
-            if (storageConnString == null)
-            {
-                throw new ApplicationException("Connection string for Blob Storage missing from \"AzureWebJobsStorage\"!");
-            }
-
-            c.AddBlobServiceClient(storageConnString);
-        });
-    })
+    .ConfigureAppConfiguration(startup.ConfigureAppConfiguration)
+    .ConfigureServices((_, sc) => startup.ConfigureServices(sc))
     .Build();
 
 host.Run();

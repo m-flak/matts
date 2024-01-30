@@ -14,6 +14,6 @@ public sealed class MockHttpResponseData : HttpResponseData
 
     public override HttpStatusCode StatusCode { get; set; }
     public override HttpHeadersCollection Headers { get; set; }
-    public override Stream Body { get; set; } = new MemoryStream();
+    public override Stream Body { get; set; } = new MemoryStream(1024);
     public override HttpCookies Cookies { get; }
 }
