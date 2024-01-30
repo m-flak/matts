@@ -18,10 +18,10 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0" />
     <PackageReference Include="System.Text.Json" Version="8.0.1" />
-    <PackageReference Include="UnitTestEx" Version="3.1.0" />
-    <PackageReference Include="UnitTestEx.Xunit" Version="3.1.0" />
-    <PackageReference Include="xunit" Version="2.6.2" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.4">
+    <PackageReference Include="UnitTestEx" Version="4.1.0" />
+    <PackageReference Include="UnitTestEx.Xunit" Version="4.1.0" />
+    <PackageReference Include="xunit" Version="2.6.6" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.6">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -37,7 +37,7 @@
 
   <ItemGroup>
     <ProjectReference Label="Functions" Include="..\matts.AzFunctions\matts.AzFunctions.csproj" />
-      <Content Include="%(Functions.RelativeDir)schemas\**\*.json" >
+      <Content Include="%(Functions.RelativeDir)schemas\**\*.json">
           <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
   </ItemGroup>

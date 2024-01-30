@@ -15,67 +15,14 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-using System.Reflection;
-using Json.Schema;
-using Microsoft.Extensions.Azure;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+using matts.AzFunctions;
 using Microsoft.Extensions.Hosting;
 
-string? storageConnString = null;
-
+var startup = new Startup();
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
-    .ConfigureAppConfiguration(builder =>
-    {
-        builder.AddJsonFile("local.settings.json", optional: true, reloadOnChange: true).AddEnvironmentVariables();
-        var config = builder.Build();
-
-        storageConnString = config.GetValue<string>("AzureWebJobsStorage");
-    })
-    .ConfigureServices(s =>
-    {
-        s.AddAzureClients(c =>
-        {
-            if (storageConnString == null)
-            {
-                throw new ApplicationException("Connection string for Blob Storage missing from \"AzureWebJobsStorage\"!");
-            }
-
-            c.AddBlobServiceClient(storageConnString);
-            c.AddTableServiceClient(storageConnString);
-            c.AddQueueServiceClient(storageConnString)
-                .ConfigureOptions(qc => qc.MessageEncoding = Azure.Storage.Queues.QueueMessageEncoding.Base64);
-        });
-
-        s.AddSingleton<SchemaRegistry>(implementationFactory: _ =>
-        {
-            var registry = SchemaRegistry.Global;
-            foreach (var file in Directory.GetFiles("schemas", "*.json"))
-            {
-                var schema = JsonSchema.FromFile(file);
-                registry.Register(schema);
-            }
-            return registry;
-        });
-
-        s.AddSingleton<Func<string>>(implementationFactory: _ =>
-        {
-            return () =>
-            {
-                string path = Assembly.GetExecutingAssembly().Location;
-                int iDir = 0;
-                for (int i = 0; i < path.Length; ++i)
-                {
-                    if (path[i] == '/' || path[i] == '\\')
-                    {
-                        iDir = i;
-                    }
-                }
-                return Path.Join(path[..iDir], "schemas");
-            };
-        });
-    })
+    .ConfigureAppConfiguration(startup.ConfigureAppConfiguration)
+    .ConfigureServices((_, sc) => startup.ConfigureServices(sc))
     .Build();
 
 host.Run();
