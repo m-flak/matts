@@ -61,7 +61,7 @@ public class CreateTaskFunction
         TableClient tableClient = _tableServiceClient.GetTableClient("tasks");
         if (parsedTask.Subjects is List<JsonEntities.Subject> subjects)
         {
-            hasSubjects = subjects.Any();
+            hasSubjects = subjects.Count != 0;
 
             foreach (var subject in subjects)
             {

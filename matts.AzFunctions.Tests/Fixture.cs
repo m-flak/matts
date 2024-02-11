@@ -23,6 +23,19 @@ public sealed class Fixture
                 ""description"": ""Test Task""
              }";
 
+    public static string NewTaskWithSubjects
+        => @"{
+                ""assignee"": ""all"",
+                ""taskType"": ""TEST_TASK"",
+                ""title"": ""Test Task"",
+                ""description"": ""Test Task"",
+                ""subjects"": [{
+                    ""id"": 1,
+                    ""subjectType"": ""TARGET"",
+                    ""name"": ""Test Me!""
+                }]
+             }";
+
     public static HttpRequestData CreateRequestData(Mock<FunctionContext> context, [Optional] string? contentType, [Optional] string? method, [Optional] string? body)
     {
         contentType ??= MediaTypeNames.Application.Json;
