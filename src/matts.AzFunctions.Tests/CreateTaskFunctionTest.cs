@@ -38,7 +38,13 @@ public class CreateTaskFunctionTest : UnitTestBase
             .RunAsync(f => f.Run(Fixture.NewTaskRequestBody, context.Object));
 
         sut.AssertSuccess();
-        // Can't assert anything else with this library :|
+        var result = sut.Result;
+        Assert.Equal("all", result.PartitionKey);
+        Assert.Equal("all", result.Assignee);
+        Assert.Equal("TEST_TASK", result.TaskType);
+        Assert.Equal("Test Task", result.Title);
+        Assert.Equal("Test Task", result.Description);
+        Assert.False(result.HasSubjects);
     }
 
     [Fact]
@@ -52,6 +58,12 @@ public class CreateTaskFunctionTest : UnitTestBase
             .RunAsync(f => f.Run(Fixture.NewTaskWithSubjects, context.Object));
 
         sut.AssertSuccess();
-        // Can't assert anything else with this library :|
+        var result = sut.Result;
+        Assert.Equal("all", result.PartitionKey);
+        Assert.Equal("all", result.Assignee);
+        Assert.Equal("TEST_TASK", result.TaskType);
+        Assert.Equal("Test Task", result.Title);
+        Assert.Equal("Test Task", result.Description);
+        Assert.True(result.HasSubjects);
     }
 }
