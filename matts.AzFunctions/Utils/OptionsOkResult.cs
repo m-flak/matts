@@ -21,27 +21,40 @@ using Microsoft.AspNetCore.Mvc;
 namespace matts.AzFunctions.Utils;
 
 [DefaultStatusCode(200)]
-internal sealed class OptionsOkResult : StatusCodeResult
+public sealed class OptionsOkResult : StatusCodeResult
 {
     private const int DefaultStatusCode = 200;
+    private const string AllowHeader = "Allow";
+    private const string AccessControlHeader = "Access-Control-Allow-Origin";
+
+    private readonly Dictionary<string, string?[]> _resultHeaders;
 
     public string RequestedHttpMethod { get; init; } = "GET";
+    public IReadOnlyDictionary<string, string?[]> ResultHeaders { get; init; }
 
     public OptionsOkResult()
         : base(DefaultStatusCode)
     {
+        _resultHeaders = new Dictionary<string, string?[]>();
+        ResultHeaders = _resultHeaders;
     }
 
     public OptionsOkResult(string requestedHttpMethod)
         : this()
     {
         RequestedHttpMethod = requestedHttpMethod;
+
+        _resultHeaders.Add(AllowHeader, new[] { RequestedHttpMethod, "OPTIONS" });
+        _resultHeaders.Add(AccessControlHeader, new[] { "*" });
     }
 
     public override void ExecuteResult(ActionContext context)
     {
-        context.HttpContext.Response.Headers.Add("Allow", new[] { RequestedHttpMethod, "OPTIONS" });
-        context.HttpContext.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+        context.HttpContext.Response.Headers.Allow
+            = _resultHeaders[AllowHeader];
+        context.HttpContext.Response.Headers.AccessControlAllowOrigin
+            = _resultHeaders[AccessControlHeader];
+
         context.HttpContext.Response.StatusCode = DefaultStatusCode;
     }
 }

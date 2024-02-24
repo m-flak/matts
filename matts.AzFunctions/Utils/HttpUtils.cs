@@ -17,6 +17,7 @@
 **/
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using System.Net.Mime;
 using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -62,7 +63,8 @@ internal sealed class HttpUtils
                 Message = msg
             })
         {
-            StatusCode = (int)status
+            StatusCode = (int)status,
+            ContentTypes = { MediaTypeNames.Application.Json }
         };
     }
 
