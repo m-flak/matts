@@ -1,6 +1,6 @@
 ﻿/* matts
  * "Matthew's ATS" - Portfolio Project
- * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
+ * Copyright (C) 2023-2024  Matthew E. Kehrer <matthew@kehrer.dev>
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@ using Microsoft.Extensions.Hosting;
 
 var startup = new Startup();
 var host = new HostBuilder()
-    .ConfigureFunctionsWorkerDefaults()
+    .ConfigureFunctionsWebApplication()
     .ConfigureAppConfiguration(startup.ConfigureAppConfiguration)
     .ConfigureServices((_, sc) => startup.ConfigureServices(sc))
     .Build();

@@ -6,7 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <UserSecretsId>3aa4c576-626d-4064-b579-d2623acf4adc</UserSecretsId>
-	<EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <NoWarn>IDE0007</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Azure.Data.Tables" Version="12.8.3" />

@@ -27,7 +27,7 @@ public class Startup
 {
     public string? StorageConnectionString { get; set; } = null;
 
-    public void ConfigureAppConfiguration(HostBuilderContext context, IConfigurationBuilder builder)
+    public void ConfigureAppConfiguration(HostBuilderContext _, IConfigurationBuilder builder)
     {
         builder.AddJsonFile("local.settings.json", optional: true, reloadOnChange: true).AddEnvironmentVariables();
         var config = builder.Build();

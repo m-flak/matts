@@ -1,6 +1,6 @@
 ﻿/* matts
  * "Matthew's ATS" - Portfolio Project
- * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
+ * Copyright (C) 2023-2024  Matthew E. Kehrer <matthew@kehrer.dev>
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,13 +15,8 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
 using Azure.Storage.Queues;
-using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Azure;
@@ -30,6 +25,8 @@ using System.Net.Mime;
 using Azure.Storage.Queues.Models;
 using System.Text.Json;
 using Json.Schema;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 
 namespace matts.AzFunctions;
 
@@ -50,8 +47,10 @@ public class QueueTaskCreateFunction
     }
 
     [Function("QueueTaskCreateFunction")]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Function, "post", "options", Route = "tasks/queue-create")] HttpRequestData req, FunctionContext context)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", "options", Route = "tasks/queue-create")] HttpRequest req, FunctionContext context)
     {
+        req.EnableBuffering();
+
         if (HttpUtils.HandleCreateOptionsResponse(req, out var optionsResponse))
         {
             return optionsResponse;
@@ -60,7 +59,7 @@ public class QueueTaskCreateFunction
         {
             const string msg = "Incorrect content type. Content type must be JSON.";
             _logger.LogError(msg);
-            return await HttpUtils.CreateMessageResponseAsync(req, HttpStatusCode.BadRequest, msg);
+            return HttpUtils.ErrorResultWithDetails(msg: msg);
         }
 
         try
@@ -76,14 +75,14 @@ public class QueueTaskCreateFunction
                 }
 
                 _logger.LogError(msg);
-                return await HttpUtils.CreateMessageResponseAsync(req, HttpStatusCode.BadRequest, string.Concat(msg, errors));
+                return HttpUtils.ErrorResultWithDetails(msg: string.Concat(msg, errors));
             }
         }
         catch (Exception jse) when (jse is JsonSchemaException || jse is JsonException)
         {
             const string msg = "Unable to resolve the task.json schema file!";
             _logger.LogError(jse, msg);
-            return await HttpUtils.CreateMessageResponseAsync(req, HttpStatusCode.InternalServerError, msg);
+            return HttpUtils.ErrorResultWithDetails(msg: msg);
         }
 
         QueueClient queue = _queueServiceClient.GetQueueClient("tasks");
@@ -93,26 +92,32 @@ public class QueueTaskCreateFunction
         }
 
         SendReceipt azResponse;
+        StreamReader requestReader = new StreamReader(req.Body, encoding: System.Text.Encoding.UTF8, bufferSize: (int)req.Body.Length, leaveOpen: true);
         try
         {
-            azResponse = await queue.SendMessageAsync(await req.ReadAsStringAsync());
+            azResponse = await queue.SendMessageAsync(await requestReader.ReadToEndAsync());
         }
         catch (RequestFailedException rfe)
         {
             const string msg = "QUEUE CLIENT: Send Message failure!";
             _logger.LogError(rfe, msg);
-            return await HttpUtils.CreateMessageResponseAsync(req, HttpStatusCode.ServiceUnavailable, msg);
+            return HttpUtils.ErrorResultWithDetails(msg: msg);
         }
         catch (Exception e)
         {
             const string msg = "Send Message failure!";
             _logger.LogError(e, msg);
-            return await HttpUtils.CreateMessageResponseAsync(req, HttpStatusCode.InternalServerError, msg);
+            return HttpUtils.ErrorResultWithDetails(HttpStatusCode.InternalServerError, msg);
+        }
+        finally
+        {
+            requestReader.Dispose();
         }
 
-        var response = req.CreateResponse();
-        await response.WriteAsJsonAsync(azResponse);
-        return response;
+        return new JsonResult(azResponse)
+        {
+            StatusCode = (int)HttpStatusCode.OK
+        };
     }
 
     private async Task<EvaluationResults> ValidateJsonAsync(Stream jsonStream, CancellationToken ct)
