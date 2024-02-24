@@ -20,7 +20,6 @@ using System.Net;
 using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Functions.Worker.Http;
 
 namespace matts.AzFunctions.Utils;
 
@@ -65,31 +64,6 @@ internal sealed class HttpUtils
         {
             StatusCode = (int)status
         };
-    }
-
-    [Obsolete(message: "Phasing out the Built-in Model")]
-    internal static bool HandleCreateOptionsResponse(HttpRequestData request, [MaybeNullWhen(false)] out HttpResponseData response)
-    {
-        if (string.Equals(request.Method, "OPTIONS", StringComparison.OrdinalIgnoreCase))
-        {
-            var optionsResponse = request.CreateResponse();
-            optionsResponse.Headers.Add("Allow", new[] { "POST", "OPTIONS" });
-            optionsResponse.Headers.Add("Access-Control-Allow-Origin", "*");
-            optionsResponse.StatusCode = HttpStatusCode.OK;
-            response = optionsResponse;
-            return true;
-        }
-
-        response = null;
-        return false;
-    }
-
-    [Obsolete(message: "Phasing out the Built-in Model")]
-    internal static async Task<HttpResponseData> CreateMessageResponseAsync(HttpRequestData request, HttpStatusCode code, string message)
-    {
-        var responseBad = request.CreateResponse(code);
-        await responseBad.WriteStringAsync(message);
-        return responseBad;
     }
 
     private HttpUtils() { }
