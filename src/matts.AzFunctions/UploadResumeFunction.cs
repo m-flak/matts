@@ -1,6 +1,6 @@
-/* matts
+﻿/* matts
  * "Matthew's ATS" - Portfolio Project
- * Copyright (C) 2023  Matthew E. Kehrer <matthew@kehrer.dev>
+ * Copyright (C) 2023-2024  Matthew E. Kehrer <matthew@kehrer.dev>
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -21,13 +21,15 @@ using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using HttpMultipartParser;
+using matts.AzFunctions.Utils;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 
 namespace matts.AzFunctions;
 
-public class UploadResumeFunction
+public partial class UploadResumeFunction
 {
     private readonly ILogger _logger;
     private readonly BlobServiceClient _blobServiceClient;
@@ -39,46 +41,38 @@ public class UploadResumeFunction
     }
 
     [Function("UploadResumeFunction")]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Function, "post", "options", Route="resumes/upload")] HttpRequestData req)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", "options", Route="resumes/upload")] HttpRequest req, FunctionContext context)
     {
-        if (string.Equals(req.Method, "OPTIONS", StringComparison.OrdinalIgnoreCase))
+        req.EnableBuffering();
+
+        if (HttpUtils.HandleCreateOptionsResponse(req, out var optionsResponse))
         {
-            var optionsResponse = req.CreateResponse();
-            optionsResponse.Headers.Add("Allow", new[] { "POST", "OPTIONS" });
-            optionsResponse.Headers.Add("Access-Control-Allow-Origin", "*");
-            optionsResponse.StatusCode = HttpStatusCode.OK;
             return optionsResponse;
         }
 
-        var parsedFormBody = await MultipartFormDataParser.ParseAsync(req.Body);
+        var parsedFormBody = await MultipartFormDataParser.ParseAsync(req.Body, cancellationToken: context.CancellationToken);
         string? fileName = parsedFormBody.GetParameterValue("fileName");
         string? jobUuid = parsedFormBody.GetParameterValue("jobUuid");
         string? applicantUuid = parsedFormBody.GetParameterValue("applicantUuid");
 
         if (fileName == null)
         {
-            var responseBad = req.CreateResponse(HttpStatusCode.BadRequest);
             _logger.LogError("Missing {Field} from Form Data!", nameof(fileName));
-            await responseBad.WriteStringAsync($"Missing {nameof(fileName)} from Form Data!");
-            return responseBad;
+            return HttpUtils.ErrorResultWithDetails(msg: $"Missing {nameof(fileName)} from Form Data!");
         }
         if (jobUuid == null)
         {
-            var responseBad = req.CreateResponse(HttpStatusCode.BadRequest);
             _logger.LogError("Missing {Field} from Form Data!", nameof(jobUuid));
-            await responseBad.WriteStringAsync($"Missing {nameof(jobUuid)} from Form Data!");
-            return responseBad;
+            return HttpUtils.ErrorResultWithDetails(msg: $"Missing {nameof(jobUuid)} from Form Data!");
         }
         if (applicantUuid == null) 
         {
-            var responseBad = req.CreateResponse(HttpStatusCode.BadRequest);
             _logger.LogError("Missing {Field} from Form Data!", nameof(applicantUuid));
-            await responseBad.WriteStringAsync($"Missing {nameof(applicantUuid)} from Form Data!");
-            return responseBad;
+            return HttpUtils.ErrorResultWithDetails(msg: $"Missing {nameof(applicantUuid)} from Form Data!");
         }
 
         BlobContainerClient blobContainerClient = _blobServiceClient.GetBlobContainerClient("resumes");
-        if ( !await blobContainerClient.ExistsAsync() )
+        if ( !await blobContainerClient.ExistsAsync(context.CancellationToken) )
         {
             try
             {
@@ -87,18 +81,17 @@ public class UploadResumeFunction
                     DefaultEncryptionScope = "$account-encryption-key",
                     PreventEncryptionScopeOverride = false
                 };
-                await blobContainerClient.CreateAsync(PublicAccessType.None, null, options);
+                await blobContainerClient.CreateAsync(PublicAccessType.None, null, options, context.CancellationToken);
             }
             catch (RequestFailedException rfe)
             {
-                _logger.LogError("Unable to create the container when it didn't exist in the first place!", rfe);
-                var responseBad = req.CreateResponse(HttpStatusCode.ServiceUnavailable);
-                await responseBad.WriteStringAsync("Unable to create the container when it didn't exist in the first place!");
-                return responseBad;
+                const string msg = "Unable to create the container when it didn't exist in the first place!";
+                _logger.LogError(rfe, msg);
+                return HttpUtils.ErrorResultWithDetails(HttpStatusCode.ServiceUnavailable, msg);
             }
         }
 
-        // If only my employer let us use C# instead of Java... this keyword here would eliminate KLOCs of code lol
+        // Response body
         dynamic blobInformation;
         try
         {
@@ -112,41 +105,38 @@ public class UploadResumeFunction
                     ["applicantUuid"] = applicantUuid
                 }
             };
-            await blobClient.UploadAsync(parsedFormBody.Files[0].Data, options);
-            var propResponse = await blobClient.GetPropertiesAsync();
+            await blobClient.UploadAsync(parsedFormBody.Files[0].Data, options, context.CancellationToken);
+            var propResponse = await blobClient.GetPropertiesAsync(cancellationToken: context.CancellationToken);
             blobInformation = new
             {
                 Name = blobName,
-                Uri = blobClient.Uri,
+                blobClient.Uri,
                 Properties = propResponse.Value
             };
         }
         catch (RequestFailedException rfe)
         {
-            _logger.LogError("BLOB CLIENT: Upload failure!", rfe);
-            var responseBad = req.CreateResponse(HttpStatusCode.ServiceUnavailable);
-            await responseBad.WriteStringAsync("BLOB CLIENT: Upload failure!");
-            return responseBad;
+            const string msg = "BLOB CLIENT: Upload failure!";
+            _logger.LogError(rfe, msg);
+            return HttpUtils.ErrorResultWithDetails(HttpStatusCode.ServiceUnavailable, msg);
         }
         catch (Exception e) // This catch-all should cover the exceptions not thrown by the Azure stuff
         {
-            _logger.LogError("Upload failure!", e);
-            var responseBad = req.CreateResponse(HttpStatusCode.BadRequest);
-            await responseBad.WriteStringAsync("Upload failure!");
-            return responseBad;
+            const string msg = "Upload failure!";
+            _logger.LogError(e, msg);
+            return HttpUtils.ErrorResultWithDetails(HttpStatusCode.InternalServerError, msg);
         }
 
-        _logger.LogInformation("Uploaded file {File} at {Uri}", (string) blobInformation.Name, (Uri) blobInformation.Uri);
-        var response = req.CreateResponse();
-        await response.WriteAsJsonAsync((object) blobInformation);
-
-        return response;
+        _logger.LogInformation("Uploaded file {File} at {Uri}", (string)blobInformation.Name, (Uri) blobInformation.Uri);
+        return new JsonResult((object)blobInformation)
+        {
+            StatusCode = (int)HttpStatusCode.OK
+        };
     }
 
     private static string CreateBlobName(string juuid, string auuid, string fileName)
     {
-        string pattern = @"\.\w+$";
-        Match m = Regex.Match(fileName, pattern);
+        Match m = BlobNameRegex().Match(fileName);
         if (!m.Success)
         {
             throw new ArgumentException("The File Name is missing an extension!", nameof(fileName));
@@ -154,4 +144,7 @@ public class UploadResumeFunction
 
         return $"{juuid}/{auuid}{m.Value}";
     }
+
+    [GeneratedRegex("\\.\\w+$")]
+    private static partial Regex BlobNameRegex();
 }
