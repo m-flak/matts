@@ -1,18 +1,18 @@
-﻿using System.Net.Mime;
+﻿using Azure;
+using Azure.Storage.Queues;
+using System.Net.Mime;
 using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Json.More;
-using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 using Xunit.Abstractions;
-using UnitTestEx.Xunit;
 using Moq;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
+using UnitTestEx.Xunit;
 
+// ours
 using matts.AzFunctions.Utils;
-using Azure.Storage.Queues;
-using Azure;
 
 namespace matts.AzFunctions.Tests;
 
@@ -154,13 +154,10 @@ public class QueueTaskCreateFunctionTest : UnitTestBase
         var queue = new Mock<QueueClient>();
         queue.Setup(q => q.CreateIfNotExistsAsync(It.IsAny<IDictionary<string, string>>(), It.IsAny<CancellationToken>()))
             .Returns(Task.FromResult<Response?>(null));
-        test.MockSingleton(queue);
 
         // mock Azure QueueServiceCleint to provide the above mock
-        var queueServiceClient = new Mock<QueueServiceClient>();
-        queueServiceClient.Setup(qc => qc.GetQueueClient(It.IsAny<string>()))
-            .Returns(queue.Object);
-        test.MockSingleton(queueServiceClient);
+        var queueServiceClient = Fixture.GetQueueServiceClientMock(queue);
+        queueServiceClient.AddSingletonToTestHost(test);
 
         var route = test
             .Type<QueueTaskCreateFunction>()

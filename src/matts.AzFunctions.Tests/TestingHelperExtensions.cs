@@ -16,6 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 using Microsoft.Azure.Functions.Worker;
+using Moq;
+using UnitTestEx.Xunit.Internal;
 
 namespace matts.AzFunctions.Tests;
 internal static class TestingHelperExtensions
@@ -40,5 +42,12 @@ internal static class TestingHelperExtensions
         {
             return string.Empty;
         }
+    }
+
+    public static void AddSingletonToTestHost<TMock, TStartup>(this Mock<TMock> mock, FunctionTester<TStartup> testHost)
+        where TMock : class
+        where TStartup : class, new()
+    {
+        testHost.MockSingleton(mock);
     }
 }
