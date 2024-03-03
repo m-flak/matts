@@ -22,15 +22,7 @@
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp"  />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets"  />
-    <PackageReference Include="Roslynator.Analyzers">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="Roslynator.CSharp" />
-    <PackageReference Include="Roslynator.Formatting.Analyzers" >
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

@@ -13,7 +13,7 @@
 
     <PropertyGroup>
         <UseDataCollector />
-        <NoWarn>CA1063</NoWarn> <!-- Stop complaining about XUnit's setup VS... -->
+        <NoWarn>CA1063,CA1707,CA2007</NoWarn> <!-- Stop complaining about XUnit's setup VS... -->
     </PropertyGroup>
     
   <ItemGroup>
@@ -26,18 +26,6 @@
     <PackageReference Include="UnitTestEx"/>
     <PackageReference Include="UnitTestEx.Xunit"/>
     <PackageReference Include="xunit"/>
-    <PackageReference Include="xunit.runner.visualstudio">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-      <PackageReference Include="coverlet.collector">
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-          <PrivateAssets>all</PrivateAssets>
-      </PackageReference>
-      <PackageReference Include="coverlet.msbuild">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
   </ItemGroup>
 
   <ItemGroup>

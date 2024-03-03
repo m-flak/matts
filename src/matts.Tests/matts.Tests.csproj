@@ -11,7 +11,7 @@
     <IsTestProject>true</IsTestProject>
 	<IsDockerBuild>false</IsDockerBuild>
 	<EnableNETAnalyzers>true</EnableNETAnalyzers>
-	<NoWarn>VSTHRD200</NoWarn>
+	<NoWarn>VSTHRD200,CA1063,CA1707,CA2007</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(IsDockerBuild)' == 'true'">
@@ -44,28 +44,8 @@
     <PackageReference Include="Moq" />
     <PackageReference Include="Moq.Contrib.HttpClient" />
     <PackageReference Include="Neo4j.Driver" />
-    <PackageReference Include="Roslynator.Analyzers" >
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="Roslynator.CSharp" />
-    <PackageReference Include="Roslynator.Formatting.Analyzers" >
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="xunit" />
-    <PackageReference Include="xunit.runner.visualstudio" >
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="coverlet.collector" >
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-	<PackageReference Include="coverlet.msbuild" >
-		<PrivateAssets>all</PrivateAssets>
-		<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-	</PackageReference>
+    <PackageReference Include="xunit"/>
   </ItemGroup>
 
   <ItemGroup>

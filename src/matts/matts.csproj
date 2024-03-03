@@ -31,15 +31,7 @@
     <PackageReference Include="Microsoft.Extensions.Azure" />
     <PackageReference Include="Neo4j.Driver" />
     <PackageReference Include="Nerdbank.Streams" />
-    <PackageReference Include="Roslynator.Analyzers" >
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="Roslynator.CSharp"  />
-    <PackageReference Include="Roslynator.Formatting.Analyzers" >
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
   </ItemGroup>
 
   <!-- Allow the unit tests project to access internal members for testing purposes. -->
