@@ -1,0 +1,22 @@
+﻿<Project>
+    <PropertyGroup>
+        <!-- Default properties inherited by all projects. Projects can override. -->
+        <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
+        <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+        <AnalysisLevel>latest</AnalysisLevel>
+        <TargetFramework>net7.0</TargetFramework>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <!-- Disable NuGet packaging by default. Projects can override. -->
+        <IsPackable>disable</IsPackable>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <!-- Override this to true via CLI when building containerized version -->
+        <IsDockerBuild>false</IsDockerBuild>
+    </PropertyGroup>
+
+</Project>
