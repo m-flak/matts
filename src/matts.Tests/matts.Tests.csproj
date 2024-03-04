@@ -1,0 +1,62 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <RootNamespace>matts.Tests</RootNamespace>
+    <AssemblyName>matts.Tests</AssemblyName>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+	<IsDockerBuild>false</IsDockerBuild>
+	<EnableNETAnalyzers>true</EnableNETAnalyzers>
+	<NoWarn>VSTHRD200,CA1063,CA1707,CA2007</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsDockerBuild)' == 'true'">
+	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+  </PropertyGroup>
+
+	<!-- Fixes 0% issue when using visual studio -->
+	<PropertyGroup Condition="'$(IsDockerBuild)' == 'false'">
+		<UseDataCollector />
+	</PropertyGroup>
+
+	<PropertyGroup Label="FineCodeCoverage">
+		<ExcludeByFile>
+			**/Configuration/*.cs
+			**/Constants/*.cs
+			**/Models/*.cs
+			**/Models/**/*.cs
+		</ExcludeByFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+    <PackageReference Include="HttpContextMoq" />
+    <PackageReference Include="Mapster" />
+    <PackageReference Include="MartinCostello.Logging.XUnit" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="Microsoft.AspNetCore.WebSockets" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="Moq.Contrib.HttpClient" />
+    <PackageReference Include="Neo4j.Driver" />
+    <PackageReference Include="Roslynator.CSharp" />
+    <PackageReference Include="xunit"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\matts\matts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="appsettings.Test.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

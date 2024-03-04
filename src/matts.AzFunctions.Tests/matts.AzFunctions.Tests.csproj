@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>matts.AzFunctions.Tests</RootNamespace>
+    <AssemblyName>matts.AzFunctions.Tests</AssemblyName>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+    <PropertyGroup>
+        <UseDataCollector />
+        <NoWarn>CA1063,CA1707,CA2007</NoWarn> <!-- Stop complaining about XUnit's setup VS... -->
+    </PropertyGroup>
+    
+  <ItemGroup>
+    <PackageReference Include="MartinCostello.Logging.XUnit" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="System.Net.Http" />
+    <PackageReference Include="System.Text.Json" />
+    <PackageReference Include="System.Text.RegularExpressions"  />
+    <PackageReference Include="UnitTestEx"/>
+    <PackageReference Include="UnitTestEx.Xunit"/>
+    <PackageReference Include="xunit"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Label="Functions" Include="..\matts.AzFunctions\matts.AzFunctions.csproj" />
+  </ItemGroup>
+
+    <ItemGroup>
+        <None Remove="appsettings.unittest.json" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <Content Include="appsettings.unittest.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+</Project>

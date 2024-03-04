@@ -1,0 +1,12 @@
+# files
+.dockerignore
+.gitignore
+
+# directories
+**/.angular
+**/coverage
+**/dist
+**/node_modules
+**/testresults
+**/bin
+**/obj
