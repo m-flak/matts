@@ -30,7 +30,6 @@ COPY ./src/matts/Constants/* ./matts/Constants/
 COPY ./src/matts/Controllers/* ./matts/Controllers/
 COPY ./src/matts/Daos/* ./matts/Daos/
 COPY ./src/matts/Interfaces/* ./matts/Interfaces/
-COPY ./src/matts.Tests/* ./matts.Tests/
 COPY ./src/matts/Middleware/* ./matts/Middleware/
 COPY ./src/matts/Models/* ./matts/Models/
 COPY ./src/matts/Pages/* ./matts/Pages/
@@ -39,9 +38,12 @@ COPY ./src/matts/Repositories/* ./matts/Repositories/
 COPY ./src/matts/Services/* ./matts/Services/
 COPY ./src/matts/Utils/* ./matts/Utils/
 COPY ./src/matts/wwwroot/* ./matts/wwwroot/
+COPY ./src/matts.Tests/* ./matts.Tests/
 WORKDIR /
 COPY *.sln .
 COPY Directory.* .
+RUN dotnet sln remove src/matts.AzFunctions/matts.AzFunctions.csproj
+RUN dotnet sln remove src/matts.AzFunctions.Tests/matts.AzFunctions.Tests.csproj
 RUN dotnet restore
 WORKDIR /src/matts
 RUN dotnet build matts.csproj -c $DotNetBuildConfiguration -o build -p:IsDockerBuild=true
