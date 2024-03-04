@@ -3,10 +3,10 @@ ARG DotNetBuildConfiguration=Debug
 
 FROM node:18 AS build-node
 WORKDIR /ClientApp
-COPY ./ClientApp/package.json .
-COPY ./ClientApp/package-lock.json .
+COPY ./src/matts/ClientApp/package.json .
+COPY ./src/matts/ClientApp/package-lock.json .
 RUN npm install
-COPY ./ClientApp/ . 
+COPY ./src/matts/ClientApp/ .
 RUN npm run build
 
 FROM zenika/alpine-chrome:with-node AS test-node
@@ -20,36 +20,40 @@ ARG AspNetCoreEnvironment
 ARG DotNetBuildConfiguration
 WORKDIR /src
 ENV ASPNETCORE_ENVIRONMENT $AspNetCoreEnvironment
-COPY *.sln ./matts/
-COPY matts.csproj ./matts/
-COPY appsettings.json ./matts/
-COPY appsettings.$AspNetCoreEnvironment.json ./matts/
-COPY Program.cs ./matts/
-COPY ./Configuration/* ./matts/Configuration/
-COPY ./Constants/* ./matts/Constants/
-COPY ./Controllers/* ./matts/Controllers/
-COPY ./Daos/* ./matts/Daos/
-COPY ./Interfaces/* ./matts/Interfaces/
-COPY ./matts.Tests/* ./matts/matts.Tests/
-COPY ./Models/* ./matts/Models/
-COPY ./Middleware/* ./matts/Middleware/
-COPY ./Pages/* ./matts/Pages/
-COPY ./Properties/* ./matts/Properties/
-COPY ./Repositories/* ./matts/Repositories/
-COPY ./Services/* ./matts/Services/
-COPY ./Utils/* ./matts/Utils/
-COPY ./wwwroot/* ./matts/wwwroot/
-RUN dotnet restore ./matts/matts.csproj
+COPY Directory.* .
+COPY ./src/matts/matts.csproj ./matts/
+COPY ./src/matts/appsettings.json ./matts/
+COPY ./src/matts/appsettings.$AspNetCoreEnvironment.json ./matts/
+COPY ./src/matts/*.cs ./matts/
+COPY ./src/matts/Configuration/* ./matts/Configuration/
+COPY ./src/matts/Constants/* ./matts/Constants/
+COPY ./src/matts/Controllers/* ./matts/Controllers/
+COPY ./src/matts/Daos/* ./matts/Daos/
+COPY ./src/matts/Interfaces/* ./matts/Interfaces/
+COPY ./src/matts.Tests/* ./matts.Tests/
+COPY ./src/matts/Middleware/* ./matts/Middleware/
+COPY ./src/matts/Models/* ./matts/Models/
+COPY ./src/matts/Pages/* ./matts/Pages/
+COPY ./src/matts/Properties/* ./matts/Properties/
+COPY ./src/matts/Repositories/* ./matts/Repositories/
+COPY ./src/matts/Services/* ./matts/Services/
+COPY ./src/matts/Utils/* ./matts/Utils/
+COPY ./src/matts/wwwroot/* ./matts/wwwroot/
+WORKDIR /
+COPY *.sln .
+COPY Directory.* .
+RUN dotnet restore
 WORKDIR /src/matts
 RUN dotnet build matts.csproj -c $DotNetBuildConfiguration -o build -p:IsDockerBuild=true
-RUN dotnet clean matts.Tests/matts.Tests.csproj -c $DotNetBuildConfiguration
-RUN dotnet build matts.Tests/matts.Tests.csproj -c $DotNetBuildConfiguration -p:IsDockerBuild=true
+WORKDIR /src/matts.Tests
+RUN dotnet clean matts.Tests.csproj -c $DotNetBuildConfiguration
+RUN dotnet build matts.Tests.csproj -c $DotNetBuildConfiguration -p:IsDockerBuild=true
 
 FROM build AS test  
 ARG DotNetBuildConfiguration
 LABEL test=dotnet
-WORKDIR /src/matts
-RUN dotnet test --no-build -c $DotNetBuildConfiguration --results-directory /testresults --logger "trx;LogFileName=test_results.trx" /p:CollectCoverage=true /p:CoverletOutputFormat=json%2cCobertura /p:CoverletOutput=/testresults/coverage/ -p:MergeWith=/testresults/coverage/coverage.json -p:IsDockerBuild=true matts.Tests/matts.Tests.csproj
+WORKDIR /src/matts.Tests
+RUN dotnet test --no-build -c $DotNetBuildConfiguration --results-directory /testresults --logger "trx;LogFileName=test_results.trx" /p:CollectCoverage=true /p:CoverletOutputFormat=json%2cCobertura /p:CoverletOutput=/testresults/coverage/ -p:MergeWith=/testresults/coverage/coverage.json -p:IsDockerBuild=true matts.Tests.csproj
 
 FROM build AS publish
 ARG DotNetBuildConfiguration
