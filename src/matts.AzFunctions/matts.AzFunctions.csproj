@@ -8,20 +8,27 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <UserSecretsId>3aa4c576-626d-4064-b579-d2623acf4adc</UserSecretsId>
-	<EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Azure.Storage.Blobs" />
-    <PackageReference Include="Azure.Storage.Files.Shares"  />
-    <PackageReference Include="HttpMultipartParser" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker"  />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Storage"  />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" />
-    <PackageReference Include="Microsoft.Azure.WebJobs"  />
-    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp"  />
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets"  />
+      <PackageReference Include="Azure.Data.Tables" />
+      <PackageReference Include="Azure.Storage.Blobs" />
+      <PackageReference Include="Azure.Storage.Files.Shares" />
+      <PackageReference Include="Azure.Storage.Queues"  />
+      <PackageReference Include="HttpMultipartParser"  />
+      <PackageReference Include="JsonSchema.Net"  />
+      <PackageReference Include="Microsoft.Azure.Functions.Extensions"  />
+      <PackageReference Include="Microsoft.Azure.Functions.Worker"  />
+      <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http"  />
+      <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore"  />
+      <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Storage"  />
+      <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Storage.Queues"  />
+      <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Tables"  />
+      <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk"  />
+      <PackageReference Include="Microsoft.Azure.WebJobs"  />
+      <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" />
+      <PackageReference Include="Microsoft.CodeAnalysis.CSharp"  />
+      <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" />
     <PackageReference Include="Roslynator.CSharp" />
   </ItemGroup>
   <ItemGroup>
