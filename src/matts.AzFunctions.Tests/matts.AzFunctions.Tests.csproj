@@ -13,7 +13,7 @@
 
     <PropertyGroup>
         <UseDataCollector />
-        <NoWarn>CA1062,CA1063,CA1707,CA2007</NoWarn> <!-- Stop complaining about XUnit's setup VS... -->
+        <NoWarn>CA1062,CA1063,CA1707,CA2007</NoWarn>
     </PropertyGroup>
     
   <ItemGroup>

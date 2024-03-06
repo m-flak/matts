@@ -14,7 +14,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "matts.Tests", "src\matts.Te
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "matts.AzFunctions", "src\matts.AzFunctions\matts.AzFunctions.csproj", "{F87316C3-3031-43E9-AB20-CB1FB27B8236}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "matts.AzFunctions.Tests", "src\matts.AzFunctions.Tests\matts.AzFunctions.Tests.csproj", "{18C1F0A3-4F44-4BCB-AFE1-94A4B3FA2E8C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "matts.AzFunctions.Tests", "src\matts.AzFunctions.Tests\matts.AzFunctions.Tests.csproj", "{18C1F0A3-4F44-4BCB-AFE1-94A4B3FA2E8C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{158A4E5E-AEE0-4D60-83C7-8E089B2D881D}"
 	ProjectSection(SolutionItems) = preProject
