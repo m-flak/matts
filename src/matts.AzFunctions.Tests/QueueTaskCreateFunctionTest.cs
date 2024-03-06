@@ -13,6 +13,7 @@ using UnitTestEx.Xunit;
 
 // ours
 using matts.AzFunctions.Utils;
+using matts.AzFunctions.Tests.Helpers;
 
 namespace matts.AzFunctions.Tests;
 
@@ -41,24 +42,19 @@ public class QueueTaskCreateFunctionTest : UnitTestBase
         using var test = CreateFunctionTester<Startup>();
         test.ConfigureServices(this.ConfigureLogging);
 
-        // Get route attribute value here because HttpTriggers can't run multiple methods in Run
-        var route = test
-            .Type<QueueTaskCreateFunction>()
-            .Run(f => f.GetFunctionRoute())
-            .Result;
+        var route = FuncData.GetHttpRoute(typeof(QueueTaskCreateFunction));
 
         // Mock and provide Func Context
         var context = new Mock<FunctionContext>();
         context.Setup(m => m.InstanceServices).Returns(test.Services);
 
-        // Generate request here because HttpTrigger can't run multiple methods in Run
-        var request = test
-            .CreateHttpRequest(HttpMethod.Options, route);
-
         // Act & Assert
         var sut = await test
             .HttpTrigger<QueueTaskCreateFunction>()
-            .RunAsync(f => f.Run(request, context.Object));
+            .RunAsync(f => f.Run(
+                    test.CreateHttpRequest(HttpMethod.Options, route),
+                    context.Object)
+            );
         var resp = sut
             .AssertOK()
             .Result
@@ -75,21 +71,22 @@ public class QueueTaskCreateFunctionTest : UnitTestBase
         using var test = CreateFunctionTester<Startup>();
         test.ConfigureServices(this.ConfigureLogging);
 
-        var route = test
-            .Type<QueueTaskCreateFunction>()
-            .Run(f => f.GetFunctionRoute())
-            .Result;
+        var route = FuncData.GetHttpRoute(typeof(QueueTaskCreateFunction));
 
         var context = new Mock<FunctionContext>();
         context.Setup(m => m.InstanceServices).Returns(test.Services);
 
-        var request = test
-            .CreateHttpRequest(HttpMethod.Post, route, contentType: MediaTypeNames.Text.Plain);
-
         // Act & Assert
         var sut = await test
             .HttpTrigger<QueueTaskCreateFunction>()
-            .RunAsync(f => f.Run(request, context.Object));
+            .RunAsync(f => f.Run(
+                test.CreateHttpRequest(
+                    HttpMethod.Post,
+                    route,
+                    null,
+                    MediaTypeNames.Text.Plain),
+                context.Object)
+            );
         var resp = sut
             .AssertBadRequest()
             .Result
@@ -114,20 +111,22 @@ public class QueueTaskCreateFunctionTest : UnitTestBase
         test.ConfigureServices(this.ConfigureLogging);
 
         // Get route attribute value 
-        var route = test
-            .Type<QueueTaskCreateFunction>()
-            .Run(f => f.GetFunctionRoute())
-            .Result;
+        var route = FuncData.GetHttpRoute(typeof(QueueTaskCreateFunction));
+
         var context = new Mock<FunctionContext>();
         context.Setup(m => m.InstanceServices).Returns(test.Services);
-
-        var request = test
-            .CreateHttpRequest(HttpMethod.Post, route, Fixture.NewTaskRequestBody, MediaTypeNames.Application.Json);
 
         // Act & Assert
         var sut = await test
             .HttpTrigger<QueueTaskCreateFunction>()
-            .RunAsync(f => f.Run(request, context.Object));
+            .RunAsync(f => f.Run(
+                test.CreateHttpRequest(
+                    HttpMethod.Post,
+                    route,
+                    Fixture.NewTaskRequestBody,
+                    MediaTypeNames.Application.Json),
+                context.Object)
+            );
         var resp = sut
             .AssertOK()
             .Result
@@ -159,20 +158,22 @@ public class QueueTaskCreateFunctionTest : UnitTestBase
         var queueServiceClient = Fixture.GetQueueServiceClientMock(queue);
         queueServiceClient.AddSingletonToTestHost(test);
 
-        var route = test
-            .Type<QueueTaskCreateFunction>()
-            .Run(f => f.GetFunctionRoute())
-            .Result;
+        var route = FuncData.GetHttpRoute(typeof(QueueTaskCreateFunction));
+
         var context = new Mock<FunctionContext>();
         context.Setup(m => m.InstanceServices).Returns(test.Services);
-
-        var request = test
-            .CreateHttpRequest(HttpMethod.Post, route, Fixture.NewTaskRequestBody, MediaTypeNames.Application.Json);
 
         // Act & Assert
         var sut = await test
             .HttpTrigger<QueueTaskCreateFunction>()
-            .RunAsync(f => f.Run(request, context.Object));
+            .RunAsync(f => f.Run(
+                test.CreateHttpRequest(
+                    HttpMethod.Post,
+                    route,
+                    Fixture.NewTaskRequestBody,
+                    MediaTypeNames.Application.Json),
+                context.Object)
+            );
         var resp = sut
             .Assert(HttpStatusCode.InternalServerError)
             .Result

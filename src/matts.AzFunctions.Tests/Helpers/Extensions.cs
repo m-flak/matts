@@ -15,9 +15,16 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-namespace matts.AzFunctions;
+using Moq;
+using UnitTestEx.Xunit.Internal;
 
-public interface IAzFunctions
+namespace matts.AzFunctions.Tests.Helpers;
+public static class Extensions
 {
-    Type HostClass { get; }
+    public static void AddSingletonToTestHost<TMock, TStartup>(this Mock<TMock> mock, FunctionTester<TStartup> testHost)
+        where TMock : class
+        where TStartup : class, new()
+    {
+        testHost.MockSingleton(mock);
+    }
 }

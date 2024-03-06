@@ -29,12 +29,10 @@ using Microsoft.Extensions.Logging;
 
 namespace matts.AzFunctions;
 
-public partial class UploadResumeFunction : IAzFunctions
+public partial class UploadResumeFunction
 {
     private readonly ILogger _logger;
     private readonly BlobServiceClient _blobServiceClient;
-
-    public Type HostClass { get; } = typeof(UploadResumeFunction);
 
     public UploadResumeFunction(ILoggerFactory loggerFactory, BlobServiceClient blobServiceClient)
     {

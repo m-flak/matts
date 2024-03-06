@@ -30,14 +30,13 @@ using Microsoft.AspNetCore.Http;
 
 namespace matts.AzFunctions;
 
-public class QueueTaskCreateFunction : IAzFunctions
+public class QueueTaskCreateFunction
 {
     private readonly ILogger _logger;
     private readonly QueueServiceClient _queueServiceClient;
     private readonly SchemaRegistry _schemaRegistry;
 
     private string SchemaPath { get; }
-    public Type HostClass { get; } = typeof(QueueTaskCreateFunction);
 
     public QueueTaskCreateFunction(ILoggerFactory loggerFactory, QueueServiceClient queueServiceClient, SchemaRegistry schemaRegistry, Func<string> schemaPath)
     {

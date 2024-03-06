@@ -15,39 +15,34 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
+using System.Reflection;
 using Microsoft.Azure.Functions.Worker;
-using Moq;
-using UnitTestEx.Xunit.Internal;
 
-namespace matts.AzFunctions.Tests;
-internal static class TestingHelperExtensions
+namespace matts.AzFunctions.Tests.Helpers;
+public static class FuncData
 {
-    public static string GetFunctionRoute(this IAzFunctions klass)
+    public static string GetHttpRoute(Type functionClass)
     {
-        try
-        {
-            var attribute = klass
-                .HostClass
-                .GetMethod("Run")
-                ?.GetParameters()[0]
-                .GetCustomAttributes(true)
-                .FirstOrDefault(
-                    a => typeof(HttpTriggerAttribute).IsInstanceOfType(a),
-                    null)
-                as HttpTriggerAttribute;
+        string? route = null;
 
-            return attribute?.Route ?? string.Empty;
-        }
-        catch (IndexOutOfRangeException)
+        var runMethod = functionClass.GetMethod("Run");
+        var runParams = runMethod?.GetParameters();
+        if (runMethod is null
+            || runParams is null
+            || runParams.Length == 0)
         {
             return string.Empty;
         }
-    }
 
-    public static void AddSingletonToTestHost<TMock, TStartup>(this Mock<TMock> mock, FunctionTester<TStartup> testHost)
-        where TMock : class
-        where TStartup : class, new()
-    {
-        testHost.MockSingleton(mock);
+        var attribute = runParams[0]
+            .GetCustomAttributes(true)
+            .FirstOrDefault(
+                a => typeof(HttpTriggerAttribute).IsInstanceOfType(a),
+                null)
+            as HttpTriggerAttribute;
+
+        route = attribute?.Route;
+        route ??= string.Empty;
+        return route;
     }
 }
