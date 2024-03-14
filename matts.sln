@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{831DDCA2-7D2C-4C31-80DB-6BDB3E1F7AE0}"
+	ProjectSection(SolutionItems) = preProject
+		src\Directory.Build.props = src\Directory.Build.props
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "matts", "src\matts\matts.csproj", "{13C9383C-BEDA-4425-9A5A-5CC22B8245AE}"
 EndProject
@@ -22,6 +25,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 		Database.Dockerfile = Database.Dockerfile
 		Directory.Build.props = Directory.Build.props
+		Directory.Build.targets = Directory.Build.targets
 		Directory.Packages.props = Directory.Packages.props
 		docker-compose.development.yml = docker-compose.development.yml
 		docker-compose.staging.yml = docker-compose.staging.yml
@@ -32,6 +36,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		nuget.config = nuget.config
 		README.MD = README.MD
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{05812CE0-0582-4D87-AC19-D806D0B8C624}"
+	ProjectSection(SolutionItems) = preProject
+		test\Directory.Build.props = test\Directory.Build.props
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "matts.OrmLib", "src\matts.OrmLib\matts.OrmLib.csproj", "{9139C912-F5D4-471F-898C-066F8B83B800}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,6 +66,10 @@ Global
 		{18C1F0A3-4F44-4BCB-AFE1-94A4B3FA2E8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{18C1F0A3-4F44-4BCB-AFE1-94A4B3FA2E8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{18C1F0A3-4F44-4BCB-AFE1-94A4B3FA2E8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9139C912-F5D4-471F-898C-066F8B83B800}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9139C912-F5D4-471F-898C-066F8B83B800}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9139C912-F5D4-471F-898C-066F8B83B800}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9139C912-F5D4-471F-898C-066F8B83B800}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -64,6 +79,7 @@ Global
 		{76A2E3D7-DF69-4128-B475-CAEFDAC4E723} = {831DDCA2-7D2C-4C31-80DB-6BDB3E1F7AE0}
 		{F87316C3-3031-43E9-AB20-CB1FB27B8236} = {831DDCA2-7D2C-4C31-80DB-6BDB3E1F7AE0}
 		{18C1F0A3-4F44-4BCB-AFE1-94A4B3FA2E8C} = {831DDCA2-7D2C-4C31-80DB-6BDB3E1F7AE0}
+		{9139C912-F5D4-471F-898C-066F8B83B800} = {831DDCA2-7D2C-4C31-80DB-6BDB3E1F7AE0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B4267655-4CBF-47B1-BA66-09FDF38D653A}
