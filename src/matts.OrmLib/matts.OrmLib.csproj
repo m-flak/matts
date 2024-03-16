@@ -1,12 +1,21 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
       <RootNamespace>matts.OrmLib</RootNamespace>
       <AssemblyName>matts.OrmLib</AssemblyName>
       <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+      <IncludeSymbols>True</IncludeSymbols>
+      <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+     <Title>OrmLib</Title>
+     <Description>Database Library for Matthew's ATS.</Description>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Neo4j.Driver" />
+        <PackageReference Include="Nito.Collections.Deque" />
+
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+        <PackageReference Include="Roslynator.CSharp" />
     </ItemGroup>
 </Project>

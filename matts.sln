@@ -6,6 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{831DDCA2-7D2C-4C31-80DB-6BDB3E1F7AE0}"
 	ProjectSection(SolutionItems) = preProject
 		src\Directory.Build.props = src\Directory.Build.props
+		src\Directory.Build.targets = src\Directory.Build.targets
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "matts", "src\matts\matts.csproj", "{13C9383C-BEDA-4425-9A5A-5CC22B8245AE}"
@@ -17,7 +18,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "matts.Tests", "src\matts.Te
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "matts.AzFunctions", "src\matts.AzFunctions\matts.AzFunctions.csproj", "{F87316C3-3031-43E9-AB20-CB1FB27B8236}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "matts.AzFunctions.Tests", "src\matts.AzFunctions.Tests\matts.AzFunctions.Tests.csproj", "{18C1F0A3-4F44-4BCB-AFE1-94A4B3FA2E8C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "matts.AzFunctions.Tests", "src\matts.AzFunctions.Tests\matts.AzFunctions.Tests.csproj", "{18C1F0A3-4F44-4BCB-AFE1-94A4B3FA2E8C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{158A4E5E-AEE0-4D60-83C7-8E089B2D881D}"
 	ProjectSection(SolutionItems) = preProject
@@ -40,9 +41,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{05812CE0-0582-4D87-AC19-D806D0B8C624}"
 	ProjectSection(SolutionItems) = preProject
 		test\Directory.Build.props = test\Directory.Build.props
+		test\Directory.Build.targets = test\Directory.Build.targets
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "matts.OrmLib", "src\matts.OrmLib\matts.OrmLib.csproj", "{9139C912-F5D4-471F-898C-066F8B83B800}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "matts.OrmLib", "src\matts.OrmLib\matts.OrmLib.csproj", "{9139C912-F5D4-471F-898C-066F8B83B800}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
