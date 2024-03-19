@@ -23,6 +23,11 @@ public class FilterStatement : IStatement
 {
     public StatementType Type { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
+    public void AppendParameter(IParameter parameter)
+    {
+        throw new NotImplementedException();
+    }
+
     public int CompareTo(IStatement? other)
     {
         throw new NotImplementedException();

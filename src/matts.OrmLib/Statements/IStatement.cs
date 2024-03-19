@@ -24,4 +24,6 @@ public interface IStatement : IFormattable, IComparable<IStatement>
     StatementType Type { get; set; }
 
     IEnumerable<IParameter> GetParameters();
+
+    void AppendParameter(IParameter parameter);
 }
