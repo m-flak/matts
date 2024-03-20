@@ -20,12 +20,10 @@ using System.Runtime.CompilerServices;
 namespace matts.OrmLib.Attributes;
 
 [AttributeUsage(AttributeTargets.Property)]
-public sealed class DbNodeUuidAttribute : Attribute
+public sealed class DbNodeUuidAttribute : DbFieldAttribute
 {
-    public string? PropertyName { get; }
-
     public DbNodeUuidAttribute([CallerMemberName] string? propertyName = null)
+        : base(propertyName)
     {
-        PropertyName = propertyName;
     }
 }

@@ -20,12 +20,10 @@ using System.Runtime.CompilerServices;
 namespace matts.OrmLib.Attributes;
 
 [AttributeUsage(AttributeTargets.Property)]
-public sealed class DbNodeCreationFieldAttribute : Attribute
+public sealed class DbNodeCreationFieldAttribute : DbFieldAttribute
 {
-    public string? PropertyName { get; }
-
     public DbNodeCreationFieldAttribute([CallerMemberName] string? propertyName = null)
+        : base(propertyName)
     {
-        PropertyName = propertyName;
     }
 }

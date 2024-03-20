@@ -19,11 +19,30 @@ using System.Runtime.CompilerServices;
 
 namespace matts.OrmLib.Attributes;
 
-[AttributeUsage(AttributeTargets.Property)]
-public sealed class DbNodeOrderByAttribute : DbFieldAttribute
+[AttributeUsage(AttributeTargets.Property, AllowMultiple = true, Inherited = true)]
+public class DbFieldAttribute : Attribute
 {
-    public DbNodeOrderByAttribute([CallerMemberName] string? propertyName = null)
-        : base(propertyName)
+    // When implemented in a derived class, gets a unique identifier for this Attribute.
+    protected Guid instanceGUID;
+
+    public string? PropertyName { get; }
+    public bool Special {  get; }
+
+    public DbFieldAttribute(bool special = false, [CallerMemberName] string? propertyName = null)
     {
+        Special = special;
+        PropertyName = propertyName;
+        this.instanceGUID = Guid.NewGuid();
+    }
+
+    public DbFieldAttribute(string? propertyName)
+    {
+        PropertyName = propertyName;
+    }
+
+    // Override TypeId to provide a unique identifier for the instance.
+    public override object TypeId
+    {
+        get { return (object)instanceGUID; }
     }
 }
