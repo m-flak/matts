@@ -59,8 +59,8 @@ public readonly struct FieldNameValue : IEquatable<FieldNameValue>
         return !(left == right);
     }
 
-    public bool Equals(FieldNameValue other)
+    bool IEquatable<FieldNameValue>.Equals(FieldNameValue other)
     {
-        return Equals((object?)other);
+        return Equals(other);
     }
 }

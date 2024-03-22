@@ -7,7 +7,7 @@ root = true
 # All files
 [*]
 indent_style = space
-end_of_line = lf
+end_of_line = crlf
 
 # Code files
 [*.{cs,csx,vb,vbx}]
@@ -239,3 +239,4 @@ dotnet_style_qualification_for_property = false:silent
 dotnet_style_qualification_for_method = false:silent
 dotnet_style_qualification_for_event = false:silent
 dotnet_diagnostic.RCS1037.severity = silent
+dotnet_style_prefer_collection_expression = true:suggestion

@@ -21,7 +21,19 @@ using matts.OrmLib.Parameters;
 namespace matts.OrmLib.Statements;
 public class FinalStatement : IStatement
 {
-    public StatementType Type { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    private readonly IList<IParameter> _parameters;
+
+    public StatementType Type { get; set; } = StatementType.FinalStatement;
+    public long OrderMultiplier { get; set; }
+
+    public FinalStatement(StatementType type, long orderMultiplier, IParameter[]? parameters = null)
+    {
+        Type = type;
+        OrderMultiplier = orderMultiplier;
+        _parameters = (parameters != null)
+            ? new List<IParameter>(parameters)
+            : new List<IParameter>();
+    }
 
     public void AppendParameter(IParameter parameter)
     {

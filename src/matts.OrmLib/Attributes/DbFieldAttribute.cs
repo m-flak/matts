@@ -19,6 +19,8 @@ using System.Runtime.CompilerServices;
 
 namespace matts.OrmLib.Attributes;
 
+#pragma warning disable CA1813,CA1051
+
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = true, Inherited = true)]
 public class DbFieldAttribute : Attribute
 {
@@ -46,3 +48,5 @@ public class DbFieldAttribute : Attribute
         get { return (object)instanceGUID; }
     }
 }
+
+#pragma warning restore CA1813,CA1051

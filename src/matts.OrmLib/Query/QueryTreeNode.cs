@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 
+using System.Runtime.CompilerServices;
 using matts.OrmLib.Statements;
 
 namespace matts.OrmLib.Query;
@@ -25,6 +26,7 @@ internal class QueryTreeNode : IComparable<QueryTreeNode>, IEquatable<QueryTreeN
     public QueryTreeNode? Left { get; set; }
     public QueryTreeNode? Right { get; set; }
     public IStatement? Value { get; set; }
+    public long Order { get; set; }
     public bool IsLeaf
     {
         get
@@ -35,51 +37,64 @@ internal class QueryTreeNode : IComparable<QueryTreeNode>, IEquatable<QueryTreeN
 
     public int CompareTo(QueryTreeNode? other)
     {
-        throw new NotImplementedException();
+        if (other is QueryTreeNode quack)
+        {
+            return Order.CompareTo(quack.Order);
+        }
+
+        throw new ArgumentException(Properties.Resources.QUERY_TREE_NODE_EX1, nameof(other));
     }
 
-    public bool Equals(QueryTreeNode? other)
+    bool IEquatable<QueryTreeNode>.Equals(QueryTreeNode? other)
     {
-        throw new NotImplementedException();
+        return Equals(other);
     }
 
     public override bool Equals(object? obj)
     {
-        return Equals(obj as QueryTreeNode);
+        if (obj is not QueryTreeNode quack)
+        {
+            return base.Equals(obj);
+        }
+        return this.Equals(quack);
     }
 
     public override int GetHashCode()
     {
-        throw new NotImplementedException();
+        int dank = 0;
+        dank += RuntimeHelpers.GetHashCode(Left);
+        dank += RuntimeHelpers.GetHashCode(Right);
+        dank ^= RuntimeHelpers.GetHashCode(Value);
+        return dank;
     }
 
     public static bool operator > (QueryTreeNode? left, QueryTreeNode? right)
     {
-        throw new NotImplementedException();
+        return left?.Order > right?.Order;
     }
 
     public static bool operator < (QueryTreeNode? left, QueryTreeNode? right)
     {
-        throw new NotImplementedException();
+        return left?.Order < right?.Order;
     }
 
     public static bool operator >= (QueryTreeNode? left, QueryTreeNode? right)
     {
-        throw new NotImplementedException();
+        return left?.Order >= right?.Order;
     }
 
     public static bool operator <= (QueryTreeNode? left, QueryTreeNode? right)
     {
-        throw new NotImplementedException();
+        return left?.Order <= right?.Order;
     }
 
     public static bool operator == (QueryTreeNode? left, QueryTreeNode? right)
     {
-        throw new NotImplementedException();
+        return RuntimeHelpers.Equals(left, right);
     }
 
     public static bool operator != (QueryTreeNode? left, QueryTreeNode? right)
     {
-        throw new NotImplementedException();
+        return !RuntimeHelpers.Equals(left, right);
     }
 }

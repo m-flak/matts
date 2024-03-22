@@ -15,17 +15,15 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-using matts.OrmLib.Parameters;
+namespace matts.OrmLib.Attributes;
 
-namespace matts.OrmLib.Statements;
-
-public interface IStatement : IFormattable, IComparable<IStatement>
+[AttributeUsage(AttributeTargets.Field)]
+public sealed class TreeOrderMultiplierAttribute : Attribute
 {
-    StatementType Type { get; set; }
+    public int Value { get; }
 
-    long OrderMultiplier { get; set; }
-
-    IEnumerable<IParameter> GetParameters();
-
-    void AppendParameter(IParameter parameter);
+    public TreeOrderMultiplierAttribute(int value)
+    {
+        Value = value;
+    }
 }

@@ -16,13 +16,56 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 
+using System.Runtime.InteropServices;
+using matts.OrmLib.Statements;
+using Nito.Collections;
+
 namespace matts.OrmLib.Query;
 
 public sealed class Neo4JQueryBuilder : IQueryBuilder<Neo4j.Driver.Query>
 {
-    private Neo4JQueryBuilder() { }
+    private readonly Deque<IStatement> _deque;
+    private readonly Dictionary<StatementType, int> _statementCount;
+    private readonly StatementFactory _statementFactory;
+
+    private Neo4JQueryBuilder(StatementFactory? withStatementFactory = null)
+    {
+        withStatementFactory ??= new StatementFactory();
+        _statementFactory = withStatementFactory;
+        _deque = new Deque<IStatement>();
+
+        const int zero = 0;
+        _statementCount = new Dictionary<StatementType, int>()
+        {
+            [StatementType.Match] = zero,
+            [StatementType.Where] = zero,
+            [StatementType.FinalStatement] = zero,
+            [StatementType.PostFinalStatement] = zero,
+        };
+    }
 
     public static Neo4JQueryBuilder Builder() => new();
+    internal static Neo4JQueryBuilder Builder(StatementFactory withStatementFactory) => new(withStatementFactory);
+
+    public Neo4JQueryBuilder Match(object left)
+    {
+        return this;
+    }
+
+    public Neo4JQueryBuilder Match(object left, [Optional] object? right)
+    {
+        return this;
+    }
+
+    public Neo4JQueryBuilder Returns()
+    {
+        return this;
+    }
+
+    public Neo4JQueryBuilder OrderBy()
+    {
+        return this;
+    }
 
     public Neo4j.Driver.Query Build()
     {

@@ -15,23 +15,22 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-namespace matts.OrmLib.Statements;
+using matts.OrmLib.Attributes;
 
-#pragma warning disable CA1027
+namespace matts.OrmLib.Statements;
 
 public enum StatementType
 {
-    PostFinalStatement = 0,
-    OrderBy = PostFinalStatement,
+    PostFinalStatement,
+    [TreeOrderMultiplier(0)] OrderBy,
 
-    FinalStatement = 1,
-    Return = FinalStatement,
-    Create = FinalStatement,
-    Set = FinalStatement,
-    Delete = FinalStatement,
+    FinalStatement,
+    [TreeOrderMultiplier(1)] Return,
+    [TreeOrderMultiplier(1)] Create,
+    [TreeOrderMultiplier(1)] Set,
+    [TreeOrderMultiplier(1)] Delete,
 
-    Match = 2,
-    Where = 3
+    FilterStatement,
+    [TreeOrderMultiplier(2)] Match,
+    [TreeOrderMultiplier(3)] Where
 }
-
-#pragma warning restore CA1027

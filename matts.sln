@@ -46,7 +46,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{05812CE0-0
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "matts.OrmLib", "src\matts.OrmLib\matts.OrmLib.csproj", "{9139C912-F5D4-471F-898C-066F8B83B800}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "matts.OrmLib.Tests", "test\matts.OrmLib\matts.OrmLib.Tests.csproj", "{7AD3CFB7-CE7A-4674-958C-5DDEE68FC126}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "matts.OrmLib.Tests", "test\matts.OrmLib\matts.OrmLib.Tests.csproj", "{7AD3CFB7-CE7A-4674-958C-5DDEE68FC126}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9139C912-F5D4-471F-898C-066F8B83B800} = {9139C912-F5D4-471F-898C-066F8B83B800}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

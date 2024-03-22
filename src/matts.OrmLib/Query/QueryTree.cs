@@ -15,8 +15,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
-using matts.OrmLib.Statements;
-
 namespace matts.OrmLib.Query;
 
 internal class QueryTree
@@ -28,9 +26,8 @@ internal class QueryTree
         Root = root;
     }
 
-    public static QueryTree MakeQueryTree(ArraySegment<IStatement> sortedIn)
+    public static QueryTree MakeQueryTree(QueryTreeNode treeRoot)
     {
-        var stub = new QueryTreeNode();
-        return new QueryTree(stub);
+        return new QueryTree(treeRoot);
     }
 }
