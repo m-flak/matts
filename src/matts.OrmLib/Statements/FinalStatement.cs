@@ -21,8 +21,6 @@ using matts.OrmLib.Parameters;
 namespace matts.OrmLib.Statements;
 public class FinalStatement : IStatement
 {
-    private readonly IList<IParameter> _parameters;
-
     public StatementType Type { get; set; } = StatementType.FinalStatement;
     public long OrderMultiplier { get; set; }
 
@@ -30,9 +28,17 @@ public class FinalStatement : IStatement
     {
         Type = type;
         OrderMultiplier = orderMultiplier;
-        _parameters = (parameters != null)
-            ? new List<IParameter>(parameters)
-            : new List<IParameter>();
+
+        // Link Parameters
+        if (parameters?.Length > 1)
+        {
+            int len = parameters.Length;
+            for (var i = 0; i < len; ++i)
+            {
+                parameters[i].PreviousParameter = (i > 0) ? parameters[i - 1] : null;
+                parameters[i].NextParameter = (i + 1 < len) ? parameters[i + 1] : null;
+            }
+        }
     }
 
     public void AppendParameter(IParameter parameter)
