@@ -5,3 +5,4 @@ using System.Resources;
 [assembly: NeutralResourcesLanguage("en-US")]
 [assembly: DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
 [assembly: InternalsVisibleTo("matts.OrmLib.Tests")]
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

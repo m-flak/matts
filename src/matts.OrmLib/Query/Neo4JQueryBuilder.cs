@@ -39,8 +39,14 @@ public sealed class Neo4JQueryBuilder : IQueryBuilder<Neo4j.Driver.Query>
         {
             [StatementType.Match] = zero,
             [StatementType.Where] = zero,
+            [StatementType.Return] = zero,
+            [StatementType.Create] = zero,
+            [StatementType.Delete] = zero,
+            [StatementType.Set] = zero,
+            [StatementType.OrderBy] = zero,
             [StatementType.FinalStatement] = zero,
             [StatementType.PostFinalStatement] = zero,
+            [StatementType.FilterStatement] = zero,
         };
     }
 
@@ -54,15 +60,35 @@ public sealed class Neo4JQueryBuilder : IQueryBuilder<Neo4j.Driver.Query>
 
     public Neo4JQueryBuilder Match(object left, [Optional] object? right)
     {
+        if (right == null)
+        {
+            return Match(left);
+        }
+
+        return this;
+    }
+
+    public Neo4JQueryBuilder WhereUuid(WhichObject which, string uuid)
+    {
         return this;
     }
 
     public Neo4JQueryBuilder Returns()
     {
+        return Returns(WhichObject.Left);
+    }
+
+    public Neo4JQueryBuilder Returns(WhichObject which)
+    {
         return this;
     }
 
     public Neo4JQueryBuilder OrderBy()
+    {
+        return OrderBy(WhichObject.Left);
+    }
+
+    public Neo4JQueryBuilder OrderBy(WhichObject which, [Optional] string? byFieldName)
     {
         return this;
     }
